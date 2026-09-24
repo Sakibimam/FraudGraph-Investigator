@@ -102,6 +102,18 @@ all 20 cases, the 30 monitoring investigations, evidence, graphs, SARs and memor
 replays the recorded agent timeline; approvals are role-checked in the browser but not saved. Live investigations,
 ad-hoc triggers and persisted approvals need the full stack below (TigerGraph, MCP, LLM).
 
+## Prerequisites
+
+Before starting, make sure you have:
+
+- Python 3
+- Docker
+- Git
+- TigerGraph Community Edition
+- A local TigerGraph environment with enough resources to run the project
+
+On Apple Silicon Macs, the TigerGraph Docker image should be run with the Rosetta configuration shown in the Quick Start commands below.
+
 ## Quick start
 
 ```bash
