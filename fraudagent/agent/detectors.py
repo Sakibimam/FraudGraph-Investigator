@@ -210,11 +210,13 @@ def region_signals(flag: dict, baseline: dict, cluster: list[dict] | None) -> tu
         return out, f
     regions = baseline.get("regions") or {}
     n_prior, total = int(regions.get(region, 0)), max(1, sum(regions.values()))
-    if n_prior == 0:
-        out.append(Signal("new_region", f"Card-present purchase in billing region {region}, where this card has no "
-                          f"history in {sum(regions.values())} prior transactions", 1.1, "region",
-                          ref="query:card_baseline", entity_ids=[flag["id"], region], pattern_hint="out_of_region_use"))
-    elif n_prior >= 5:
+    share = n_prior / total
+    if n_prior == 0 or (share < 0.01 and n_prior <= 3):
+        what = "no history" if n_prior == 0 else f"only {n_prior} of {total} prior transactions ({share:.1%})"
+        out.append(Signal("new_region", f"Card-present purchase in billing region {region}, where this card has "
+                          f"{what} before the alert", 1.1 if n_prior == 0 else 0.8, "region",
+                          ref="query:card_baseline", entity_ids=[flag["id"]], pattern_hint="out_of_region_use"))
+    elif n_prior >= 5 and share >= 0.02:
         out.append(Signal("familiar_region", f"Region {region} is familiar to this card: {n_prior} of "
                           f"{sum(regions.values())} prior transactions were billed there", -0.7, "region",
                           ref="query:card_baseline", entity_ids=[region]))
