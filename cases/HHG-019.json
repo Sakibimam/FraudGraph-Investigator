@@ -1,0 +1,148 @@
+{
+  "case_id": "HHG-019",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.97,
+    "pattern": "card_not_present_new_device",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3503878"
+    ],
+    "first_suspicious_txn_id": "3503878",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 99.92,
+    "evidence": [
+      {
+        "claim": "Bank model scored the flagged transaction 0.90. Treated as a reason to look, not a verdict: above 0.7 most alerts in the closed-case history were cleared",
+        "source": "graph",
+        "ref": "txn:3503878.risk_score",
+        "entity_ids": [
+          "3503878"
+        ]
+      },
+      {
+        "claim": "Case-memory model score 0.651: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.90",
+        "source": "graph",
+        "ref": "model:case_memory_gbm(holdout AUC 0.955 vs bank score 0.866)",
+        "entity_ids": [
+          "3503878"
+        ]
+      },
+      {
+        "claim": "$99.92 is within the card's usual range (median $116.92, 95th percentile $554.04)",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "3503878"
+        ]
+      },
+      {
+        "claim": "Identity record marks the device as New for this account and the profile 'Windows | other | chrome 61.0 | 1280x720' never appears in the card's prior history (a common browser/OS profile, so a weak link)",
+        "source": "graph",
+        "ref": "query:card_baseline + txn.id_15",
+        "entity_ids": [
+          "3503878",
+          "Windows | other | chrome 61.0 | 1280x720"
+        ]
+      },
+      {
+        "claim": "Card had 1 confirmed-fraud case(s) in the 45 days before the alert (CC-5026); the number may still be compromised",
+        "source": "graph",
+        "ref": "query:card_case_history",
+        "entity_ids": [
+          "CC-5026"
+        ]
+      },
+      {
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-1159, CC-2952, CC-0889, CC-0881)",
+        "source": "graph",
+        "ref": "query:similar_closed_cases (TigerVector)",
+        "entity_ids": [
+          "CC-1159",
+          "CC-2952",
+          "CC-0889",
+          "CC-0881"
+        ]
+      },
+      {
+        "claim": "Retrieved guidance: R2 Customer denies the transaction. (fraud_policy_v1)",
+        "source": "document",
+        "ref": "doc:fraud_policy_v1#05",
+        "entity_ids": []
+      },
+      {
+        "claim": "Simulated: the one-time passcode sent to the cardholder's registered phone was not completed for the session that made the $99.92 purchase; contacted separately, the cardholder said they did not make it and still holds the card",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "3503878"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-1159",
+      "CC-2952",
+      "CC-0889",
+      "CC-0881",
+      "CC-0873",
+      "CC-2011",
+      "CC-2087"
+    ],
+    "summary": "Fraud: card-not-present fraud from a new device on card C07987-K2. Case-memory model score 0.651: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.90. Evidence request answered (denied); probability moved 0.86 -> 0.97. Episode of 1 transaction(s), exposure $99.92.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-HHG-019"
+  },
+  "evidence_requests": [
+    {
+      "type": "step_up_auth",
+      "asked_after_step": 7,
+      "assumed_response": "Simulated: the one-time passcode sent to the cardholder's registered phone was not completed for the session that made the $99.92 purchase; contacted separately, the cardholder said they did not make it and still holds the card"
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "STEP_UP_AUTH",
+        "route": "auto",
+        "reason": "R1: single/weak signal below 0.70, confirm identity before any block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: evidence is being requested"
+      },
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "reason": "Raise monitoring for 72h while the verification is pending"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denied the activity; exposure $99.92 <= $2,500 (L1)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: case opened when evidence was requested; the response is recorded in it"
+      }
+    ],
+    "what_changed": "the one-time passcode sent to the cardholder's registered phone was not completed for the session that made the $99.92 purchase; contacted separately, the cardholder said they did not make it and still holds the card. Probability 0.86 -> 0.97; added BLOCK_CARD; dropped MONITOR_CARD, STEP_UP_AUTH."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No SAR: fraud confirmed but exposure $99.92 is under $1,000, no shared origin or connected cards, and the pattern is documented (3a). Case only.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.97. Further graph steps would not change the actions (policy 6).",
+  "tool_calls": 8,
+  "tokens": 0,
+  "latency_s": 0.08
+}

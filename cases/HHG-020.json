@@ -1,0 +1,113 @@
+{
+  "case_id": "HHG-020",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.1,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Case-memory model score 0.007: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) clearly does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.52",
+        "source": "graph",
+        "ref": "model:case_memory_gbm(holdout AUC 0.955 vs bank score 0.866)",
+        "entity_ids": [
+          "3509359"
+        ]
+      },
+      {
+        "claim": "$125.08 is within the card's usual range (median $107.91, 95th percentile $566.91)",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "3509359"
+        ]
+      },
+      {
+        "claim": "Product code R never used on this card before",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "3509359"
+        ]
+      },
+      {
+        "claim": "Identity record marks the device as New for this account and the profile 'Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080' never appears in the card's prior history (a common browser/OS profile, so a weak link)",
+        "source": "graph",
+        "ref": "query:card_baseline + txn.id_15",
+        "entity_ids": [
+          "3509359",
+          "Trident/7.0 | Windows 10 | ie 11.0 for desktop | 1920x1080"
+        ]
+      },
+      {
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-1159, CC-2952, CC-0889, CC-0881)",
+        "source": "graph",
+        "ref": "query:similar_closed_cases (TigerVector)",
+        "entity_ids": [
+          "CC-1159",
+          "CC-2952",
+          "CC-0889",
+          "CC-0881"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-1159",
+      "CC-2952",
+      "CC-0889",
+      "CC-0881",
+      "CC-0873",
+      "CC-2447",
+      "CC-2277"
+    ],
+    "summary": "Legitimate: the flagged $125.08 online transaction fits the cardholder. Case-memory model score 0.007: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) clearly does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.52. 0 of the 8 most similar closed cases were confirmed fraud (CC-1159, CC-2952, CC-0889, CC-0881).",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-HHG-020"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "Evidence supports a legitimate transaction"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "Stopping rule (6): probability <= 0.15 with independent evidence"
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "Evidence supports a legitimate transaction"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "Stopping rule (6): probability <= 0.15 with independent evidence"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "No SAR: verdict is legitimate; policy 3a requires confirmed or strongly suspected fraud.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Fraud probability 0.10 is at or below 0.15 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
+  "tool_calls": 7,
+  "tokens": 0,
+  "latency_s": 0.06
+}

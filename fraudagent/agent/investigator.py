@@ -107,6 +107,8 @@ class Investigator:
         prob0 = prob
         decided = should_stop(prob, indep) and not (trig.trigger_type == "customer_report" and prob < STOP_HIGH)
         evidence_type = None if decided else self.choose_evidence(st, facts)
+        if decided and trig.trigger_type == "customer_report":
+            facts.customer_response = "denied"  # the report is the cardholder's denial (R2)
         plan0 = initial_plan(facts, evidence_type)
         self.log(st, "recommend_initial", f"Initial next best action: {', '.join(i.action for i in plan0.items)}",
                  actions=plan0.sorted())
@@ -125,7 +127,9 @@ class Investigator:
             self.log(st, "evidence_received", f"Simulated response ({response}): {assumed}. Probability "
                      f"{prob0:.2f} -> {prob:.2f}")
 
-        # DECIDE
+        # DECIDE (a customer report is itself a denial of the transaction: R2)
+        if not response and trig.trigger_type == "customer_report":
+            response = "denied"
         facts = self.facts(st, findings, prob, indep, response)
         plan1 = final_plan(facts) if evidence_type else plan0
         if not evidence_type:

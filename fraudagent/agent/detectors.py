@@ -187,11 +187,10 @@ def device_ring(flag: dict, neighbors: dict, ring: dict | None, device_cases: li
         return None, f
     f.device_ring = True
     f.shared_element = f"device profile {dev}"
-    ring_cards = set(others)
-    if ring:
-        ring_cards |= {c for c in ring.get("cards", []) if c != flag["card"]}
-    f.connected_card_ids = sorted(ring_cards)[:60]
-    f.connected_device_profiles = [dev] + [d for d in (ring or {}).get("devices", []) if d != dev][:5]
+    # Connected cards are the ones that used this handset behind a proxy or as a New device;
+    # the 2-hop ring expansion is reported as context only: those cards' other devices are their own phones.
+    f.connected_card_ids = sorted((anon | new_on) - {flag["card"]})
+    f.connected_device_profiles = [dev]
     claim = (f"Device profile '{dev}' was used by {len(by_card)} cards in a 60-day window around the alert; "
              f"{len(anon)} of them behind an anonymous/hidden proxy and {len(new_on)} flagged as a New device. "
              f"{len(confirmed)} closed case(s) on cards that used this profile were confirmed fraud"

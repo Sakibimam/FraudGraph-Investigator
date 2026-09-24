@@ -123,8 +123,12 @@ def initial_plan(f: PolicyFacts, evidence_type: str | None) -> ActionPlan:
     """What the agent recommends before any requested evidence comes back."""
     p = ActionPlan()
     x = f.exposure
-    if f.trigger_type == "customer_report" or f.probability >= CASE_THRESHOLD or evidence_type:
-        p.add("CREATE_CASE", "3a: customer dispute / probability >= 0.30 / evidence requested")
+    if f.trigger_type == "customer_report":
+        p.add("CREATE_CASE", "3a: the customer disputes a charge")
+    elif evidence_type:
+        p.add("CREATE_CASE", "3a: evidence is being requested")
+    elif f.probability >= CASE_THRESHOLD:
+        p.add("CREATE_CASE", f"3a: fraud probability {f.probability:.2f} >= 0.30")
 
     if f.recurring_dispute:
         p.add("VERIFY_WITH_CUSTOMER", "R7: disputed charge matches the customer's own recurring pattern")
@@ -180,7 +184,8 @@ def _decided_plan(f: PolicyFacts, p: ActionPlan) -> ActionPlan:
         return p
 
     # fraud
-    p.add("CREATE_CASE", "3a / R2: fraud case with evidence attached")
+    if not p.has("CREATE_CASE"):
+        p.add("CREATE_CASE", "R2 / 3a: fraud case with the evidence attached")
     if f.card_testing:
         p.add("DECLINE_TRANSACTION", "R5: testing sequence", x)
         p.add("STEP_UP_AUTH", "R5")
@@ -205,7 +210,7 @@ def _decided_plan(f: PolicyFacts, p: ActionPlan) -> ActionPlan:
 def final_plan(f: PolicyFacts) -> ActionPlan:
     """What the agent recommends after the (simulated) evidence response."""
     p = ActionPlan()
-    p.add("CREATE_CASE", "3a: a case is opened whenever evidence is requested; the response is recorded in it")
+    p.add("CREATE_CASE", "3a: case opened when evidence was requested; the response is recorded in it")
     if f.recurring_dispute and f.verdict == "legitimate":
         p.add("CREATE_CASE", "R7 / 3a: disputed charge recorded")
         p.add("VERIFY_WITH_CUSTOMER", "R7: confirm the recurring merchant with the cardholder")

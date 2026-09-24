@@ -1,0 +1,160 @@
+{
+  "case_id": "HHG-006",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.98,
+    "pattern": "undocumented",
+    "pattern_description": "Threshold structuring on a compromised card: 4 online purchases ($478.95, $456.96, $488.04, $482.12) placed within about an hour, each kept just under $500, the level at which authorisation checks tighten. It affects cardholders whose card numbers are already compromised and matches five closed cases the bank confirmed but could not map to a known typology; the agent found it by scanning the card's window for clusters of same-band amounts.",
+    "affected_txn_ids": [
+      "3476602",
+      "3476633",
+      "3476665",
+      "3476682"
+    ],
+    "first_suspicious_txn_id": "3476602",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1906.07,
+    "evidence": [
+      {
+        "claim": "Cardholder reported they did not make the $482.12 transaction: \"'I never made this $482.12 purchase. Please check my card.' Refers to 3476682.\"",
+        "source": "customer",
+        "ref": "trigger:customer_report",
+        "entity_ids": [
+          "3476682"
+        ]
+      },
+      {
+        "claim": "Case-memory model score 0.093: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.25",
+        "source": "graph",
+        "ref": "model:case_memory_gbm(holdout AUC 0.955 vs bank score 0.866)",
+        "entity_ids": [
+          "3476682"
+        ]
+      },
+      {
+        "claim": "4 online purchases within 30 minutes, each between $400 and $500 ($478.95, $456.96, $488.04, $482.12; total $1,906.07): amounts kept just under a $500 authorisation threshold",
+        "source": "graph",
+        "ref": "query:card_window",
+        "entity_ids": [
+          "3476602",
+          "3476633",
+          "3476665",
+          "3476682"
+        ]
+      },
+      {
+        "claim": "$482.12 is above the card's 95th percentile ($319.86; median $60.73)",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "3476682"
+        ]
+      },
+      {
+        "claim": "Product code C never used on this card before",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "3476682"
+        ]
+      },
+      {
+        "claim": "Device profile 'Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080' was already used on this card before the alert (1 prior transactions)",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080"
+        ]
+      },
+      {
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-0031, CC-2079, CC-3235, CC-3423)",
+        "source": "graph",
+        "ref": "query:similar_closed_cases (TigerVector)",
+        "entity_ids": [
+          "CC-0031",
+          "CC-2079",
+          "CC-3235",
+          "CC-3423"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0031",
+      "CC-2079",
+      "CC-3235",
+      "CC-3423",
+      "CC-2636"
+    ],
+    "summary": "Fraud: an undocumented pattern on card C07297-K1. 4 online purchases within 30 minutes, each between $400 and $500 ($478.95, $456.96, $488.04, $482.12; total $1,906.07): amounts kept just under a $500 authorisation threshold. Cardholder reported they did not make the $482.12 transaction: \"'I never made this $482.12 purchase. Please check my card.' Refers to 3476682.\". Episode of 4 transaction(s), exposure $1,906.07.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-HHG-006"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denied the activity; exposure $1,906.07 <= $2,500 (L1)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: the customer disputes a charge"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: exposure $1,906.07 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: undocumented / coordinated pattern, analyst review"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denied the activity; exposure $1,906.07 <= $2,500 (L1)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: the customer disputes a charge"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: exposure $1,906.07 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: undocumented / coordinated pattern, analyst review"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "File: exposure $1,906.07 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9).",
+    "narrative": "Customer C07297, holder of card C07297-K1, is the subject of this report. Between 2016-11-21 20:00 and 2016-11-21 20:30, 4 transaction(s) totalling $1,906.07 were made on the card online from device profile 'Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080': $478.95 (3476602, 2016-11-21 20:00), $456.96 (3476633, 2016-11-21 20:10), $488.04 (3476665, 2016-11-21 20:24), $482.12 (3476682, 2016-11-21 20:30). Every amount sat just below $500 and the purchases were placed minutes apart, a pattern consistent with deliberately staying under an authorisation threshold. The cardholder reported the transaction as unauthorised. The activity is suspicious because: 4 online purchases within 30 minutes, each between $400 and $500 ($478.95, $456.96, $488.04, $482.12; total $1,906.07). It closely resembles earlier confirmed fraud cases CC-0031, CC-2079, CC-3235. The bank has recommended blocking and reissuing the card, placed linked cards under monitoring where applicable, and retains the transaction, device and investigation records as supporting documentation.",
+    "subjects": [
+      "C07297",
+      "C07297-K1"
+    ],
+    "total_amount_usd": 1906.07,
+    "activity_dates": [
+      "2016-11-21",
+      "2016-11-21"
+    ]
+  },
+  "stop_reason": "Fraud probability 0.98 is at or above 0.85 with 3 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
+  "tool_calls": 8,
+  "tokens": 0,
+  "latency_s": 0.08
+}

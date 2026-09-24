@@ -1,0 +1,138 @@
+{
+  "case_id": "HHG-013",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.02,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Bank model scored the flagged transaction 0.76. Treated as a reason to look, not a verdict: above 0.7 most alerts in the closed-case history were cleared",
+        "source": "graph",
+        "ref": "txn:3526826.risk_score",
+        "entity_ids": [
+          "3526826"
+        ]
+      },
+      {
+        "claim": "Case-memory model score 0.033: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.76",
+        "source": "graph",
+        "ref": "model:case_memory_gbm(holdout AUC 0.955 vs bank score 0.866)",
+        "entity_ids": [
+          "3526826"
+        ]
+      },
+      {
+        "claim": "$35.66 is within the card's usual range (median $59.09, 95th percentile $315.08)",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "3526826"
+        ]
+      },
+      {
+        "claim": "Identity record marks the device as New for this account and the profile 'Windows |  | chrome 66.0 | ' never appears in the card's prior history (a common browser/OS profile, so a weak link)",
+        "source": "graph",
+        "ref": "query:card_baseline + txn.id_15",
+        "entity_ids": [
+          "3526826",
+          "Windows |  | chrome 66.0 | "
+        ]
+      },
+      {
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-0433, CC-0408, CC-0553, CC-0489)",
+        "source": "graph",
+        "ref": "query:similar_closed_cases (TigerVector)",
+        "entity_ids": [
+          "CC-0433",
+          "CC-0408",
+          "CC-0553",
+          "CC-0489"
+        ]
+      },
+      {
+        "claim": "Retrieved guidance: R2 Customer denies the transaction. (fraud_policy_v1)",
+        "source": "document",
+        "ref": "doc:fraud_policy_v1#05",
+        "entity_ids": []
+      },
+      {
+        "claim": "Simulated: the cardholder passed the step-up challenge on their registered device and confirmed the $35.66 purchase",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "3526826"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0433",
+      "CC-0408",
+      "CC-0553",
+      "CC-0489",
+      "CC-0308",
+      "CC-4294",
+      "CC-3216"
+    ],
+    "summary": "Legitimate: the flagged $35.66 online transaction fits the cardholder. Case-memory model score 0.033: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.76. 0 of the 8 most similar closed cases were confirmed fraud (CC-0433, CC-0408, CC-0553, CC-0489). Evidence request answered (confirmed); probability moved 0.16 -> 0.02.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-HHG-013"
+  },
+  "evidence_requests": [
+    {
+      "type": "step_up_auth",
+      "asked_after_step": 7,
+      "assumed_response": "Simulated: the cardholder passed the step-up challenge on their registered device and confirmed the $35.66 purchase"
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "STEP_UP_AUTH",
+        "route": "auto",
+        "reason": "R1: single/weak signal below 0.70, confirm identity before any block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: evidence is being requested"
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "R3: cardholder confirmed the transaction"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: case opened when evidence was requested; the response is recorded in it"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: customer confirmation noted in the case file"
+      }
+    ],
+    "what_changed": "the cardholder passed the step-up challenge on their registered device and confirmed the $35.66 purchase. Probability 0.16 -> 0.02; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped STEP_UP_AUTH."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No SAR: verdict is legitimate; policy 3a requires confirmed or strongly suspected fraud.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.02. Nothing left to investigate (policy 6, R3).",
+  "tool_calls": 8,
+  "tokens": 0,
+  "latency_s": 0.09
+}

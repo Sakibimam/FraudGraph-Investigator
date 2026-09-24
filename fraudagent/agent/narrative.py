@@ -64,7 +64,9 @@ def template_summary(st, facts, prob0, prob, response, episode) -> str:
         "legitimate": f"Legitimate: the flagged ${f['amt']:.2f} {f['channel'].replace('_', '-')} transaction fits the cardholder.",
         "uncertain": f"Unresolved: evidence on the ${f['amt']:.2f} {f['channel'].replace('_', '-')} transaction is mixed.",
     }[facts.verdict]
-    strong = sorted([s for s in st.signals if abs(s.weight) >= 0.5], key=lambda s: -abs(s.weight))[:2]
+    sign = 1 if facts.verdict == "fraud" else -1 if facts.verdict == "legitimate" else 0
+    pool = [s for s in st.signals if abs(s.weight) >= 0.5 and (sign == 0 or s.weight * sign > 0)]
+    strong = sorted(pool, key=lambda s: -abs(s.weight))[:2]
     why = " ".join(s.claim.rstrip(".") + "." for s in strong)
     tail = ""
     if response:
@@ -100,8 +102,9 @@ def template_sar(st, facts, findings, episode) -> str:
         parts.append(f"The activity coincides with a cluster of other cards transacting for the first time in the same "
                      f"billing region ({', '.join(findings.connected_card_ids[:6])}).")
     if trig.trigger_type == "customer_report":
-        parts.append("The cardholder reported the transaction as unauthorised and, on follow-up, maintained that they did "
-                     "not make it while still holding the card.")
+        parts.append("The cardholder reported the transaction as unauthorised" + (
+            " and, on follow-up, maintained that they did not make it while still holding the card." if response_followup(st)
+            else "."))
     elif facts.customer_response == "denied":
         parts.append("When contacted, the cardholder stated they did not make the transactions and still holds the card.")
     reasons = [s.claim.split(":")[0] for s in st.signals if s.weight >= 1.0 and s.family not in ("customer",)]
@@ -113,6 +116,10 @@ def template_sar(st, facts, findings, episode) -> str:
     parts.append("The bank has recommended blocking and reissuing the card, placed linked cards under monitoring where "
                  "applicable, and retains the transaction, device and investigation records as supporting documentation.")
     return " ".join(parts)
+
+
+def response_followup(st) -> bool:
+    return any(e["step"] == "evidence_received" for e in st.timeline)
 
 
 def llm_rewrite(llm, kind: str, draft: str, st, facts, docs) -> str:
@@ -156,6 +163,7 @@ def build_case(llm, st, facts, findings, episode, prob0, prob, indep, plan0: Act
                evidence_requests, response, sar) -> dict:
     trig = st.trigger
     fraud = facts.verdict == "fraud"
+    asked = response if evidence_requests else ""  # a dispute decided on graph evidence had no follow-up
     final_items = plan1.sorted()
     status = {"fraud": "closed_fraud", "legitimate": "closed_legitimate"}.get(facts.verdict)
     if status is None:
@@ -170,7 +178,7 @@ def build_case(llm, st, facts, findings, episode, prob0, prob, indep, plan0: Act
     similar += [c["case_id"] for c in st.history if c["relation"] == "same_card" and c["case_id"].startswith("CC-")][:2]
     similar = list(dict.fromkeys(similar))[:8]
 
-    summary = llm_rewrite(llm, "summary", template_summary(st, facts, prob0, prob, response, episode), st, facts, st.docs)
+    summary = llm_rewrite(llm, "summary", template_summary(st, facts, prob0, prob, asked, episode), st, facts, st.docs)
     file_sar = sar[0] and any(i["action"] == "FILE_REPORT" for i in final_items)
     if file_sar:
         narrative = llm_rewrite(llm, "sar", template_sar(st, facts, findings, episode), st, facts, st.docs)
@@ -216,7 +224,7 @@ def build_case(llm, st, facts, findings, episode, prob0, prob, indep, plan0: Act
         "evidence_requests": evidence_requests,
         "next_best_actions": {"initial": initial, "final": final_items, "what_changed": what_changed},
         "sar": sar_obj,
-        "stop_reason": stop_reason(facts, prob, indep, response),
+        "stop_reason": stop_reason(facts, prob, indep, asked),
         "tool_calls": 0, "tokens": 0, "latency_s": 0.0,
         # extra fields (not part of the scored format) used by the UI and graph memory
         "graph_case_id": graph_id, "card_id": trig.card_id, "opened_at": trig.opened_at,

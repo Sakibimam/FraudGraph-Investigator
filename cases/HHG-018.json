@@ -1,0 +1,145 @@
+{
+  "case_id": "HHG-018",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.04,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Cardholder reported they did not make the $39.08 transaction: \"'I never made this $39.08 purchase. Please check my card.' Refers to 3491361.\"",
+        "source": "customer",
+        "ref": "trigger:customer_report",
+        "entity_ids": [
+          "3491361"
+        ]
+      },
+      {
+        "claim": "Case-memory model score 0.059: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.48",
+        "source": "graph",
+        "ref": "model:case_memory_gbm(holdout AUC 0.955 vs bank score 0.866)",
+        "entity_ids": [
+          "3491361"
+        ]
+      },
+      {
+        "claim": "$39.08 is within the card's usual range (median $83.74, 95th percentile $445.09)",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "3491361"
+        ]
+      },
+      {
+        "claim": "Region 126 is familiar to this card: 545 of 5725 prior transactions were billed there",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": []
+      },
+      {
+        "claim": "Card had 3 confirmed-fraud case(s) in the 45 days before the alert (CC-4942, CC-5558, CC-5441); the number may still be compromised",
+        "source": "graph",
+        "ref": "query:card_case_history",
+        "entity_ids": [
+          "CC-4942",
+          "CC-5558",
+          "CC-5441"
+        ]
+      },
+      {
+        "claim": "4 of the 8 most similar closed cases were confirmed fraud (CC-3035, CC-2971, CC-1502, CC-2649)",
+        "source": "graph",
+        "ref": "query:similar_closed_cases (TigerVector)",
+        "entity_ids": [
+          "CC-3035",
+          "CC-2971",
+          "CC-1502",
+          "CC-2649"
+        ]
+      },
+      {
+        "claim": "Retrieved guidance: R2 Customer denies the transaction. (fraud_policy_v1)",
+        "source": "document",
+        "ref": "doc:fraud_policy_v1#05",
+        "entity_ids": []
+      },
+      {
+        "claim": "Simulated: shown the merchant name, time and device of the $39.08 purchase, the cardholder recognised it as their own and withdrew the dispute",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "3491361"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-3035",
+      "CC-2971",
+      "CC-1502",
+      "CC-2649",
+      "CC-1182",
+      "CC-0454",
+      "CC-2051"
+    ],
+    "summary": "Legitimate: the flagged $39.08 in-person transaction fits the cardholder. Case-memory model score 0.059: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.48. Region 126 is familiar to this card: 545 of 5725 prior transactions were billed there. Evidence request answered (confirmed); probability moved 0.27 -> 0.04.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-HHG-018"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 8,
+      "assumed_response": "Simulated: shown the merchant name, time and device of the $39.08 purchase, the cardholder recognised it as their own and withdrew the dispute"
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: the customer disputes a charge"
+      },
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: signal below 0.70 or conflicting, ask the cardholder before any block"
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "R3: cardholder confirmed the transaction"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: case opened when evidence was requested; the response is recorded in it"
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: customer confirmation noted in the case file"
+      }
+    ],
+    "what_changed": "shown the merchant name, time and device of the $39.08 purchase, the cardholder recognised it as their own and withdrew the dispute. Probability 0.27 -> 0.04; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped VERIFY_WITH_CUSTOMER."
+  },
+  "sar": {
+    "file": false,
+    "reason": "No SAR: verdict is legitimate; policy 3a requires confirmed or strongly suspected fraud.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.04. Nothing left to investigate (policy 6, R3).",
+  "tool_calls": 9,
+  "tokens": 0,
+  "latency_s": 0.2
+}

@@ -1,0 +1,121 @@
+{
+  "case_id": "HHG-007",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.88,
+    "pattern": "account_takeover",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3514573",
+      "3514948"
+    ],
+    "first_suspicious_txn_id": "3514573",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 148.89,
+    "evidence": [
+      {
+        "claim": "Bank model scored the flagged transaction 0.87. Treated as a reason to look, not a verdict: above 0.7 most alerts in the closed-case history were cleared",
+        "source": "graph",
+        "ref": "txn:3514948.risk_score",
+        "entity_ids": [
+          "3514948"
+        ]
+      },
+      {
+        "claim": "Case-memory model score 0.740: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.87",
+        "source": "graph",
+        "ref": "model:case_memory_gbm(holdout AUC 0.955 vs bank score 0.866)",
+        "entity_ids": [
+          "3514948"
+        ]
+      },
+      {
+        "claim": "$111.92 is within the card's usual range (median $77.03, 95th percentile $334.99)",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "3514948"
+        ]
+      },
+      {
+        "claim": "Region 264 is familiar to this card: 2148 of 2336 prior transactions were billed there",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": []
+      },
+      {
+        "claim": "Card had 1 confirmed-fraud case(s) in the 45 days before the alert (CC-5521); the number may still be compromised",
+        "source": "graph",
+        "ref": "query:card_case_history",
+        "entity_ids": [
+          "CC-5521"
+        ]
+      },
+      {
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-4240, CC-3457, CC-3044, CC-4254)",
+        "source": "graph",
+        "ref": "query:similar_closed_cases (TigerVector)",
+        "entity_ids": [
+          "CC-4240",
+          "CC-3457",
+          "CC-3044",
+          "CC-4254"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-4240",
+      "CC-3457",
+      "CC-3044",
+      "CC-4254",
+      "CC-2496",
+      "CC-1524",
+      "CC-0104"
+    ],
+    "summary": "Fraud: account takeover on card C09933-K2. Case-memory model score 0.740: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.87. Episode of 2 transaction(s), exposure $148.89.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-HHG-007"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability 0.88 supported by independent evidence (R1 satisfied); exposure $148.89 <= $2,500 (L1)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: fraud probability 0.88 >= 0.30"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability 0.88 supported by independent evidence (R1 satisfied); exposure $148.89 <= $2,500 (L1)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: fraud probability 0.88 >= 0.30"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "No SAR: fraud confirmed but exposure $148.89 is under $1,000, no shared origin or connected cards, and the pattern is documented (3a). Case only.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Fraud probability 0.88 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
+  "tool_calls": 7,
+  "tokens": 0,
+  "latency_s": 0.19
+}

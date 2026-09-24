@@ -1,0 +1,113 @@
+{
+  "case_id": "HHG-016",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.88,
+    "pattern": "card_not_present_new_device",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3534820"
+    ],
+    "first_suspicious_txn_id": "3534820",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 59.67,
+    "evidence": [
+      {
+        "claim": "Cardholder reported they did not make the $59.67 transaction: \"'I never made this $59.67 purchase. Please check my card.' Refers to 3534820.\"",
+        "source": "customer",
+        "ref": "trigger:customer_report",
+        "entity_ids": [
+          "3534820"
+        ]
+      },
+      {
+        "claim": "Case-memory model score 0.651: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.37",
+        "source": "graph",
+        "ref": "model:case_memory_gbm(holdout AUC 0.955 vs bank score 0.866)",
+        "entity_ids": [
+          "3534820"
+        ]
+      },
+      {
+        "claim": "$59.67 is within the card's usual range (median $36.88, 95th percentile $73.03)",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "3534820"
+        ]
+      },
+      {
+        "claim": "Identity record marks the device as New for this account and the profile 'Windows |  | edge 16.0 | ' never appears in the card's prior history (a common browser/OS profile, so a weak link)",
+        "source": "graph",
+        "ref": "query:card_baseline + txn.id_15",
+        "entity_ids": [
+          "3534820",
+          "Windows |  | edge 16.0 | "
+        ]
+      },
+      {
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-4095, CC-0180, CC-4971, CC-4473)",
+        "source": "graph",
+        "ref": "query:similar_closed_cases (TigerVector)",
+        "entity_ids": [
+          "CC-4095",
+          "CC-0180",
+          "CC-4971",
+          "CC-4473"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-4095",
+      "CC-0180",
+      "CC-4971",
+      "CC-4473",
+      "CC-5095"
+    ],
+    "summary": "Fraud: card-not-present fraud from a new device on card C09988-K1. Case-memory model score 0.651: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.37. Cardholder reported they did not make the $59.67 transaction: \"'I never made this $59.67 purchase. Please check my card.' Refers to 3534820.\". Episode of 1 transaction(s), exposure $59.67.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-HHG-016"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denied the activity; exposure $59.67 <= $2,500 (L1)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: the customer disputes a charge"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denied the activity; exposure $59.67 <= $2,500 (L1)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: the customer disputes a charge"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "No SAR: fraud confirmed but exposure $59.67 is under $1,000, no shared origin or connected cards, and the pattern is documented (3a). Case only.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Fraud probability 0.88 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
+  "tool_calls": 8,
+  "tokens": 0,
+  "latency_s": 0.07
+}

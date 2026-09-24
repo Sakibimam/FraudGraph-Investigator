@@ -62,12 +62,15 @@ class TigerGraph:
             return False
 
     # -- queries -----------------------------------------------------------------------
+    # vertex-typed parameters of the installed queries; sent as {"id", "type"} in a JSON body so
+    # IDs with spaces, "/" or "|" (device profiles) survive intact
+    VERTEX_PARAMS = {"card": "Card", "seed": "Card", "device": "DeviceProfile", "region": "BillingRegion", "txn": "Txn"}
+
     def query(self, name: str, **params: Any) -> list[dict]:
-        """Run an installed GSQL query. List params are sent as repeated keys."""
-        if any(isinstance(v, list) for v in params.values()):
-            data = self._request("POST", f"/restpp/query/{self.graph}/{name}", name, body=params)
-        else:
-            data = self._request("GET", f"/restpp/query/{self.graph}/{name}", name, params=params)
+        """Run an installed GSQL query."""
+        body = {k: ({"id": str(v), "type": self.VERTEX_PARAMS[k]} if k in self.VERTEX_PARAMS else v)
+                for k, v in params.items()}
+        data = self._request("POST", f"/restpp/query/{self.graph}/{name}", name, body=body)
         return data.get("results", [])
 
     def upsert(self, vertices: dict | None = None, edges: dict | None = None, name: str = "upsert") -> dict:
