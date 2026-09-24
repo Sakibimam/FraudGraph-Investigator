@@ -1,0 +1,41 @@
+USE GRAPH FraudGraph
+DROP JOB load_fraud
+CREATE LOADING JOB load_fraud FOR GRAPH FraudGraph {
+  DEFINE FILENAME f_txn = "/home/tigergraph/project/data/graph/txn.csv";
+  DEFINE FILENAME f_card = "/home/tigergraph/project/data/graph/card.csv";
+  DEFINE FILENAME f_cust = "/home/tigergraph/project/data/graph/customer.csv";
+  DEFINE FILENAME f_owns = "/home/tigergraph/project/data/graph/owns.csv";
+  DEFINE FILENAME f_dev = "/home/tigergraph/project/data/graph/device.csv";
+  DEFINE FILENAME f_made = "/home/tigergraph/project/data/graph/made.csv";
+  DEFINE FILENAME f_fromdev = "/home/tigergraph/project/data/graph/from_device.csv";
+  DEFINE FILENAME f_email = "/home/tigergraph/project/data/graph/email.csv";
+  DEFINE FILENAME f_region = "/home/tigergraph/project/data/graph/region.csv";
+  DEFINE FILENAME f_next = "/home/tigergraph/project/data/graph/next.csv";
+  DEFINE FILENAME f_cc = "/home/tigergraph/project/data/graph/closed_case.csv";
+  DEFINE FILENAME f_oncard = "/home/tigergraph/project/data/graph/on_card.csv";
+  DEFINE FILENAME f_ccpat = "/home/tigergraph/project/data/graph/case_pattern.csv";
+  DEFINE FILENAME f_inv = "/home/tigergraph/project/data/graph/involves.csv";
+  DEFINE FILENAME f_conn = "/home/tigergraph/project/data/graph/connected.csv";
+
+  LOAD f_txn TO VERTEX Txn VALUES ($"id", $"ts", $"dt", $"amt", $"product", $"channel", $"risk",
+      $"addr1", $"addr2", $"dist1", $"p_email", $"r_email", $"m1", $"m4", $"m6", $"c1", $"c13",
+      $"d1", $"d15", $"dev_status", $"proxy_type", $"device_type") USING HEADER="true", SEPARATOR=",", QUOTE="double";
+  LOAD f_card TO VERTEX Card VALUES ($"id", $"network", $"card_type", $"n_txns", $"home_region",
+      $"median_amt", $"online_share") USING HEADER="true", SEPARATOR=",", QUOTE="double";
+  LOAD f_cust TO VERTEX Customer VALUES ($"id", $"n_cards") USING HEADER="true", SEPARATOR=",";
+  LOAD f_owns TO EDGE OWNS VALUES ($0, $1) USING HEADER="true", SEPARATOR=",";
+  LOAD f_dev TO VERTEX DeviceProfile VALUES ($"id", $"device_info", $"os", $"browser", $"screen")
+      USING HEADER="true", SEPARATOR=",", QUOTE="double";
+  LOAD f_made TO EDGE MADE VALUES ($0, $1) USING HEADER="true", SEPARATOR=",";
+  LOAD f_fromdev TO EDGE FROM_DEVICE VALUES ($0, $1) USING HEADER="true", SEPARATOR=",", QUOTE="double";
+  LOAD f_email TO VERTEX EmailDomain VALUES ($1), TO EDGE PURCHASER_EMAIL VALUES ($0, $1) USING HEADER="true", SEPARATOR=",";
+  LOAD f_region TO VERTEX BillingRegion VALUES ($1), TO EDGE BILLED_IN VALUES ($0, $1) USING HEADER="true", SEPARATOR=",";
+  LOAD f_next TO EDGE NEXT VALUES ($0, $1, $2) USING HEADER="true", SEPARATOR=",";
+  LOAD f_cc TO VERTEX ClosedCase VALUES ($"id", $"opened_at", $"closed_at", $"outcome", $"pattern",
+      $"n_txns", $"exposure", $"actions", $"report_filed", $"notes") USING HEADER="true", SEPARATOR=",", QUOTE="double";
+  LOAD f_oncard TO EDGE ON_CARD VALUES ($0, $1) USING HEADER="true", SEPARATOR=",";
+  LOAD f_ccpat TO EDGE CASE_PATTERN VALUES ($0, $1) USING HEADER="true", SEPARATOR=",";
+  LOAD f_inv TO EDGE INVOLVES VALUES ($0, $1) USING HEADER="true", SEPARATOR=",";
+  LOAD f_conn TO EDGE CONNECTED_TO VALUES ($0, $1) USING HEADER="true", SEPARATOR=",";
+}
+RUN LOADING JOB load_fraud

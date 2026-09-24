@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+scratch/
+data/*.csv
+data/graph/
+data/cache/
+.DS_Store
+*.parquet
+node_modules/
+data/README.md
+CLAUDE.md
+SESSION.md
+runs/

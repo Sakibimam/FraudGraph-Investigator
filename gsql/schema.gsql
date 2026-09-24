@@ -1,0 +1,58 @@
+# FraudGraph schema
+# Card-level transaction graph + identity/device + case memory + document store for GraphRAG.
+
+CREATE VERTEX Customer (PRIMARY_ID id STRING, n_cards INT) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX Card (PRIMARY_ID id STRING, network STRING, card_type STRING, n_txns INT,
+  home_region STRING, median_amt DOUBLE, online_share DOUBLE) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX Txn (PRIMARY_ID id STRING, ts DATETIME, dt INT, amt DOUBLE, product STRING,
+  channel STRING, risk DOUBLE, addr1 STRING, addr2 STRING, dist1 DOUBLE,
+  p_email STRING, r_email STRING, m1 STRING, m4 STRING, m6 STRING,
+  c1 DOUBLE, c13 DOUBLE, d1 DOUBLE, d15 DOUBLE,
+  dev_status STRING, proxy_type STRING, device_type STRING, cm_score DOUBLE) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX DeviceProfile (PRIMARY_ID id STRING, device_info STRING, os STRING,
+  browser STRING, screen STRING) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX EmailDomain (PRIMARY_ID id STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX BillingRegion (PRIMARY_ID id STRING) WITH primary_id_as_attribute="true"
+
+# Case memory: historical closed cases and the agent's own cases share one shape
+CREATE VERTEX ClosedCase (PRIMARY_ID id STRING, opened_at DATETIME, closed_at DATETIME,
+  outcome STRING, pattern STRING, n_txns INT, exposure DOUBLE, actions STRING,
+  report_filed BOOL, notes STRING) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX InvestigationCase (PRIMARY_ID id STRING, source_case STRING, opened_at DATETIME,
+  updated_at DATETIME, status STRING, verdict STRING, pattern STRING, probability DOUBLE,
+  exposure DOUBLE, sar_filed BOOL, summary STRING, final_actions STRING,
+  decision_log STRING) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX FraudPattern (PRIMARY_ID id STRING, name STRING, documented BOOL,
+  description STRING) WITH primary_id_as_attribute="true"
+
+# GraphRAG document store (policy rules, typologies, regulatory guidance, case narratives)
+CREATE VERTEX DocChunk (PRIMARY_ID id STRING, source STRING, section STRING,
+  text STRING) WITH primary_id_as_attribute="true"
+
+CREATE UNDIRECTED EDGE OWNS (FROM Customer, TO Card)
+CREATE DIRECTED EDGE MADE (FROM Card, TO Txn) WITH REVERSE_EDGE="MADE_BY"
+CREATE DIRECTED EDGE FROM_DEVICE (FROM Txn, TO DeviceProfile) WITH REVERSE_EDGE="DEVICE_OF"
+CREATE DIRECTED EDGE PURCHASER_EMAIL (FROM Txn, TO EmailDomain) WITH REVERSE_EDGE="EMAIL_OF"
+CREATE DIRECTED EDGE BILLED_IN (FROM Txn, TO BillingRegion) WITH REVERSE_EDGE="REGION_OF"
+CREATE DIRECTED EDGE NEXT (FROM Txn, TO Txn, gap_s INT) WITH REVERSE_EDGE="PREV"
+
+CREATE DIRECTED EDGE INVOLVES (FROM ClosedCase, TO Txn) WITH REVERSE_EDGE="IN_CASE"
+CREATE DIRECTED EDGE ON_CARD (FROM ClosedCase, TO Card) WITH REVERSE_EDGE="HAS_CASE"
+CREATE DIRECTED EDGE CONNECTED_TO (FROM ClosedCase, TO Card) WITH REVERSE_EDGE="LINKED_CASE"
+CREATE DIRECTED EDGE CASE_PATTERN (FROM ClosedCase, TO FraudPattern) WITH REVERSE_EDGE="PATTERN_CASE"
+
+CREATE DIRECTED EDGE INV_INVOLVES (FROM InvestigationCase, TO Txn) WITH REVERSE_EDGE="IN_INVESTIGATION"
+CREATE DIRECTED EDGE INV_ON_CARD (FROM InvestigationCase, TO Card) WITH REVERSE_EDGE="HAS_INVESTIGATION"
+CREATE DIRECTED EDGE INV_CONNECTED (FROM InvestigationCase, TO Card) WITH REVERSE_EDGE="LINKED_INVESTIGATION"
+CREATE DIRECTED EDGE INV_DEVICE (FROM InvestigationCase, TO DeviceProfile) WITH REVERSE_EDGE="DEVICE_INVESTIGATION"
+CREATE DIRECTED EDGE INV_PATTERN (FROM InvestigationCase, TO FraudPattern) WITH REVERSE_EDGE="PATTERN_INVESTIGATION"
+CREATE DIRECTED EDGE SIMILAR_TO (FROM InvestigationCase, TO ClosedCase, score DOUBLE) WITH REVERSE_EDGE="SIMILAR_OF"
+
+CREATE GRAPH FraudGraph (*)
+
