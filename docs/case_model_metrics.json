@@ -1,0 +1,11 @@
+{
+  "holdout_month": "2016-10",
+  "auc_model": 0.9554,
+  "ap_model": 0.6137,
+  "auc_bank_risk_score": 0.866,
+  "ap_bank_risk_score": 0.2521,
+  "n_train": 316984,
+  "n_positive_train": 10772,
+  "auc_confirmed_vs_cleared_model": 0.8771,
+  "auc_confirmed_vs_cleared_bank": 0.0517
+}
