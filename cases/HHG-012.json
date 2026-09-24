@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_legitimate",
     "verdict": "legitimate",
-    "fraud_probability": 0.06,
+    "fraud_probability": 0.03,
     "pattern": "none",
     "pattern_description": "",
     "affected_txn_ids": [],
@@ -35,57 +35,82 @@
         "entity_ids": []
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-4349, CC-1527, CC-4592, CC-3411)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-1502, CC-1222, CC-1479, CC-2686)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-4349",
-          "CC-1527",
-          "CC-4592",
-          "CC-3411"
+          "CC-1502",
+          "CC-1222",
+          "CC-1479",
+          "CC-2686"
+        ]
+      },
+      {
+        "claim": "Retrieved guidance: 0. What the agent starts with (fraud_policy_v1)",
+        "source": "document",
+        "ref": "doc:fraud_policy_v1#01",
+        "entity_ids": []
+      },
+      {
+        "claim": "Simulated: the cardholder confirmed they made the $30.91 transaction",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "3553342"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-4349",
-      "CC-1527",
-      "CC-4592",
-      "CC-3411",
-      "CC-1757",
+      "CC-1502",
+      "CC-1222",
+      "CC-1479",
+      "CC-2686",
+      "CC-3338",
       "CC-0003",
       "CC-2370"
     ],
-    "summary": "This flagged $30.91 in-person transaction fits the cardholder's established habits, with the amount falling within the usual range and Region 494 being a familiar location. The case-memory model scored 0.059, indicating the feature profile does not resemble confirmed-fraud cases from July through October, and none of the eight most similar closed cases were confirmed fraud. The transaction is assessed as legitimate with zero exposure. The system has automatically executed the final actions to ALLOW_TRANSACTION and CLOSE_NO_FRAUD.",
+    "summary": "The flagged $30.91 transaction is legitimate, as the cardholder confirmed they authorized the purchase and the amount fits their usual spending range. Key evidence shows the transaction region is familiar, and the case-memory model score of 0.059 indicates no resemblance to confirmed-fraud closed cases despite the bank's risk score of 0.55. The final actions executed are ALLOW_TRANSACTION, CREATE_CASE, and CLOSE_NO_FRAUD.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-012"
   },
-  "evidence_requests": [],
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 7,
+      "assumed_response": "Simulated: the cardholder confirmed they made the $30.91 transaction"
+    }
+  ],
   "next_best_actions": {
     "initial": [
       {
-        "action": "ALLOW_TRANSACTION",
+        "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "Evidence supports a legitimate transaction"
+        "reason": "3a: evidence is being requested"
       },
       {
-        "action": "CLOSE_NO_FRAUD",
+        "action": "VERIFY_WITH_CUSTOMER",
         "route": "auto",
-        "reason": "Stopping rule (6): probability <= 0.15 with independent evidence"
+        "reason": "R1: signal below 0.70 or conflicting, ask the cardholder before any block"
       }
     ],
     "final": [
       {
         "action": "ALLOW_TRANSACTION",
         "route": "auto",
-        "reason": "Evidence supports a legitimate transaction"
+        "reason": "R3: cardholder confirmed the transaction"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: case opened when evidence was requested; the response is recorded in it"
       },
       {
         "action": "CLOSE_NO_FRAUD",
         "route": "auto",
-        "reason": "Stopping rule (6): probability <= 0.15 with independent evidence"
+        "reason": "R3: customer confirmation noted in the case file"
       }
     ],
-    "what_changed": "nothing"
+    "what_changed": "the cardholder confirmed they made the $30.91 transaction. Probability 0.17 -> 0.03; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped VERIFY_WITH_CUSTOMER."
   },
   "sar": {
     "file": false,
@@ -95,8 +120,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Fraud probability 0.06 is at or below 0.15 with 3 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
-  "tool_calls": 7,
-  "tokens": 1001,
-  "latency_s": 8.86
+  "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.03. Nothing left to investigate (policy 6, R3).",
+  "tool_calls": 8,
+  "tokens": 1262,
+  "latency_s": 8.55
 }

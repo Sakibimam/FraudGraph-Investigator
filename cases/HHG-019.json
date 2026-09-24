@@ -56,14 +56,14 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-1159, CC-3540, CC-1431, CC-2952)",
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-0682, CC-0873, CC-0881, CC-0889)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-1159",
-          "CC-3540",
-          "CC-1431",
-          "CC-2952"
+          "CC-0682",
+          "CC-0873",
+          "CC-0881",
+          "CC-0889"
         ]
       },
       {
@@ -82,15 +82,15 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-1159",
-      "CC-3540",
-      "CC-1431",
-      "CC-2952",
+      "CC-0682",
+      "CC-0873",
+      "CC-0881",
       "CC-0889",
+      "CC-1159",
       "CC-2011",
       "CC-2087"
     ],
-    "summary": "The customer denied making the $99.92 card-not-present transaction originating from a new device, and confirmed they still hold the card. The bank model scored the transaction 0.90, and the case-memory model scored 0.651 while the card had one prior confirmed-fraud case within the last 45 days. The verdict is fraud categorized as card_not_present_new_device with an exposure of $99.92. The automated system has executed `CREATE_CASE`, and `BLOCK_CARD` is awaiting L1 human approval.",
+    "summary": "The cardholder denied making the $99.92 card-not-present transaction originating from a new device, confirming the account remains compromised following a prior fraud case. The case-memory model score of 0.651 and bank risk score of 0.90 supported the fraud verdict. The exposure is $99.92. The system has automatically executed `CREATE_CASE`, and `BLOCK_CARD` is awaiting L1 human approval.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-019"
   },
@@ -143,6 +143,6 @@
   },
   "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.97. Further graph steps would not change the actions (policy 6).",
   "tool_calls": 8,
-  "tokens": 1483,
-  "latency_s": 8.77
+  "tokens": 1454,
+  "latency_s": 12.14
 }

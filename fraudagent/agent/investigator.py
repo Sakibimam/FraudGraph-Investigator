@@ -84,10 +84,12 @@ class Investigator:
         return out
 
     # ------------------------------------------------------------------------------------
-    def run(self, trig: Trigger) -> dict:
+    def run(self, trig: Trigger, persist: bool = True) -> dict:
         t0 = time.perf_counter()
         self.tools.log.clear()
         tokens0 = self.llm.tokens
+        # per-investigation scratch state: never let one case's findings leak into the next
+        self._episode, self._pattern, self._findings = [], "none", D.Findings()
         st = State(trig)
         self.log(st, "trigger", f"{trig.trigger_type}: {trig.trigger_text}")
 
@@ -141,7 +143,7 @@ class Investigator:
         case = self.package(st, facts, findings, prob0, prob, indep, plan0, plan1, evidence_requests, response)
         # UPDATE_MEMORY
         case["embedding"] = embedder().encode_one(self.profile_text(st, findings, facts))
-        written = self.tools.write_case(case)
+        written = self.tools.write_case(case) if persist else False
         case["case"]["written_to_graph"] = bool(written)
         self.log(st, "update_memory", ("Case written to TigerGraph as " + case["graph_case_id"]) if written
                  else "Case stored in local memory (graph write unavailable)")

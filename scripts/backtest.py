@@ -29,13 +29,15 @@ def main(args: list[str]) -> None:
     oct_ = cc[cc["opened_at"].str.startswith("2016-10")]
     sample = pd.concat([oct_[oct_.outcome == "cleared"].sample(n // 2, random_state=1),
                         oct_[oct_.outcome == "confirmed_fraud"].sample(n // 2, random_state=1)])
-    agent = Investigator(make_tools("local" if "--local" in args else settings.graph_backend), LLM())
+    quiet = LLM()
+    quiet.backends = []  # the back-test measures graph evidence only
+    agent = Investigator(make_tools("local" if "--local" in args else settings.graph_backend), quiet)
     rows = []
     for r in sample.itertuples():
         tx = str(r.first_fraud_txn_id) if isinstance(r.first_fraud_txn_id, (int, float)) and r.first_fraud_txn_id == r.first_fraud_txn_id else str(r.txn_ids).split("|")[0]
         tx = tx.split(".")[0]
         trig = Trigger(r.case_id, r.opened_at, "risk_score", f"Replay of {r.case_id}", tx, r.card_id, r.customer_id)
-        out = agent.run(trig)
+        out = agent.run(trig, persist=False)
         p0 = next(e["probability"] for e in out["timeline"] if e["step"] == "assess")
         rows.append({"case": r.case_id, "truth": r.outcome, "pattern": r.pattern, "p_graph": p0,
                      "verdict_graph": "fraud" if p0 >= 0.5 else "legitimate", "agent_pattern": out["case"]["pattern"]})

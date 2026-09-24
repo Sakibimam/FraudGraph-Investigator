@@ -38,27 +38,27 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-3484, CC-2880, CC-1232, CC-0896)",
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-0807, CC-0843, CC-0896, CC-1232)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-3484",
-          "CC-2880",
-          "CC-1232",
-          "CC-0896"
+          "CC-0807",
+          "CC-0843",
+          "CC-0896",
+          "CC-1232"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-3484",
-      "CC-2880",
-      "CC-1232",
-      "CC-0896",
+      "CC-0807",
       "CC-0843",
+      "CC-0896",
+      "CC-1232",
+      "CC-2880",
       "CC-2400",
       "CC-2717"
     ],
-    "summary": "The flagged $100.07 online transaction is considered legitimate as the amount falls well within the cardholder's usual spending range. Key evidence includes a low case-memory model score of 0.013, which shows no resemblance to confirmed-fraud cases, and zero of the eight most similar closed cases being identified as fraud, despite the device being new to the account. The verdict is legitimate with an exposure of $0.00 and no identified pattern. The following actions have been executed: ALLOW_TRANSACTION (auto), CLOSE_NO_FRAUD (auto).",
+    "summary": "The flagged $100.07 online transaction falls well within the card's usual spending range and bears no resemblance to confirmed-fraud cases in the case-memory model (score 0.013). Although the device and browser profile are new to the account, similar historical cases show zero confirmed fraud. The verdict is legitimate with no fraud pattern and an exposure of $0.00. The final actions executed by the agent are ALLOW_TRANSACTION and CLOSE_NO_FRAUD.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-005"
   },
@@ -100,6 +100,6 @@
   },
   "stop_reason": "Fraud probability 0.07 is at or below 0.15 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 7,
-  "tokens": 1103,
-  "latency_s": 8.46
+  "tokens": 1087,
+  "latency_s": 42.75
 }

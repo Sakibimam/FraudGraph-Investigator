@@ -14,7 +14,9 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field
 
 from fraudagent.agent.investigator import Investigator, Trigger
 from fraudagent.agent.llm import LLM
@@ -30,6 +32,7 @@ app = FastAPI(title="FraudGraph Investigator")
 _tools = make_tools(settings.graph_backend)
 _llm = LLM()
 _lock = threading.Lock()
+_approval_lock = threading.Lock()
 
 
 def _pack() -> pd.DataFrame:
@@ -64,6 +67,9 @@ def cases() -> list[dict]:
                     "sar": t.get("sar", {}).get("file"),
                     "pending": sum(1 for a in t.get("next_best_actions", {}).get("final", []) if a["route"] != "auto")})
     return out
+
+
+CASE_ID = r"^[A-Z]{2,4}-\d{3}$"
 
 
 @app.get("/api/cases/{case_id}")
@@ -150,10 +156,10 @@ def evidence_graph(case_id: str) -> dict:
 
 
 class Decision(BaseModel):
-    action: str
-    decision: str          # approve | reject
-    role: str              # L1 | L2
-    note: str = ""
+    action: str = Field(pattern=r"^[A-Z_]{3,40}$")
+    decision: Literal["approve", "reject"]
+    role: Literal["L1", "L2"]       # team lead / fraud manager
+    note: str = Field(default="", max_length=500)
 
 
 @app.post("/api/cases/{case_id}/approve")
@@ -169,14 +175,43 @@ def approve(case_id: str, d: Decision) -> dict:
         raise HTTPException(400, f"{d.action} is an auto action; the agent executes it without approval")
     if rec["route"] == "L2" and d.role != "L2":
         raise HTTPException(403, f"{d.action} requires a fraud manager (L2); {d.role} cannot approve it")
+    with _approval_lock:
+        return _record_approval(case_id, d, rec, t)
+
+
+def _record_approval(case_id: str, d: "Decision", rec: dict, t: dict) -> dict:
     log = _approvals()
+    prior = next((a for a in log if a["case_id"] == case_id and a["action"] == d.action
+                  and a.get("run") == t.get("latency_s")), None)
+    if prior:
+        raise HTTPException(409, f"{d.action} was already {prior['decision']}d by {prior['role']} at {prior['at']}")
     entry = {"case_id": case_id, "action": d.action, "route": rec["route"], "decision": d.decision,
              "role": d.role, "note": d.note, "at": datetime.now().isoformat(timespec="seconds"),
-             "executed": d.decision == "approve"}
+             "executed": d.decision == "approve", "run": t.get("latency_s")}
     log.append(entry)
     APPROVALS.parent.mkdir(parents=True, exist_ok=True)
-    APPROVALS.write_text(json.dumps(log, indent=2))
+    tmp = APPROVALS.with_suffix(".tmp")
+    tmp.write_text(json.dumps(log, indent=2))
+    tmp.replace(APPROVALS)  # atomic swap: concurrent approvals never corrupt the log
+    _update_graph_case(t, entry)
     return entry
+
+
+def _update_graph_case(t: dict, entry: dict) -> None:
+    """Human decisions are part of case memory: append them to the InvestigationCase in TigerGraph."""
+    tg = getattr(_tools, "tg", None)
+    if tg is None:
+        return
+    try:
+        v = tg.get_vertex("InvestigationCase", t["graph_case_id"]) or {}
+        log = json.loads((v.get("attributes") or {}).get("decision_log") or "[]")
+        log.append({"step": "human_decision", "detail": f"{entry['role']} {entry['decision']}d {entry['action']}",
+                    "at": entry["at"]})
+        tg.upsert({"InvestigationCase": {t["graph_case_id"]: {
+            "decision_log": {"value": json.dumps(log)[:60000]},
+            "updated_at": {"value": entry["at"].replace("T", " ")}}}}, name="record_approval")
+    except Exception:  # the approval itself is already recorded locally
+        pass
 
 
 @app.get("/api/cases/{case_id}/execution")

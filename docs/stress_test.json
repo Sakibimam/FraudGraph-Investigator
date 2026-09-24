@@ -1,0 +1,78 @@
+{
+  "backend": "tigergraph-mcp",
+  "random_alerts": {
+    "n": 60,
+    "crashes": 0,
+    "invalid": 0,
+    "latency_s": {
+      "p50": 0.09,
+      "p95": 0.21,
+      "max": 0.45
+    },
+    "verdicts": {
+      "fraud": 6,
+      "legitimate": 53,
+      "uncertain": 1
+    },
+    "patterns": {
+      "out_of_region_use": 2,
+      "none": 53,
+      "card_testing": 1,
+      "card_not_present_fraud": 2,
+      "card_not_present_new_device": 2
+    },
+    "failures": [],
+    "errors": []
+  },
+  "edge_cases": [
+    {
+      "case": "single-txn card",
+      "ok": true,
+      "verdict": "legitimate"
+    },
+    {
+      "case": "single-txn card",
+      "ok": true,
+      "verdict": "fraud"
+    },
+    {
+      "case": "single-txn card",
+      "ok": true,
+      "verdict": "fraud"
+    },
+    {
+      "case": "largest card",
+      "ok": true,
+      "verdict": "fraud"
+    },
+    {
+      "case": "largest card",
+      "ok": true,
+      "verdict": "legitimate"
+    },
+    {
+      "case": "in-person no region",
+      "ok": true,
+      "verdict": "legitimate"
+    },
+    {
+      "case": "in-person no region",
+      "ok": true,
+      "verdict": "legitimate"
+    },
+    {
+      "case": "unknown transaction",
+      "ok": true,
+      "handled": "flagged transaction 9999999 not found"
+    }
+  ],
+  "determinism": {
+    "cases": 20,
+    "identical": 20
+  },
+  "no_llm": {
+    "completed": true,
+    "valid": true,
+    "tokens": 0
+  }
+}

@@ -5,7 +5,7 @@
     "verdict": "fraud",
     "fraud_probability": 0.98,
     "pattern": "undocumented",
-    "pattern_description": "An anonymising proxy shared-device ring using a single handset profile was used on 28 different customers' cards to make $74.96-$252.28 purchases, exposing $439.61. It affects 28 customers and matches 4 unmapped closed cases (CC-2649, CC-2971, CC-2985, CC-3035). The pattern was found by traversing card, transaction, device, and card connections in TigerGraph.",
+    "pattern_description": "An anonymising proxy device profile was used across 28 different customers' cards for purchases between $74.96 and $252.28, resulting in $439.61 of exposure. It affects the 28 cardholders and matches four unmapped closed cases (CC-2649, CC-2971, CC-2985, CC-3035). The pattern was found by the agent traversing card, transaction, device, and card relationships in TigerGraph.",
     "affected_txn_ids": [
       "3460634",
       "3478561",
@@ -112,21 +112,21 @@
           "C09975-K1",
           "C10020-K1",
           "C10193-K2",
-          "CC-2649",
           "CC-3035",
           "CC-2985",
+          "CC-2649",
           "CC-2971"
         ]
       },
       {
-        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-2985, CC-2649, CC-3035, CC-2971)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-0849, CC-3035, CC-2971, CC-2985)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-2985",
-          "CC-2649",
+          "CC-0849",
           "CC-3035",
-          "CC-2971"
+          "CC-2971",
+          "CC-2985"
         ]
       },
       {
@@ -145,13 +145,13 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-2985",
-      "CC-2649",
+      "CC-0849",
       "CC-3035",
       "CC-2971",
-      "CC-0849"
+      "CC-2985",
+      "CC-2649"
     ],
-    "summary": "An analyst review of transaction 3478561 on card C13487-K1 identified an undocumented fraud pattern involving an anonymous proxy and a shared device profile linked to multiple confirmed fraud cases. The cardholder confirmed they did not make the $74.96 purchase and still holds the card, resulting in a total exposure of $439.61 across the episode. The verdict is confirmed fraud. The final actions are: BLOCK_CARD (L1), CREATE_CASE (auto), MONITOR_CONNECTED_CARDS (auto), FILE_REPORT (L2), and ESCALATE_TO_ANALYST (auto).",
+    "summary": "An investigation into transaction 3478561 on card C13487-K1 resulted in a verdict of fraud involving an undocumented pattern with an exposure of $439.61. Key evidence shows the connection used an anonymous proxy, and the device profile was linked to 28 cards within 60 days, including 4 confirmed fraud cases. Furthermore, the one-time passcode was not completed, and the cardholder confirmed they did not make the purchase. Final actions executed by the agent are CREATE_CASE, MONITOR_CONNECTED_CARDS, and ESCALATE_TO_ANALYST, with BLOCK_CARD (L1) and FILE_REPORT (L2) awaiting human approval.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-014"
   },
@@ -217,7 +217,7 @@
   "sar": {
     "file": true,
     "reason": "File: activity connects to a shared device profile / other cards (3a, R2, R6); pattern is coordinated or undocumented (3a, R9).",
-    "narrative": "Customer C13487, holder of card C13487-K1, is the subject of this suspicious activity report. Between 2016-11-15 20:30 and 2016-11-26 17:39, three transactions totalling $439.61 were made online using card C13487-K1 via an anonymous proxy (IP_PROXY:ANONYMOUS). Specifically, these transactions include $112.37 on 2016-11-15 20:30 (transaction 3460634), $74.96 on 2016-11-22 16:11 (transaction 3478561), and $252.28 on 2016-11-26 17:39 (transaction 3489320). All sessions utilized the device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080'. This identical device profile was used across 28 cards within a 60-day window, always behind an anonymous proxy and flagged as a new device, indicating an industrialised cyber-enabled fraud pattern linked to confirmed fraud cases such as CC-2985, CC-2649, CC-3035, and CC-2971. During the session for transaction 3478561, the one-time passcode sent to the registered phone was not completed, and when contacted separately, the cardholder confirmed they did not make the purchases and still holds the card. The bank has created a case, monitored connected cards, recommended blocking the card (L1), escalated to an analyst, and filed this report (L2).",
+    "narrative": "Customer C13487, holder of card C13487-K1, is the subject of this report. Between 2016-11-15 20:30 and 2016-11-26 17:39, 3 transaction(s) totalling $439.61 were made on the card online from device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' through an anonymous proxy: $112.37 (3460634, 2016-11-15 20:30), $74.96 (3478561, 2016-11-22 16:11), $252.28 (3489320, 2016-11-26 17:39). The same device profile was used on 27 other customers' cards in the same period (C01289-K1, C01996-K2, C02910-K1, C02975-K1, C03676-K2, C04108-K2, C04274-K1, C05448-K2...), most of them behind anonymous proxies and each time as a new device, indicating a common actor. When contacted, the cardholder stated they did not make the transactions and still holds the card. The activity is suspicious because: Device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' was used by 28 cards in a 60-day window around the alert; 28 of them behind an anonymous/hidden proxy and 28 flagged as a New device. 4 closed case(s) on cards that used this profile were confirmed fraud, 4 of them recorded as an undocumented pattern. It closely resembles earlier confirmed fraud cases CC-0849, CC-3035, CC-2971. The bank has recommended blocking and reissuing the card, placed linked cards under monitoring where applicable, and retains the transaction, device and investigation records as supporting documentation.",
     "subjects": [
       "C13487",
       "C13487-K1",
@@ -256,6 +256,6 @@
   },
   "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.98. Further graph steps would not change the actions (policy 6).",
   "tool_calls": 10,
-  "tokens": 3899,
-  "latency_s": 17.06
+  "tokens": 3919,
+  "latency_s": 17.2
 }

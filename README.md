@@ -65,7 +65,7 @@ Architecture diagram and design notes: [`docs/ARCHITECTURE.md`](docs/ARCHITECTUR
 | HHG-020 | risk score | legitimate | 0.10 | none | $0.00 | – | ALLOW_TRANSACTION (auto), CLOSE_NO_FRAUD (auto) | no |
 
 Answer files: [`cases/`](cases). Autonomous monitoring (optional, Innovation): [`monitor/`](monitor).
-Back-test on 200 October closed cases (graph evidence only, no customer contact): 73.5% verdict accuracy, AUC 0.76
+Back-test on 200 October closed cases (graph evidence only, no customer contact): 72.5% verdict accuracy, AUC 0.75
 ([`docs/backtest_october.json`](docs/backtest_october.json)).
 
 ## Quick start

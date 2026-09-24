@@ -53,7 +53,7 @@
       "CC-5375",
       "CC-4160"
     ],
-    "summary": "This internal fraud case summary concludes that card C11891-K1 is confirmed fraud involving card-not-present fraud with an exposure of $292.36. Key evidence includes a case-memory model score of 0.740 matching confirmed-fraud features, a bank risk score of 0.79, and a transaction amount of $292.36 significantly exceeding the card's 95th percentile of $90.54. The next steps are the execution of the final actions: `BLOCK_CARD` (L1) and `CREATE_CASE` (auto).",
+    "summary": "Fraud is confirmed as card_not_present_fraud with an exposure of $292.36 on card C11891-K1. Key evidence includes a case-memory model score of 0.740, showing strong resemblance to confirmed-fraud closed cases, and an amount significantly above the card's 95th percentile. The verdict is fraud. Final actions executed or awaiting approval are BLOCK_CARD (L1), CREATE_CASE (auto).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-002"
   },
@@ -95,6 +95,6 @@
   },
   "stop_reason": "Fraud probability 0.93 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 7,
-  "tokens": 1154,
-  "latency_s": 8.43
+  "tokens": 1127,
+  "latency_s": 73.94
 }

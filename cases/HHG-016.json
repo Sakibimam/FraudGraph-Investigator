@@ -48,25 +48,25 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-3107, CC-5095, CC-4095, CC-2285)",
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-0010, CC-0180, CC-2285, CC-3107)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-3107",
-          "CC-5095",
-          "CC-4095",
-          "CC-2285"
+          "CC-0010",
+          "CC-0180",
+          "CC-2285",
+          "CC-3107"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-3107",
-      "CC-5095",
-      "CC-4095",
+      "CC-0010",
+      "CC-0180",
       "CC-2285",
-      "CC-0180"
+      "CC-3107",
+      "CC-4095"
     ],
-    "summary": "A cardholder reported an unauthorized $59.67 card-not-present transaction originating from a new device profile. The case-memory model scored 0.651, aligning the transaction's feature profile with confirmed-fraud cases from July to October, despite a bank risk score of 0.37. The verdict is fraud under the pattern card_not_present_new_device, resulting in a total exposure of $59.67. CREATE_CASE has been executed automatically, and BLOCK_CARD is awaiting L1 approval.",
+    "summary": "The cardholder reported they did not make the $59.67 card-not-present transaction originating from a new device. The case-memory model scored 0.651, indicating similarity to confirmed-fraud cases despite the amount falling within the card's usual spending range. The verdict is fraud with a pattern of card-not-present-new-device, resulting in a total exposure of $59.67. The automated system has created the case, and the next step is to execute BLOCK_CARD (L1).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-016"
   },
@@ -108,6 +108,6 @@
   },
   "stop_reason": "Fraud probability 0.88 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 8,
-  "tokens": 1143,
-  "latency_s": 9.03
+  "tokens": 1131,
+  "latency_s": 40.54
 }

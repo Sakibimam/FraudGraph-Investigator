@@ -112,8 +112,14 @@ class TigerGraphTools(GraphTools):
         return self.tg.query(name, **p)
 
     def _txn_detail(self, txn_id: str) -> dict:
-        r = self._q("txn_detail", txn=str(txn_id))
-        return r[0]["txn"] if r else {}
+        from fraudagent.graph.client import GraphError
+        try:
+            r = self._q("txn_detail", txn=str(txn_id))
+        except GraphError as e:  # unknown vertex id -> "not found", anything else is a real failure
+            if "vertex id" in str(e):
+                return {}
+            raise
+        return r[0]["txn"] if r and r[0].get("txn") else {}
 
     def _card_window(self, card, center_ts, hours_before=48, hours_after=48):
         r = self._q("card_window", card=card, center_ts=center_ts, hours_before=hours_before, hours_after=hours_after)
@@ -159,7 +165,7 @@ class TigerGraphTools(GraphTools):
                         "exposure": a.get("R.exposure"), "actions": a.get("R.actions"),
                         "report_filed": a.get("R.report_filed"), "notes": a.get("R.notes"),
                         "distance": dist.get(v["v_id"])})
-        return sorted(out, key=lambda x: x["distance"] if x["distance"] is not None else 1)
+        return sorted(out, key=lambda x: (round(x["distance"], 6) if x["distance"] is not None else 1.0, x["case_id"]))
 
     def _search_docs(self, qv, k=5):
         r = self._q("search_docs", qv=qv, k=k)
@@ -168,7 +174,7 @@ class TigerGraphTools(GraphTools):
         dist = r[1].get("distances", {}) if len(r) > 1 else {}
         out = [{"id": v["v_id"], "source": v["attributes"].get("R.source"), "section": v["attributes"].get("R.section"),
                 "text": v["attributes"].get("R.text"), "distance": dist.get(v["v_id"])} for v in r[0]["docs"]]
-        return sorted(out, key=lambda x: x["distance"] if x["distance"] is not None else 1)
+        return sorted(out, key=lambda x: (round(x["distance"], 6) if x["distance"] is not None else 1.0, x["id"]))
 
     # monitoring sweeps (graph algorithms over the whole period)
     def _ring_components(self, start_ts, end_ts, min_cards=5, max_iter=8):

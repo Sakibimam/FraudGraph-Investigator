@@ -1,16 +1,19 @@
 {
   "case_id": "HHG-003",
   "case": {
-    "status": "closed_legitimate",
-    "verdict": "legitimate",
-    "fraud_probability": 0.06,
-    "pattern": "none",
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.87,
+    "pattern": "account_takeover",
     "pattern_description": "",
-    "affected_txn_ids": [],
-    "first_suspicious_txn_id": "",
+    "affected_txn_ids": [
+      "3530056",
+      "3530164"
+    ],
+    "first_suspicious_txn_id": "3530056",
     "connected_card_ids": [],
     "connected_device_profiles": [],
-    "exposure_usd": 0.0,
+    "exposure_usd": 165.93,
     "evidence": [
       {
         "claim": "Cardholder reported they did not make the $49.00 transaction: \"'I never made this $49.00 purchase. Please check my card.' Refers to 3530164.\"",
@@ -35,14 +38,14 @@
         "entity_ids": []
       },
       {
-        "claim": "3 of the 8 most similar closed cases were confirmed fraud (CC-2649, CC-2985, CC-2971, CC-1527)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-3035, CC-2649, CC-2985, CC-1827)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
+          "CC-3035",
           "CC-2649",
           "CC-2985",
-          "CC-2971",
-          "CC-1527"
+          "CC-1827"
         ]
       },
       {
@@ -52,7 +55,7 @@
         "entity_ids": []
       },
       {
-        "claim": "Simulated: shown the merchant name, time and device of the $49.00 purchase, the cardholder recognised it as their own and withdrew the dispute",
+        "claim": "Simulated: on follow-up the cardholder repeated that they did not make the $49.00 purchase, still has the card and has not shared the card details",
         "source": "customer",
         "ref": "evidence_request:1",
         "entity_ids": [
@@ -61,15 +64,15 @@
       }
     ],
     "similar_prior_cases": [
+      "CC-3035",
       "CC-2649",
       "CC-2985",
-      "CC-2971",
-      "CC-1527",
-      "CC-4349",
+      "CC-1827",
+      "CC-2334",
       "CC-2935",
       "CC-4957"
     ],
-    "summary": "The cardholder reported an unauthorized $49.00 transaction, but upon reviewing the merchant name, time, and device, they recognized the purchase and withdrew the dispute. The amount falls within the card's usual spending range, and the billing region is familiar based on historical activity. The verdict is legitimate with an exposure of $0.00. The final actions executed are ALLOW_TRANSACTION, CREATE_CASE, and CLOSE_NO_FRAUD.",
+    "summary": "This internal fraud case summary concludes that account takeover fraud occurred on card C08623-K2, resulting in a total exposure of $165.93. Key evidence includes the cardholder's repeated confirmation that they did not make the disputed $49.00 purchase while retaining physical possession of the card, alongside eight out of eight similar closed cases confirmed as fraud. The verdict is fraud. The automated action executed is CREATE_CASE, and the pending human approval action is BLOCK_CARD (L1).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-003"
   },
@@ -77,7 +80,7 @@
     {
       "type": "customer_validation",
       "asked_after_step": 8,
-      "assumed_response": "Simulated: shown the merchant name, time and device of the $49.00 purchase, the cardholder recognised it as their own and withdrew the dispute"
+      "assumed_response": "Simulated: on follow-up the cardholder repeated that they did not make the $49.00 purchase, still has the card and has not shared the card details"
     }
   ],
   "next_best_actions": {
@@ -91,37 +94,37 @@
         "action": "VERIFY_WITH_CUSTOMER",
         "route": "auto",
         "reason": "R1: signal below 0.70 or conflicting, ask the cardholder before any block"
+      },
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "reason": "Raise monitoring for 72h while the verification is pending"
       }
     ],
     "final": [
       {
-        "action": "ALLOW_TRANSACTION",
-        "route": "auto",
-        "reason": "R3: cardholder confirmed the transaction"
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denied the activity; exposure $165.93 <= $2,500 (L1)"
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
         "reason": "3a: case opened when evidence was requested; the response is recorded in it"
-      },
-      {
-        "action": "CLOSE_NO_FRAUD",
-        "route": "auto",
-        "reason": "R3: customer confirmation noted in the case file"
       }
     ],
-    "what_changed": "shown the merchant name, time and device of the $49.00 purchase, the cardholder recognised it as their own and withdrew the dispute. Probability 0.34 -> 0.06; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped VERIFY_WITH_CUSTOMER."
+    "what_changed": "on follow-up the cardholder repeated that they did not make the $49.00 purchase, still has the card and has not shared the card details. Probability 0.53 -> 0.87; added BLOCK_CARD; dropped MONITOR_CARD, VERIFY_WITH_CUSTOMER."
   },
   "sar": {
     "file": false,
-    "reason": "No SAR: verdict is legitimate; policy 3a requires confirmed or strongly suspected fraud.",
+    "reason": "No SAR: fraud confirmed but exposure $165.93 is under $1,000, no shared origin or connected cards, and the pattern is documented (3a). Case only.",
     "narrative": "",
     "subjects": [],
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.06. Nothing left to investigate (policy 6, R3).",
+  "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.87. Further graph steps would not change the actions (policy 6).",
   "tool_calls": 9,
-  "tokens": 1189,
-  "latency_s": 8.03
+  "tokens": 1242,
+  "latency_s": 34.22
 }
