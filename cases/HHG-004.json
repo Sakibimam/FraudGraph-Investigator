@@ -46,14 +46,14 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-2323, CC-5525, CC-3407, CC-2742)",
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-2742, CC-3407, CC-1139, CC-5324)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-2323",
-          "CC-5525",
+          "CC-2742",
           "CC-3407",
-          "CC-2742"
+          "CC-1139",
+          "CC-5324"
         ]
       },
       {
@@ -72,15 +72,15 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-2323",
-      "CC-5525",
-      "CC-3407",
       "CC-2742",
+      "CC-3407",
       "CC-1139",
+      "CC-5324",
+      "CC-0749",
       "CC-0696",
       "CC-3778"
     ],
-    "summary": "Legitimate: the flagged $128.33 online transaction fits the cardholder. Case-memory model score 0.007: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) clearly does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.34. 0 of the 8 most similar closed cases were confirmed fraud (CC-2323, CC-5525, CC-3407, CC-2742). Evidence request answered (confirmed); probability moved 0.28 -> 0.05.",
+    "summary": "Legitimate: the flagged $128.33 online transaction fits the cardholder. Case-memory model score 0.007: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) clearly does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.34. 0 of the 8 most similar closed cases were confirmed fraud (CC-2742, CC-3407, CC-1139, CC-5324). Evidence request answered (confirmed); probability moved 0.28 -> 0.05.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-004"
   },
@@ -134,5 +134,5 @@
   "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.05. Nothing left to investigate (policy 6, R3).",
   "tool_calls": 9,
   "tokens": 0,
-  "latency_s": 0.11
+  "latency_s": 0.08
 }

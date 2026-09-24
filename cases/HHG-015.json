@@ -134,5 +134,5 @@
   "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.07. Nothing left to investigate (policy 6, R3).",
   "tool_calls": 8,
   "tokens": 0,
-  "latency_s": 0.08
+  "latency_s": 0.38
 }

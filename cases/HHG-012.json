@@ -35,27 +35,27 @@
         "entity_ids": []
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-4592, CC-4349, CC-1527, CC-1757)",
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-4592, CC-3411, CC-4349, CC-1757)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
           "CC-4592",
+          "CC-3411",
           "CC-4349",
-          "CC-1527",
           "CC-1757"
         ]
       }
     ],
     "similar_prior_cases": [
       "CC-4592",
+      "CC-3411",
       "CC-4349",
-      "CC-1527",
       "CC-1757",
       "CC-4000",
       "CC-0003",
       "CC-2370"
     ],
-    "summary": "Legitimate: the flagged $30.91 in-person transaction fits the cardholder. Case-memory model score 0.059: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.55. 0 of the 8 most similar closed cases were confirmed fraud (CC-4592, CC-4349, CC-1527, CC-1757).",
+    "summary": "Legitimate: the flagged $30.91 in-person transaction fits the cardholder. Case-memory model score 0.059: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.55. 0 of the 8 most similar closed cases were confirmed fraud (CC-4592, CC-3411, CC-4349, CC-1757).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-012"
   },

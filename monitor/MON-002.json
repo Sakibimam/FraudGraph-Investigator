@@ -1,0 +1,328 @@
+{
+  "case_id": "MON-002",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.98,
+    "pattern": "undocumented",
+    "pattern_description": "Threshold structuring on a compromised card: 4 online purchases ($400.02, $400.02, $400.09, $400.07) placed within about an hour, each kept just under $500, the level at which authorisation checks tighten. It affects cardholders whose card numbers are already compromised and matches five closed cases the bank confirmed but could not map to a known typology; the agent found it by scanning the card's window for clusters of same-band amounts.",
+    "affected_txn_ids": [
+      "3524117",
+      "3524126",
+      "3524132",
+      "3524133"
+    ],
+    "first_suspicious_txn_id": "3524117",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 1600.2,
+    "evidence": [
+      {
+        "claim": "Analyst requested review: Monitoring alert (structuring): C01569-K1: 3+ online purchases of $400-$500 within 90 minutes. Review transaction 3524133 on card C01569-K1.",
+        "source": "external",
+        "ref": "trigger:analyst_request",
+        "entity_ids": [
+          "3524133"
+        ]
+      },
+      {
+        "claim": "Case-memory model score 0.093: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.37",
+        "source": "graph",
+        "ref": "model:case_memory_gbm(holdout AUC 0.955 vs bank score 0.866)",
+        "entity_ids": [
+          "3524133"
+        ]
+      },
+      {
+        "claim": "4 online purchases within 6 minutes, each between $400 and $500 ($400.02, $400.02, $400.09, $400.07; total $1,600.20): amounts kept just under a $500 authorisation threshold",
+        "source": "graph",
+        "ref": "query:card_window",
+        "entity_ids": [
+          "3524117",
+          "3524126",
+          "3524132",
+          "3524133"
+        ]
+      },
+      {
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-4124, CC-3841, CC-4086, CC-3748)",
+        "source": "graph",
+        "ref": "query:similar_closed_cases (TigerVector)",
+        "entity_ids": [
+          "CC-4124",
+          "CC-3841",
+          "CC-4086",
+          "CC-3748"
+        ]
+      },
+      {
+        "claim": "Retrieved guidance: When to file and continuing activity (regulatory_guidance)",
+        "source": "document",
+        "ref": "doc:regulatory_guidance#04",
+        "entity_ids": []
+      },
+      {
+        "claim": "Simulated: the cardholder replied that they did not make the $400.07 transaction and still holds the card",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "3524133"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-4124",
+      "CC-3841",
+      "CC-4086",
+      "CC-3748",
+      "CC-1316",
+      "CC-0886"
+    ],
+    "summary": "Fraud: an undocumented pattern on card C01569-K1. 4 online purchases within 6 minutes, each between $400 and $500 ($400.02, $400.02, $400.09, $400.07; total $1,600.20): amounts kept just under a $500 authorisation threshold. Evidence request answered (denied); probability moved 0.95 -> 0.98. Episode of 4 transaction(s), exposure $1,600.20.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-MON-002"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 7,
+      "assumed_response": "Simulated: the cardholder replied that they did not make the $400.07 transaction and still holds the card"
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: evidence is being requested"
+      },
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: signal below 0.70 or conflicting, ask the cardholder before any block"
+      },
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "reason": "Raise monitoring for 72h while the verification is pending"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denied the activity; exposure $1,600.20 <= $2,500 (L1)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: case opened when evidence was requested; the response is recorded in it"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: exposure $1,600.20 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: undocumented / coordinated pattern, analyst review"
+      }
+    ],
+    "what_changed": "the cardholder replied that they did not make the $400.07 transaction and still holds the card. Probability 0.95 -> 0.98; added BLOCK_CARD, ESCALATE_TO_ANALYST, FILE_REPORT; dropped MONITOR_CARD, VERIFY_WITH_CUSTOMER."
+  },
+  "sar": {
+    "file": true,
+    "reason": "File: exposure $1,600.20 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9).",
+    "narrative": "Customer C01569, holder of card C01569-K1, is the subject of this report. Between 2016-12-08 03:00 and 2016-12-08 03:07, 4 transaction(s) totalling $1,600.20 were made on the card online from device profile 'iOS Device | iOS 11.3.0 | mobile safari 11.0 | 2048x1536': $400.02 (3524117, 2016-12-08 03:00), $400.02 (3524126, 2016-12-08 03:05), $400.09 (3524132, 2016-12-08 03:07), $400.07 (3524133, 2016-12-08 03:07). Every amount sat just below $500 and the purchases were placed minutes apart, a pattern consistent with deliberately staying under an authorisation threshold. When contacted, the cardholder stated they did not make the transactions and still holds the card. The activity is suspicious because: 4 online purchases within 6 minutes, each between $400 and $500 ($400.02, $400.02, $400.09, $400.07; total $1,600.20). It closely resembles earlier confirmed fraud cases CC-4124, CC-3841, CC-4086. The bank has recommended blocking and reissuing the card, placed linked cards under monitoring where applicable, and retains the transaction, device and investigation records as supporting documentation.",
+    "subjects": [
+      "C01569",
+      "C01569-K1"
+    ],
+    "total_amount_usd": 1600.2,
+    "activity_dates": [
+      "2016-12-08",
+      "2016-12-08"
+    ]
+  },
+  "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.98. Further graph steps would not change the actions (policy 6).",
+  "tool_calls": 8,
+  "tokens": 0,
+  "latency_s": 0.12,
+  "graph_case_id": "CASE-2016-MON-002",
+  "card_id": "C01569-K1",
+  "opened_at": "2016-12-08 03:07:30",
+  "trigger": {
+    "type": "analyst_request",
+    "text": "Monitoring alert (structuring): C01569-K1: 3+ online purchases of $400-$500 within 90 minutes. Review transaction 3524133 on card C01569-K1.",
+    "flagged_txn_id": "3524133"
+  },
+  "status": "closed_fraud",
+  "pattern": "undocumented",
+  "exposure_usd": 1600.2,
+  "summary": "Fraud: an undocumented pattern on card C01569-K1. 4 online purchases within 6 minutes, each between $400 and $500 ($400.02, $400.02, $400.09, $400.07; total $1,600.20): amounts kept just under a $500 authorisation threshold. Evidence request answered (denied); probability moved 0.95 -> 0.98. Episode of 4 transaction(s), exposure $1,600.20.",
+  "timeline": [
+    {
+      "step": "trigger",
+      "at": "16:09:10",
+      "detail": "analyst_request: Monitoring alert (structuring): C01569-K1: 3+ online purchases of $400-$500 within 90 minutes. Review transaction 3524133 on card C01569-K1."
+    },
+    {
+      "step": "tool",
+      "at": "16:09:10",
+      "detail": "txn_detail(txn_id=3524133) -> id=3524133, ts=2016-12-08 03:07:30, amt=400.07, product=R, channel=online",
+      "tool": "txn_detail",
+      "ms": 10.1
+    },
+    {
+      "step": "open_case",
+      "at": "16:09:10",
+      "detail": "Case opened for C01569-K1; flagged $400.07 online txn 3524133 at 2016-12-08 03:07:30"
+    },
+    {
+      "step": "tool",
+      "at": "16:09:10",
+      "detail": "card_window(card=C01569-K1, center_ts=2016-12-08 03:07:30, hours_before=48, hours_after=48) -> 6 rows",
+      "tool": "card_window",
+      "ms": 6.4
+    },
+    {
+      "step": "evidence",
+      "at": "16:09:10",
+      "detail": "Analyst requested review: Monitoring alert (structuring): C01569-K1: 3+ online purchases of $400-$500 within 90 minutes. Review transaction 3524133 on card C01569-K1.",
+      "weight": 0.3,
+      "family": "analyst"
+    },
+    {
+      "step": "evidence",
+      "at": "16:09:10",
+      "detail": "Case-memory model score 0.093: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.37",
+      "weight": -0.9,
+      "family": "model"
+    },
+    {
+      "step": "evidence",
+      "at": "16:09:10",
+      "detail": "4 online purchases within 6 minutes, each between $400 and $500 ($400.02, $400.02, $400.09, $400.07; total $1,600.20): amounts kept just under a $500 authorisation threshold",
+      "weight": 3.2,
+      "family": "sequence"
+    },
+    {
+      "step": "tool",
+      "at": "16:09:10",
+      "detail": "card_baseline(card=C01569-K1, before_ts=2016-12-06 03:07:30, lookback_days=150) -> n_txns=9, total_amt=980.1099999999999, amounts=9, regions=6, products=2",
+      "tool": "card_baseline",
+      "ms": 12.1
+    },
+    {
+      "step": "tool",
+      "at": "16:09:10",
+      "detail": "card_case_history(card=C01569-K1) -> 2 rows",
+      "tool": "card_case_history",
+      "ms": 12.1
+    },
+    {
+      "step": "tool",
+      "at": "16:09:10",
+      "detail": "device_neighbors(device=iOS Device | iOS 11.3.0 | mobile safari 11.0 | 2048x1536, center_ts=2016-12-08 03:07:30, days=30) -> uses=117, cards=73, card_cases=54, all_time_txns=117, all_time_cards=73",
+      "tool": "device_neighbors",
+      "ms": 22.9
+    },
+    {
+      "step": "skip",
+      "at": "16:09:10",
+      "detail": "device_case_links skipped: 'iOS Device | iOS 11.3.0 | mobile safari 11.0 | 2048x1536' is a generic profile shared by 73 cards"
+    },
+    {
+      "step": "tool",
+      "at": "16:09:10",
+      "detail": "similar_closed_cases(k=8) -> 8 rows",
+      "tool": "similar_closed_cases",
+      "ms": 25.3
+    },
+    {
+      "step": "evidence",
+      "at": "16:09:10",
+      "detail": "8 of the 8 most similar closed cases were confirmed fraud (CC-4124, CC-3841, CC-4086, CC-3748)",
+      "weight": 0.3,
+      "family": "memory"
+    },
+    {
+      "step": "tool",
+      "at": "16:09:10",
+      "detail": "search_docs(k=5) -> 5 rows",
+      "tool": "search_docs",
+      "ms": 8.7
+    },
+    {
+      "step": "assess",
+      "at": "16:09:10",
+      "detail": "initial assessment: fraud probability 0.95, 1 independent signal families (analyst +0.3, model -0.9, sequence +3.2, memory +0.3)",
+      "probability": 0.948
+    },
+    {
+      "step": "recommend_initial",
+      "at": "16:09:10",
+      "detail": "Initial next best action: CREATE_CASE, VERIFY_WITH_CUSTOMER, MONITOR_CARD",
+      "actions": [
+        {
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "reason": "3a: evidence is being requested"
+        },
+        {
+          "action": "VERIFY_WITH_CUSTOMER",
+          "route": "auto",
+          "reason": "R1: signal below 0.70 or conflicting, ask the cardholder before any block"
+        },
+        {
+          "action": "MONITOR_CARD",
+          "route": "auto",
+          "reason": "Raise monitoring for 72h while the verification is pending"
+        }
+      ]
+    },
+    {
+      "step": "request_evidence",
+      "at": "16:09:10",
+      "detail": "Requested customer_validation after step 7: only 1 independent signal(s) (policy 6, R1)"
+    },
+    {
+      "step": "evidence_received",
+      "at": "16:09:10",
+      "detail": "Simulated response (denied): Simulated: the cardholder replied that they did not make the $400.07 transaction and still holds the card. Probability 0.95 -> 0.98"
+    },
+    {
+      "step": "recommend_final",
+      "at": "16:09:10",
+      "detail": "Final next best action: CREATE_CASE, BLOCK_CARD, FILE_REPORT, ESCALATE_TO_ANALYST",
+      "actions": [
+        {
+          "action": "BLOCK_CARD",
+          "route": "L1",
+          "reason": "R2: customer denied the activity; exposure $1,600.20 <= $2,500 (L1)"
+        },
+        {
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "reason": "3a: case opened when evidence was requested; the response is recorded in it"
+        },
+        {
+          "action": "FILE_REPORT",
+          "route": "L2",
+          "reason": "File: exposure $1,600.20 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+        },
+        {
+          "action": "ESCALATE_TO_ANALYST",
+          "route": "auto",
+          "reason": "R9: undocumented / coordinated pattern, analyst review"
+        }
+      ]
+    },
+    {
+      "step": "update_memory",
+      "at": "16:09:10",
+      "detail": "Case written to TigerGraph as CASE-2016-MON-002"
+    }
+  ]
+}

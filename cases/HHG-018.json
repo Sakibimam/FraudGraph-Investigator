@@ -83,7 +83,7 @@
       "CC-2971",
       "CC-1502",
       "CC-2649",
-      "CC-1182",
+      "CC-0600",
       "CC-0454",
       "CC-2051"
     ],
@@ -141,5 +141,5 @@
   "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.04. Nothing left to investigate (policy 6, R3).",
   "tool_calls": 9,
   "tokens": 0,
-  "latency_s": 0.2
+  "latency_s": 0.23
 }

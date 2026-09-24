@@ -7,7 +7,7 @@ case is written back into the graph as memory for the next one.
 
 Built for the TigerGraph × Hacker House Goa 2026 challenge on the HHGOA_IEEE dataset.
 
-![architecture](docs/architecture.svg)
+Architecture diagram and design notes: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Highlights
 
@@ -17,7 +17,7 @@ Built for the TigerGraph × Hacker House Goa 2026 challenge on the HHGOA_IEEE da
 - **12 GSQL installed queries as agent tools** (`gsql/queries/investigation.gsql`): card windows, behavioural baselines,
   device neighbours, a windowed device-ring expansion, region clusters, recurring charges, 2-hop case memory and two
   **TigerVector** searches.
-- **TigerGraph MCP**: the same tools are served through `tigergraph-mcp`; set `USE_TIGERGRAPH_MCP=1` and the agent calls
+- **TigerGraph MCP**: the same tools are served through `tigergraph-mcp`; by default the agent calls
   `tigergraph__run_installed_query` over MCP.
 - **GraphRAG**: policy rules, the five typologies and regulatory guidance (FinCEN, FATF, FFIEC) are chunked into
   `DocChunk` vectors; closed cases are embedded into `ClosedCase.emb`. Retrieved context grounds the explanations and SARs.

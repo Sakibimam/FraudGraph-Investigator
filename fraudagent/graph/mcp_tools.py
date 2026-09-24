@@ -79,6 +79,8 @@ class MCPTools(TigerGraphTools):
         self.mcp = MCPTools._session
 
     def _q(self, name: str, **p) -> list[dict]:
+        vp = self.tg.VERTEX_PARAMS
+        p = {k: ({"id": str(v), "type": vp[k]} if k in vp else v) for k, v in p.items()}
         out = self.mcp.call("tigergraph__run_installed_query",
                             {"graph_name": settings.tg_graph, "query_name": name, "params": p})
         data = out.get("data")

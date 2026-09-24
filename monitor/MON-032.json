@@ -1,0 +1,476 @@
+{
+  "case_id": "MON-032",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.96,
+    "pattern": "undocumented",
+    "pattern_description": "Shared-device fraud ring: one device profile (SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080) behind an anonymising proxy is used to make small online purchases on 28 unrelated customers' cards in the same weeks, each time appearing as a New device for that account. It affects many customers at once rather than one compromised card; the agent found it by traversing card -> transaction -> device -> card in TigerGraph and matching the profile to earlier confirmed undocumented cases.",
+    "affected_txn_ids": [
+      "3473057",
+      "3506095"
+    ],
+    "first_suspicious_txn_id": "3473057",
+    "connected_card_ids": [
+      "C01289-K1",
+      "C01996-K2",
+      "C02910-K1",
+      "C02975-K1",
+      "C03676-K2",
+      "C04108-K2",
+      "C04274-K1",
+      "C05448-K2",
+      "C06031-K2",
+      "C06650-K2",
+      "C07472-K1",
+      "C08168-K1",
+      "C08972-K2",
+      "C09049-K1",
+      "C09195-K1",
+      "C09906-K1",
+      "C09975-K1",
+      "C10020-K1",
+      "C10193-K2",
+      "C10326-K1",
+      "C11082-K1",
+      "C11670-K2",
+      "C11702-K1",
+      "C12645-K1",
+      "C12796-K1",
+      "C13291-K1",
+      "C13487-K1"
+    ],
+    "connected_device_profiles": [
+      "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080"
+    ],
+    "exposure_usd": 276.35,
+    "evidence": [
+      {
+        "claim": "Analyst requested review: Monitoring alert (device_ring): C06710-K1 used device 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' shared by 28 cards behind anon",
+        "source": "external",
+        "ref": "trigger:analyst_request",
+        "entity_ids": [
+          "3506095"
+        ]
+      },
+      {
+        "claim": "Case-memory model score 0.007: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) clearly does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.24",
+        "source": "graph",
+        "ref": "model:case_memory_gbm(holdout AUC 0.955 vs bank score 0.866)",
+        "entity_ids": [
+          "3506095"
+        ]
+      },
+      {
+        "claim": "$92.16 is within the card's usual range (median $51.81, 95th percentile $226.09)",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "3506095"
+        ]
+      },
+      {
+        "claim": "Device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' was already used on this card before the alert (1 prior transactions)",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080"
+        ]
+      },
+      {
+        "claim": "Connection went through an anonymous proxy (IP_PROXY:ANONYMOUS)",
+        "source": "graph",
+        "ref": "txn:3506095.id_23",
+        "entity_ids": [
+          "3506095"
+        ]
+      },
+      {
+        "claim": "Device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' was used by 28 cards in a 60-day window around the alert; 28 of them behind an anonymous/hidden proxy and 28 flagged as a New device. 4 closed case(s) on cards that used this profile were confirmed fraud, 4 of them recorded as an undocumented pattern",
+        "source": "graph",
+        "ref": "query:device_neighbors + query:device_ring + query:device_case_links",
+        "entity_ids": [
+          "C06710-K1",
+          "C01289-K1",
+          "C01996-K2",
+          "C02910-K1",
+          "C02975-K1",
+          "C03676-K2",
+          "C04108-K2",
+          "C04274-K1",
+          "C05448-K2",
+          "C06031-K2",
+          "C06650-K2",
+          "C07472-K1",
+          "C08168-K1",
+          "C08972-K2",
+          "C09049-K1",
+          "C09195-K1",
+          "C09906-K1",
+          "C09975-K1",
+          "C10020-K1",
+          "C10193-K2",
+          "C10326-K1",
+          "CC-3035",
+          "CC-2971",
+          "CC-2985",
+          "CC-2649"
+        ]
+      },
+      {
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-0849, CC-3035, CC-2971, CC-2985)",
+        "source": "graph",
+        "ref": "query:similar_closed_cases (TigerVector)",
+        "entity_ids": [
+          "CC-0849",
+          "CC-3035",
+          "CC-2971",
+          "CC-2985"
+        ]
+      },
+      {
+        "claim": "Retrieved guidance: R4 No reply within 24 hours. (fraud_policy_v1)",
+        "source": "document",
+        "ref": "doc:fraud_policy_v1#07",
+        "entity_ids": []
+      },
+      {
+        "claim": "Simulated: the one-time passcode sent to the cardholder's registered phone was not completed for the session that made the $92.16 purchase; contacted separately, the cardholder said they did not make it and still holds the card",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "3506095"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0849",
+      "CC-3035",
+      "CC-2971",
+      "CC-2985",
+      "CC-2649"
+    ],
+    "summary": "Fraud: an undocumented pattern on card C06710-K1. Device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' was used by 28 cards in a 60-day window around the alert; 28 of them behind an anonymous/hidden proxy and 28 flagged as a New device. 4 closed case(s) on cards that used this profile were confirmed fraud, 4 of them recorded as an undocumented pattern. Connection went through an anonymous proxy (IP_PROXY:ANONYMOUS). Evidence request answered (denied); probability moved 0.82 -> 0.96. Episode of 2 transaction(s), exposure $276.35.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-2016-MON-032"
+  },
+  "evidence_requests": [
+    {
+      "type": "step_up_auth",
+      "asked_after_step": 9,
+      "assumed_response": "Simulated: the one-time passcode sent to the cardholder's registered phone was not completed for the session that made the $92.16 purchase; contacted separately, the cardholder said they did not make it and still holds the card"
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "STEP_UP_AUTH",
+        "route": "auto",
+        "reason": "R1: single/weak signal below 0.70, confirm identity before any block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: evidence is being requested"
+      },
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "reason": "Raise monitoring for 72h while the verification is pending"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: other cards share the same origin; monitor while pending"
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denied the activity; exposure $276.35 <= $2,500 (L1)"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: case opened when evidence was requested; the response is recorded in it"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: monitor every card that shares the device profile / region / ring"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "File: activity connects to a shared device profile / other cards (3a, R2, R6); pattern is coordinated or undocumented (3a, R9)."
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: undocumented / coordinated pattern, analyst review; R8: evidence conflicts"
+      }
+    ],
+    "what_changed": "the one-time passcode sent to the cardholder's registered phone was not completed for the session that made the $92.16 purchase; contacted separately, the cardholder said they did not make it and still holds the card. Probability 0.82 -> 0.96; added BLOCK_CARD, ESCALATE_TO_ANALYST, FILE_REPORT; dropped MONITOR_CARD, STEP_UP_AUTH."
+  },
+  "sar": {
+    "file": true,
+    "reason": "File: activity connects to a shared device profile / other cards (3a, R2, R6); pattern is coordinated or undocumented (3a, R9).",
+    "narrative": "Customer C06710, holder of card C06710-K1, is the subject of this report. Between 2016-11-20 14:39 and 2016-12-02 10:38, 2 transaction(s) totalling $276.35 were made on the card online from device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' through an anonymous proxy: $184.19 (3473057, 2016-11-20 14:39), $92.16 (3506095, 2016-12-02 10:38). The same device profile was used on 27 other customers' cards in the same period (C01289-K1, C01996-K2, C02910-K1, C02975-K1, C03676-K2, C04108-K2, C04274-K1, C05448-K2...), most of them behind anonymous proxies and each time as a new device, indicating a common actor. When contacted, the cardholder stated they did not make the transactions and still holds the card. The activity is suspicious because: Device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' was used by 28 cards in a 60-day window around the alert; 28 of them behind an anonymous/hidden proxy and 28 flagged as a New device. 4 closed case(s) on cards that used this profile were confirmed fraud, 4 of them recorded as an undocumented pattern. It closely resembles earlier confirmed fraud cases CC-0849, CC-3035, CC-2971. The bank has recommended blocking and reissuing the card, placed linked cards under monitoring where applicable, and retains the transaction, device and investigation records as supporting documentation.",
+    "subjects": [
+      "C06710",
+      "C06710-K1",
+      "C01289-K1",
+      "C01996-K2",
+      "C02910-K1",
+      "C02975-K1",
+      "C03676-K2",
+      "C04108-K2",
+      "C04274-K1",
+      "C05448-K2",
+      "C06031-K2",
+      "C06650-K2",
+      "C07472-K1",
+      "C08168-K1",
+      "C08972-K2",
+      "C09049-K1",
+      "C09195-K1",
+      "C09906-K1",
+      "C09975-K1",
+      "C10020-K1",
+      "C10193-K2",
+      "C10326-K1",
+      "C11082-K1",
+      "C11670-K2",
+      "C11702-K1",
+      "C12645-K1",
+      "C12796-K1",
+      "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080"
+    ],
+    "total_amount_usd": 276.35,
+    "activity_dates": [
+      "2016-11-20",
+      "2016-12-02"
+    ]
+  },
+  "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.96. Further graph steps would not change the actions (policy 6).",
+  "tool_calls": 10,
+  "tokens": 0,
+  "latency_s": 0.26,
+  "graph_case_id": "CASE-2016-MON-032",
+  "card_id": "C06710-K1",
+  "opened_at": "2016-12-02 10:38:00",
+  "trigger": {
+    "type": "analyst_request",
+    "text": "Monitoring alert (device_ring): C06710-K1 used device 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' shared by 28 cards behind anonymous proxies. Review transaction 3506095 on card C06710-K1.",
+    "flagged_txn_id": "3506095"
+  },
+  "status": "closed_fraud",
+  "pattern": "undocumented",
+  "exposure_usd": 276.35,
+  "summary": "Fraud: an undocumented pattern on card C06710-K1. Device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' was used by 28 cards in a 60-day window around the alert; 28 of them behind an anonymous/hidden proxy and 28 flagged as a New device. 4 closed case(s) on cards that used this profile were confirmed fraud, 4 of them recorded as an undocumented pattern. Connection went through an anonymous proxy (IP_PROXY:ANONYMOUS). Evidence request answered (denied); probability moved 0.82 -> 0.96. Episode of 2 transaction(s), exposure $276.35.",
+  "timeline": [
+    {
+      "step": "trigger",
+      "at": "16:09:28",
+      "detail": "analyst_request: Monitoring alert (device_ring): C06710-K1 used device 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' shared by 28 cards behind anonymous proxies. Review transaction 3506095 on card C06710-K1."
+    },
+    {
+      "step": "tool",
+      "at": "16:09:28",
+      "detail": "txn_detail(txn_id=3506095) -> id=3506095, ts=2016-12-02 10:38:00, amt=92.16, product=C, channel=online",
+      "tool": "txn_detail",
+      "ms": 9.5
+    },
+    {
+      "step": "open_case",
+      "at": "16:09:28",
+      "detail": "Case opened for C06710-K1; flagged $92.16 online txn 3506095 at 2016-12-02 10:38:00"
+    },
+    {
+      "step": "tool",
+      "at": "16:09:28",
+      "detail": "card_window(card=C06710-K1, center_ts=2016-12-02 10:38:00, hours_before=48, hours_after=48) -> 1 rows",
+      "tool": "card_window",
+      "ms": 12.0
+    },
+    {
+      "step": "evidence",
+      "at": "16:09:28",
+      "detail": "Analyst requested review: Monitoring alert (device_ring): C06710-K1 used device 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' shared by 28 cards behind anon",
+      "weight": 0.3,
+      "family": "analyst"
+    },
+    {
+      "step": "evidence",
+      "at": "16:09:28",
+      "detail": "Case-memory model score 0.007: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) clearly does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.24",
+      "weight": -1.7,
+      "family": "model"
+    },
+    {
+      "step": "tool",
+      "at": "16:09:28",
+      "detail": "card_baseline(card=C06710-K1, before_ts=2016-11-30 10:38:00, lookback_days=150) -> n_txns=24, total_amt=2617.24, amounts=24, regions=3, products=3",
+      "tool": "card_baseline",
+      "ms": 22.2
+    },
+    {
+      "step": "evidence",
+      "at": "16:09:28",
+      "detail": "$92.16 is within the card's usual range (median $51.81, 95th percentile $226.09)",
+      "weight": -0.3,
+      "family": "behaviour"
+    },
+    {
+      "step": "evidence",
+      "at": "16:09:28",
+      "detail": "Device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' was already used on this card before the alert (1 prior transactions)",
+      "weight": -0.6,
+      "family": "device"
+    },
+    {
+      "step": "evidence",
+      "at": "16:09:28",
+      "detail": "Connection went through an anonymous proxy (IP_PROXY:ANONYMOUS)",
+      "weight": 0.5,
+      "family": "device"
+    },
+    {
+      "step": "tool",
+      "at": "16:09:28",
+      "detail": "card_case_history(card=C06710-K1) -> 1 rows",
+      "tool": "card_case_history",
+      "ms": 15.2
+    },
+    {
+      "step": "tool",
+      "at": "16:09:28",
+      "detail": "device_neighbors(device=SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080, center_ts=2016-12-02 10:38:00, days=30) -> uses=60, cards=28, card_cases=15, all_time_txns=114, all_time_cards=52",
+      "tool": "device_neighbors",
+      "ms": 19.7
+    },
+    {
+      "step": "evidence",
+      "at": "16:09:28",
+      "detail": "Device profile 'SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080' was used by 28 cards in a 60-day window around the alert; 28 of them behind an anonymous/hidden proxy and 28 flagged as a New device. 0 closed case(s) on cards that used this profile were confirmed fraud",
+      "weight": 2.6,
+      "family": "network"
+    },
+    {
+      "step": "tool",
+      "at": "16:09:28",
+      "detail": "device_case_links(device=SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080) -> 20 rows",
+      "tool": "device_case_links",
+      "ms": 16.0
+    },
+    {
+      "step": "tool",
+      "at": "16:09:28",
+      "detail": "device_ring(seed=C06710-K1, center_ts=2016-12-02 10:38:00, days=30, hops=2) -> cards=785, devices=131",
+      "tool": "device_ring",
+      "ms": 84.9
+    },
+    {
+      "step": "tool",
+      "at": "16:09:28",
+      "detail": "similar_closed_cases(k=8) -> 8 rows",
+      "tool": "similar_closed_cases",
+      "ms": 15.9
+    },
+    {
+      "step": "evidence",
+      "at": "16:09:28",
+      "detail": "8 of the 8 most similar closed cases were confirmed fraud (CC-0849, CC-3035, CC-2971, CC-2985)",
+      "weight": 0.3,
+      "family": "memory"
+    },
+    {
+      "step": "tool",
+      "at": "16:09:28",
+      "detail": "search_docs(k=5) -> 5 rows",
+      "tool": "search_docs",
+      "ms": 9.5
+    },
+    {
+      "step": "assess",
+      "at": "16:09:28",
+      "detail": "initial assessment: fraud probability 0.82, 1 independent signal families (analyst +0.3, model -1.7, behaviour -0.3, device -0.1, network +3.0, memory +0.3)",
+      "probability": 0.818
+    },
+    {
+      "step": "recommend_initial",
+      "at": "16:09:28",
+      "detail": "Initial next best action: CREATE_CASE, STEP_UP_AUTH, MONITOR_CARD, MONITOR_CONNECTED_CARDS",
+      "actions": [
+        {
+          "action": "STEP_UP_AUTH",
+          "route": "auto",
+          "reason": "R1: single/weak signal below 0.70, confirm identity before any block"
+        },
+        {
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "reason": "3a: evidence is being requested"
+        },
+        {
+          "action": "MONITOR_CARD",
+          "route": "auto",
+          "reason": "Raise monitoring for 72h while the verification is pending"
+        },
+        {
+          "action": "MONITOR_CONNECTED_CARDS",
+          "route": "auto",
+          "reason": "R6: other cards share the same origin; monitor while pending"
+        }
+      ]
+    },
+    {
+      "step": "request_evidence",
+      "at": "16:09:28",
+      "detail": "Requested step_up_auth after step 9: probability 0.82 sits between 0.15 and 0.85 (policy 6, R1)"
+    },
+    {
+      "step": "evidence_received",
+      "at": "16:09:28",
+      "detail": "Simulated response (denied): Simulated: the one-time passcode sent to the cardholder's registered phone was not completed for the session that made the $92.16 purchase; contacted separately, the cardholder said they did not make it and still holds the card. Probability 0.82 -> 0.96"
+    },
+    {
+      "step": "recommend_final",
+      "at": "16:09:28",
+      "detail": "Final next best action: CREATE_CASE, BLOCK_CARD, MONITOR_CONNECTED_CARDS, FILE_REPORT, ESCALATE_TO_ANALYST",
+      "actions": [
+        {
+          "action": "BLOCK_CARD",
+          "route": "L1",
+          "reason": "R2: customer denied the activity; exposure $276.35 <= $2,500 (L1)"
+        },
+        {
+          "action": "CREATE_CASE",
+          "route": "auto",
+          "reason": "3a: case opened when evidence was requested; the response is recorded in it"
+        },
+        {
+          "action": "MONITOR_CONNECTED_CARDS",
+          "route": "auto",
+          "reason": "R6: monitor every card that shares the device profile / region / ring"
+        },
+        {
+          "action": "FILE_REPORT",
+          "route": "L2",
+          "reason": "File: activity connects to a shared device profile / other cards (3a, R2, R6); pattern is coordinated or undocumented (3a, R9)."
+        },
+        {
+          "action": "ESCALATE_TO_ANALYST",
+          "route": "auto",
+          "reason": "R9: undocumented / coordinated pattern, analyst review; R8: evidence conflicts"
+        }
+      ]
+    },
+    {
+      "step": "update_memory",
+      "at": "16:09:28",
+      "detail": "Case written to TigerGraph as CASE-2016-MON-032"
+    }
+  ]
+}

@@ -54,14 +54,14 @@
         ]
       },
       {
-        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-4240, CC-3457, CC-3044, CC-4254)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-4240, CC-3457, CC-3044, CC-2496)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
           "CC-4240",
           "CC-3457",
           "CC-3044",
-          "CC-4254"
+          "CC-2496"
         ]
       }
     ],
@@ -69,8 +69,8 @@
       "CC-4240",
       "CC-3457",
       "CC-3044",
-      "CC-4254",
       "CC-2496",
+      "CC-4254",
       "CC-1524",
       "CC-0104"
     ],
@@ -117,5 +117,5 @@
   "stop_reason": "Fraud probability 0.88 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 7,
   "tokens": 0,
-  "latency_s": 0.19
+  "latency_s": 0.16
 }

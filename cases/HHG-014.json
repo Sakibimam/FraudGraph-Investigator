@@ -113,9 +113,9 @@
           "C10020-K1",
           "C10193-K2",
           "CC-3035",
+          "CC-2971",
           "CC-2985",
-          "CC-2649",
-          "CC-2971"
+          "CC-2649"
         ]
       },
       {
@@ -257,5 +257,5 @@
   "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.98. Further graph steps would not change the actions (policy 6).",
   "tool_calls": 10,
   "tokens": 0,
-  "latency_s": 0.21
+  "latency_s": 0.17
 }

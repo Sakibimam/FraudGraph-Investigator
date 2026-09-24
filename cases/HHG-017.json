@@ -62,9 +62,9 @@
     "similar_prior_cases": [
       "CC-5455",
       "CC-3520",
-      "CC-0995",
       "CC-2504",
-      "CC-5214",
+      "CC-0727",
+      "CC-0995",
       "CC-1383"
     ],
     "summary": "Legitimate: the flagged $100.09 online transaction fits the cardholder. Case-memory model score 0.093: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.57. Device profile 'Windows | Windows 10 | chrome 65.0 | 1920x1080' was already used on this card before the alert (1 prior transactions). Evidence request answered (confirmed); probability moved 0.21 -> 0.03.",
@@ -121,5 +121,5 @@
   "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.03. Nothing left to investigate (policy 6, R3).",
   "tool_calls": 8,
   "tokens": 0,
-  "latency_s": 0.14
+  "latency_s": 0.13
 }

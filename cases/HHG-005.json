@@ -101,5 +101,5 @@
   "stop_reason": "Fraud probability 0.07 is at or below 0.15 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 7,
   "tokens": 0,
-  "latency_s": 0.08
+  "latency_s": 0.06
 }

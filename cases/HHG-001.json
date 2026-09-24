@@ -35,14 +35,14 @@
         "entity_ids": []
       },
       {
-        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-2334, CC-1827, CC-2313, CC-2510)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-1827, CC-2334, CC-2510, CC-2313)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-2334",
           "CC-1827",
-          "CC-2313",
-          "CC-2510"
+          "CC-2334",
+          "CC-2510",
+          "CC-2313"
         ]
       },
       {
@@ -61,10 +61,10 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-2334",
       "CC-1827",
-      "CC-2313",
+      "CC-2334",
       "CC-2510",
+      "CC-2313",
       "CC-1502",
       "CC-1066",
       "CC-2964"
@@ -123,5 +123,5 @@
   "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.06. Nothing left to investigate (policy 6, R3).",
   "tool_calls": 8,
   "tokens": 0,
-  "latency_s": 0.26
+  "latency_s": 0.19
 }

@@ -136,5 +136,5 @@
   "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.96. Further graph steps would not change the actions (policy 6).",
   "tool_calls": 10,
   "tokens": 0,
-  "latency_s": 0.16
+  "latency_s": 0.21
 }
