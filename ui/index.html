@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FraudGraph Investigator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/ui/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="logo">◆</span> FraudGraph <span class="muted">Investigator</span></div>
+    <div class="status" id="status">connecting…</div>
+  </header>
+
+  <main class="layout">
+    <aside class="queue">
+      <div class="queue-head">
+        <h2>Case queue</h2>
+        <div class="filters" id="filters">
+          <button data-f="all" class="on">All</button>
+          <button data-f="fraud">Fraud</button>
+          <button data-f="legitimate">Legit</button>
+          <button data-f="pending">Needs approval</button>
+        </div>
+      </div>
+      <ul id="caseList"></ul>
+    </aside>
+
+    <section class="detail" id="detail">
+      <div class="empty">Select a case from the queue.</div>
+    </section>
+  </main>
+
+  <template id="detailTpl">
+    <div class="case-head">
+      <div>
+        <div class="case-id"><span data-k="case_id"></span> <span class="chip" data-k="trigger_type"></span></div>
+        <p class="trigger" data-k="trigger_text"></p>
+      </div>
+      <button class="run" id="runBtn">▶ Run investigation</button>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><label>Verdict</label><div data-k="verdict" class="verdict"></div></div>
+      <div class="kpi"><label>Fraud probability</label>
+        <div class="prob"><span data-k="p0"></span><span class="arrow">→</span><span data-k="p1"></span></div>
+        <div class="bar"><div class="band"></div><i data-k="bar0"></i><b data-k="bar1"></b></div>
+      </div>
+      <div class="kpi"><label>Pattern</label><div data-k="pattern"></div></div>
+      <div class="kpi"><label>Exposure</label><div data-k="exposure"></div></div>
+      <div class="kpi"><label>Status</label><div data-k="status"></div></div>
+      <div class="kpi"><label>SAR</label><div data-k="sar"></div></div>
+    </div>
+
+    <nav class="tabs" id="tabs">
+      <button data-t="summary" class="on">Summary</button>
+      <button data-t="timeline">Agent timeline</button>
+      <button data-t="evidence">Evidence</button>
+      <button data-t="graph">Graph</button>
+      <button data-t="actions">Next best action</button>
+      <button data-t="sar">SAR</button>
+      <button data-t="memory">Case memory</button>
+    </nav>
+
+    <div class="tab" data-t="summary"></div>
+    <div class="tab hidden" data-t="timeline"><ol class="timeline" id="timeline"></ol></div>
+    <div class="tab hidden" data-t="evidence"></div>
+    <div class="tab hidden" data-t="graph"><div id="graph"></div><div class="legend" id="legend"></div></div>
+    <div class="tab hidden" data-t="actions"></div>
+    <div class="tab hidden" data-t="sar"></div>
+    <div class="tab hidden" data-t="memory"></div>
+  </template>
+
+  <script src="/ui/app.js"></script>
+</body>
+</html>
