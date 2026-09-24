@@ -1,0 +1,241 @@
+USE GRAPH FraudGraph
+
+# ---------------------------------------------------------------------------------------
+# One transaction with its card, device profile and region: the agent's first look.
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY txn_detail(VERTEX<Txn> txn) FOR GRAPH FraudGraph SYNTAX v2 {
+  TYPEDEF TUPLE<STRING id, STRING ts, DOUBLE amt, STRING product, STRING channel, DOUBLE risk,
+                STRING region, STRING p_email, STRING r_email, STRING device, STRING dev_status,
+                STRING proxy_type, STRING m4, STRING m6, DOUBLE cm_score, STRING card> Row;
+  MaxAccum<STRING> @@card, @@device;
+  ListAccum<Row> @@out;
+  S = {txn};
+  K = SELECT k FROM S:t -(MADE_BY>)- Card:k ACCUM @@card += k.id;
+  D = SELECT d FROM S:t -(FROM_DEVICE>)- DeviceProfile:d ACCUM @@device += d.id;
+  S = SELECT t FROM S:t
+      POST-ACCUM @@out += Row(t.id, datetime_format(t.ts, "%Y-%m-%d %H:%M:%S"), t.amt, t.product, t.channel,
+                              t.risk, t.addr1, t.p_email, t.r_email, @@device, t.dev_status, t.proxy_type,
+                              t.m4, t.m6, t.cm_score, @@card);
+  FOREACH r IN @@out DO PRINT r AS txn; END;
+}
+
+# ---------------------------------------------------------------------------------------
+# Transactions on one card inside a time window, with device / region / email context.
+# The agent's first look at "what happened around the alert".
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY card_window(VERTEX<Card> card, STRING center_ts, INT hours_before = 48,
+                                    INT hours_after = 48) FOR GRAPH FraudGraph SYNTAX v2 {
+  TYPEDEF TUPLE<STRING id, STRING ts, DOUBLE amt, STRING product, STRING channel, DOUBLE risk,
+                STRING region, STRING p_email, STRING device, STRING dev_status, STRING proxy_type,
+                STRING m4, STRING m6, DOUBLE cm_score, STRING card> Row;
+  ListAccum<Row> @@rows;
+  MaxAccum<STRING> @device;
+  DATETIME c = to_datetime(center_ts);
+  DATETIME lo = datetime_sub(c, INTERVAL hours_before HOUR);
+  DATETIME hi = datetime_add(c, INTERVAL hours_after HOUR);
+
+  S = {card};
+  T = SELECT t FROM S:s -(MADE>)- Txn:t WHERE t.ts >= lo AND t.ts <= hi;
+  X = SELECT d FROM T:t -(FROM_DEVICE>)- DeviceProfile:d ACCUM t.@device += d.id;
+  T = SELECT t FROM T:t
+      POST-ACCUM @@rows += Row(t.id, datetime_format(t.ts, "%Y-%m-%d %H:%M:%S"), t.amt, t.product,
+                               t.channel, t.risk, t.addr1, t.p_email, t.@device, t.dev_status,
+                               t.proxy_type, t.m4, t.m6, t.cm_score, card.id);
+  PRINT @@rows AS txns;
+}
+
+# ---------------------------------------------------------------------------------------
+# Behavioural baseline of a card strictly before a moment: where it is used, how, how much,
+# on which devices and email domains. Everything the detectors compare the alert against.
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY card_baseline(VERTEX<Card> card, STRING before_ts, INT lookback_days = 150)
+    FOR GRAPH FraudGraph SYNTAX v2 {
+  MapAccum<STRING, SumAccum<INT>> @@regions, @@products, @@channels, @@emails, @@devices;
+  SumAccum<INT> @@n;
+  SumAccum<DOUBLE> @@total;
+  ListAccum<DOUBLE> @@amts;
+  MinAccum<DATETIME> @@first_seen;
+  MaxAccum<DATETIME> @@last_seen;
+  DATETIME c = to_datetime(before_ts);
+  DATETIME lo = datetime_sub(c, INTERVAL lookback_days DAY);
+
+  S = {card};
+  T = SELECT t FROM S:s -(MADE>)- Txn:t WHERE t.ts < c AND t.ts >= lo
+      ACCUM @@n += 1, @@total += t.amt, @@amts += t.amt,
+            @@products += (t.product -> 1), @@channels += (t.channel -> 1),
+            @@first_seen += t.ts, @@last_seen += t.ts,
+            IF t.addr1 != "" THEN @@regions += (t.addr1 -> 1) END,
+            IF t.p_email != "" THEN @@emails += (t.p_email -> 1) END;
+  D = SELECT d FROM T:t -(FROM_DEVICE>)- DeviceProfile:d ACCUM @@devices += (d.id -> 1);
+  PRINT @@n AS n_txns, @@total AS total_amt, @@amts AS amounts, @@regions AS regions,
+        @@products AS products, @@channels AS channels, @@emails AS emails, @@devices AS devices,
+        @@first_seen AS first_seen, @@last_seen AS last_seen;
+}
+
+# ---------------------------------------------------------------------------------------
+# Who else used this device profile around the alert? Returns cards, customers, their
+# transactions on the device, proxy / new-device flags, and any case history on them.
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY device_neighbors(VERTEX<DeviceProfile> device, STRING center_ts, INT days = 30)
+    FOR GRAPH FraudGraph SYNTAX v2 {
+  TYPEDEF TUPLE<STRING card, STRING txn, STRING ts, DOUBLE amt, STRING product, DOUBLE risk,
+                STRING dev_status, STRING proxy_type, STRING region> Use;
+  ListAccum<Use> @@uses;
+  SetAccum<STRING> @@cards;
+  MapAccum<STRING, STRING> @@card_cases;
+  SumAccum<INT> @@all_time_txns;
+  SetAccum<STRING> @@all_time_cards;
+  DATETIME c = to_datetime(center_ts);
+  DATETIME lo = datetime_sub(c, INTERVAL days DAY);
+  DATETIME hi = datetime_add(c, INTERVAL days DAY);
+
+  D = {device};
+  T = SELECT t FROM D:d -(DEVICE_OF>)- Txn:t;
+  A = SELECT k FROM T:t -(MADE_BY>)- Card:k ACCUM @@all_time_txns += 1, @@all_time_cards += k.id;
+  W = SELECT t FROM T:t WHERE t.ts >= lo AND t.ts <= hi;
+  K = SELECT k FROM W:t -(MADE_BY>)- Card:k
+      ACCUM @@uses += Use(k.id, t.id, datetime_format(t.ts, "%Y-%m-%d %H:%M:%S"), t.amt, t.product,
+                          t.risk, t.dev_status, t.proxy_type, t.addr1),
+            @@cards += k.id;
+  CC = SELECT cc FROM K:k -(HAS_CASE>)- ClosedCase:cc
+       ACCUM @@card_cases += (k.id -> cc.id + ":" + cc.outcome + ":" + cc.pattern);
+  PRINT @@uses AS uses, @@cards AS cards, @@card_cases AS card_cases,
+        @@all_time_txns AS all_time_txns, @@all_time_cards.size() AS all_time_cards;
+}
+
+# ---------------------------------------------------------------------------------------
+# Billing-region cluster: cards with card-present purchases in a region during a window,
+# and whether the region is new for each card (no history there before the window).
+# A burst of cards that are all new to one region in the same window is a shared origin (R6).
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY region_cluster(VERTEX<BillingRegion> region, STRING center_ts, INT hours = 72,
+                                       STRING channel = "in_person") FOR GRAPH FraudGraph SYNTAX v2 {
+  TYPEDEF TUPLE<STRING card, INT n_in_window, DOUBLE amt_in_window, INT prior_in_region,
+                INT prior_total, DOUBLE max_risk> CardRow;
+  SumAccum<INT> @n_win, @prior_region, @prior_total;
+  SumAccum<DOUBLE> @amt_win;
+  MaxAccum<DOUBLE> @max_risk;
+  ListAccum<CardRow> @@cards;
+  DATETIME c = to_datetime(center_ts);
+  DATETIME lo = datetime_sub(c, INTERVAL hours HOUR);
+  DATETIME hi = datetime_add(c, INTERVAL hours HOUR);
+
+  R = {region};
+  W = SELECT t FROM R:r -(REGION_OF>)- Txn:t WHERE t.ts >= lo AND t.ts <= hi AND t.channel == channel;
+  K = SELECT k FROM W:t -(MADE_BY>)- Card:k ACCUM k.@n_win += 1, k.@amt_win += t.amt, k.@max_risk += t.risk;
+  H = SELECT k FROM K:k -(MADE>)- Txn:t WHERE t.ts < lo
+      ACCUM k.@prior_total += 1, IF t.addr1 == region.id THEN k.@prior_region += 1 END;
+  K = SELECT k FROM K:k POST-ACCUM @@cards += CardRow(k.id, k.@n_win, k.@amt_win, k.@prior_region,
+                                                      k.@prior_total, k.@max_risk);
+  PRINT @@cards AS cards;
+}
+
+# ---------------------------------------------------------------------------------------
+# Prior charges on the card that match an amount and product: evidence of a recurring
+# (subscription-like) charge the customer may be disputing by mistake (R7).
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY recurring_matches(VERTEX<Card> card, STRING before_ts, DOUBLE amt,
+                                          STRING product, DOUBLE tolerance = 0.02) FOR GRAPH FraudGraph SYNTAX v2 {
+  TYPEDEF TUPLE<STRING id, STRING ts, DOUBLE amt, STRING p_email, STRING channel> M;
+  ListAccum<M> @@matches;
+  DATETIME c = to_datetime(before_ts);
+  DOUBLE tol = amt * tolerance;
+  S = {card};
+  T = SELECT t FROM S:s -(MADE>)- Txn:t
+      WHERE t.ts < c AND t.product == product AND abs(t.amt - amt) <= tol
+      ACCUM @@matches += M(t.id, datetime_format(t.ts, "%Y-%m-%d %H:%M:%S"), t.amt, t.p_email, t.channel);
+  PRINT @@matches AS matches;
+}
+
+# ---------------------------------------------------------------------------------------
+# Case memory by graph: closed cases and agent investigations on this card, on the
+# customer's other cards, and those linked to the same devices.
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY card_case_history(VERTEX<Card> card) FOR GRAPH FraudGraph SYNTAX v2 {
+  TYPEDEF TUPLE<STRING case_id, STRING card, STRING relation, STRING outcome, STRING pattern,
+                DOUBLE exposure, STRING opened_at, STRING notes> CaseRow;
+  ListAccum<CaseRow> @@cases;
+  STRING seed_id = card.id;
+  S = {card};
+  Cu = SELECT c FROM S:s -(OWNS)- Customer:c;
+  Ks = SELECT k FROM Cu:c -(OWNS)- Card:k;
+  X = SELECT cc FROM Ks:k -(HAS_CASE>)- ClosedCase:cc
+      ACCUM STRING rel = "same_customer",
+            IF k.id == seed_id THEN rel = "same_card" END,
+            @@cases += CaseRow(cc.id, k.id, rel, cc.outcome, cc.pattern, cc.exposure,
+                               datetime_format(cc.opened_at, "%Y-%m-%d"), cc.notes);
+  Y = SELECT cc FROM S:s -(LINKED_CASE>)- ClosedCase:cc
+      ACCUM @@cases += CaseRow(cc.id, s.id, "connected_card", cc.outcome, cc.pattern, cc.exposure,
+                               datetime_format(cc.opened_at, "%Y-%m-%d"), cc.notes);
+  Z = SELECT ic FROM Ks:k -(HAS_INVESTIGATION>)- InvestigationCase:ic
+      ACCUM @@cases += CaseRow(ic.id, k.id, "agent_case", ic.status, ic.pattern, ic.exposure,
+                               datetime_format(ic.opened_at, "%Y-%m-%d"), ic.summary);
+  PRINT @@cases AS cases;
+}
+
+# ---------------------------------------------------------------------------------------
+# Closed cases touching any card that shared a device with this card (2-hop case memory).
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY device_case_links(VERTEX<DeviceProfile> device) FOR GRAPH FraudGraph SYNTAX v2 {
+  TYPEDEF TUPLE<STRING case_id, STRING card, STRING outcome, STRING pattern, STRING notes> L;
+  ListAccum<L> @@links;
+  D = {device};
+  T = SELECT t FROM D:d -(DEVICE_OF>)- Txn:t;
+  C = SELECT cc FROM T:t -(IN_CASE>)- ClosedCase:cc;
+  C = SELECT cc FROM C:cc -(ON_CARD>)- Card:k
+      ACCUM @@links += L(cc.id, k.id, cc.outcome, cc.pattern, cc.notes);
+  I = SELECT ic FROM D:d -(DEVICE_INVESTIGATION>)- InvestigationCase:ic
+      ACCUM @@links += L(ic.id, "", ic.status, ic.pattern, ic.summary);
+  PRINT @@links AS links;
+}
+
+# ---------------------------------------------------------------------------------------
+# Semantic memory: vector search over closed-case profiles (TigerVector).
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY similar_closed_cases(LIST<FLOAT> qv, INT k = 8) FOR GRAPH FraudGraph SYNTAX v2 {
+  MapAccum<VERTEX, FLOAT> @@dist;
+  R = vectorSearch({ClosedCase.emb}, qv, k, {distance_map: @@dist});
+  PRINT R[R.id, R.outcome, R.pattern, R.exposure, R.actions, R.report_filed, R.notes] AS cases;
+  PRINT @@dist AS distances;
+}
+
+CREATE OR REPLACE QUERY search_docs(LIST<FLOAT> qv, INT k = 5) FOR GRAPH FraudGraph SYNTAX v2 {
+  MapAccum<VERTEX, FLOAT> @@dist;
+  R = vectorSearch({DocChunk.emb}, qv, k, {distance_map: @@dist});
+  PRINT R[R.id, R.source, R.section, R.text] AS docs;
+  PRINT @@dist AS distances;
+}
+
+# ---------------------------------------------------------------------------------------
+# Ring expansion: starting from one card, walk card -> txn -> device -> txn -> card inside
+# a window, for up to `hops` rounds. Returns the connected component of cards sharing
+# devices (a windowed weakly-connected component around the seed).
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY device_ring(VERTEX<Card> seed, STRING center_ts, INT days = 30, INT hops = 2,
+                                    INT max_device_cards = 60) FOR GRAPH FraudGraph SYNTAX v2 {
+  OrAccum @visited;
+  SetAccum<STRING> @@devices, @@cards;
+  SetAccum<STRING> @dev_cards;
+  DATETIME c = to_datetime(center_ts);
+  DATETIME lo = datetime_sub(c, INTERVAL days DAY);
+  DATETIME hi = datetime_add(c, INTERVAL days DAY);
+
+  Frontier = {seed};
+  Frontier = SELECT k FROM Frontier:k POST-ACCUM k.@visited = TRUE, @@cards += k.id;
+  WHILE Frontier.size() > 0 LIMIT hops DO
+    T = SELECT t FROM Frontier:k -(MADE>)- Txn:t WHERE t.ts >= lo AND t.ts <= hi;
+    D = SELECT d FROM T:t -(FROM_DEVICE>)- DeviceProfile:d;
+    # Generic profiles (e.g. "Windows |  | chrome 66.0 | ") are shared by hundreds of unrelated
+    # cards; only follow devices whose card fan-out in the window is ring-sized.
+    T2 = SELECT t FROM D:d -(DEVICE_OF>)- Txn:t WHERE t.ts >= lo AND t.ts <= hi;
+    K2 = SELECT k FROM T2:t -(MADE_BY>)- Card:k ACCUM t.@dev_cards += k.id;
+    D = SELECT d FROM D:d -(DEVICE_OF>)- Txn:t WHERE t.ts >= lo AND t.ts <= hi
+        ACCUM d.@dev_cards += t.@dev_cards
+        HAVING d.@dev_cards.size() <= max_device_cards;
+    D = SELECT d FROM D:d POST-ACCUM @@devices += d.id;
+    T3 = SELECT t FROM D:d -(DEVICE_OF>)- Txn:t WHERE t.ts >= lo AND t.ts <= hi;
+    Frontier = SELECT k FROM T3:t -(MADE_BY>)- Card:k WHERE k.@visited == FALSE
+               POST-ACCUM k.@visited = TRUE, @@cards += k.id;
+  END;
+  PRINT @@cards AS cards, @@devices AS devices;
+}
