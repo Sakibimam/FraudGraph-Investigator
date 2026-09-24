@@ -29,6 +29,9 @@ Architecture diagram and design notes: [`docs/ARCHITECTURE.md`](docs/ARCHITECTUR
   refuses approvals from the wrong role.
 - **Two undocumented patterns detected**: sub-$500 structuring bursts and an anonymous-proxy device ring. The monitor
   found 30 more cases in November–December beyond the case pack (`monitor/`).
+- **LLM: Gemini 3.5 Flash-Lite** (free tier, via its OpenAI-compatible endpoint) re-ranks tools and writes the case
+  summaries and SAR narratives from the retrieved evidence and policy text; an ID guard rejects any output that
+  mentions an entity not in the evidence, and the policy engine alone decides actions and routes.
 - **Analyst dashboard**: live agent timeline (SSE), evidence with entity IDs, evidence graph, next best action with
   approvals, SAR and case memory.
 

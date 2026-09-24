@@ -9,12 +9,13 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from dataclasses import dataclass
 
 from fraudagent.config import settings
 
 PROVIDERS = {
-    "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-2.5-flash"),
+    "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-3.5-flash-lite"),
     "groq": ("https://api.groq.com/openai/v1", "llama-3.3-70b-versatile"),
     "openai": ("https://api.openai.com/v1", "gpt-4o-mini"),
     "ollama": ("http://localhost:11434/v1", "llama3.1"),
@@ -37,6 +38,9 @@ class LLM:
     model: str = ""
     tokens: int = 0
     enabled: bool = False
+    calls: int = 0
+    min_interval: float = 4.2   # free tiers allow ~15 requests/minute; stay under it
+    _last: float = 0.0
 
     def __post_init__(self) -> None:
         self.provider = self.provider or _detect_provider()
@@ -55,17 +59,28 @@ class LLM:
     def complete(self, system: str, user: str, max_tokens: int = 700, json_mode: bool = False) -> str | None:
         if not self.enabled:
             return None
-        try:
-            kw = {"response_format": {"type": "json_object"}} if json_mode else {}
-            r = self._client.chat.completions.create(
-                model=self.model, temperature=0.2, max_tokens=max_tokens,
-                messages=[{"role": "system", "content": system}, {"role": "user", "content": user}], **kw)
-            if r.usage:
-                self.tokens += int(r.usage.total_tokens or 0)
-            return (r.choices[0].message.content or "").strip()
-        except Exception as e:  # network / quota: fall back to templates, never fail the case
-            self.last_error = str(e)[:200]
-            return None
+        kw = {"response_format": {"type": "json_object"}} if json_mode else {}
+        for attempt in range(3):
+            wait = self.min_interval - (time.monotonic() - self._last)
+            if wait > 0:
+                time.sleep(wait)
+            self._last = time.monotonic()
+            try:
+                r = self._client.chat.completions.create(
+                    model=self.model, temperature=0.2, max_tokens=max_tokens,
+                    messages=[{"role": "system", "content": system}, {"role": "user", "content": user}], **kw)
+                self.calls += 1
+                if r.usage:
+                    self.tokens += int(r.usage.total_tokens or 0)
+                return (r.choices[0].message.content or "").strip() or None
+            except Exception as e:  # rate limit: back off and retry; anything else: fall back to templates
+                self.last_error = str(e)[:300]
+                m = re.search(r"retry in ([\d.]+)s", self.last_error)
+                if "429" in self.last_error and attempt < 2:
+                    time.sleep(float(m.group(1)) + 1 if m else 30)
+                    continue
+                return None
+        return None
 
     def complete_json(self, system: str, user: str, max_tokens: int = 700) -> dict | None:
         out = self.complete(system, user, max_tokens, json_mode=True)

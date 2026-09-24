@@ -69,7 +69,7 @@
       "CC-1715",
       "CC-3422"
     ],
-    "summary": "Fraud: card-not-present fraud from a new device on card C13171-K2. Case-memory model score 0.769: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.38. Cardholder reported they did not make the $55.68 transaction: \"'I never made this $55.68 purchase. Please check my card.' Refers to 3558054.\". Episode of 3 transaction(s), exposure $166.97.",
+    "summary": "Cardholder dispute confirmed unauthorized activity for a $55.68 transaction, contributing to a total fraud exposure of $166.97 across the episode. The case-memory model scored 0.769, with all eight of the most similar historical closed cases confirmed as fraud. The verdict is fraud under the pattern card_not_present_new_device. Next steps are: CREATE_CASE (auto) and BLOCK_CARD (L1).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-008"
   },
@@ -111,6 +111,6 @@
   },
   "stop_reason": "Fraud probability 0.90 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 8,
-  "tokens": 0,
-  "latency_s": 0.09
+  "tokens": 1074,
+  "latency_s": 6.76
 }

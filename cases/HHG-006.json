@@ -69,25 +69,25 @@
         ]
       },
       {
-        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-0031, CC-3235, CC-3423, CC-2079)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-0031, CC-3235, CC-2079, CC-3423)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
           "CC-0031",
           "CC-3235",
-          "CC-3423",
-          "CC-2079"
+          "CC-2079",
+          "CC-3423"
         ]
       }
     ],
     "similar_prior_cases": [
       "CC-0031",
       "CC-3235",
-      "CC-3423",
       "CC-2079",
+      "CC-3423",
       "CC-2636"
     ],
-    "summary": "Fraud: an undocumented pattern on card C07297-K1. 4 online purchases within 30 minutes, each between $400 and $500 ($478.95, $456.96, $488.04, $482.12; total $1,906.07): amounts kept just under a $500 authorisation threshold. Cardholder reported they did not make the $482.12 transaction: \"'I never made this $482.12 purchase. Please check my card.' Refers to 3476682.\". Episode of 4 transaction(s), exposure $1,906.07.",
+    "summary": "A cardholder disputed a $482.12 transaction, which formed part of a rapid sequence of four online purchases totaling $1,906.07 designed to stay just under a $500 authorization threshold. Historical similarity analysis showed that eight of the eight most comparable closed cases were confirmed fraud. The verdict is fraud with an undocumented pattern and an exposure of $1,906.07. Final actions executed or awaiting approval are: BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), and ESCALATE_TO_ANALYST (auto).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-006"
   },
@@ -142,7 +142,7 @@
   "sar": {
     "file": true,
     "reason": "File: exposure $1,906.07 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9).",
-    "narrative": "Customer C07297, holder of card C07297-K1, is the subject of this report. Between 2016-11-21 20:00 and 2016-11-21 20:30, 4 transaction(s) totalling $1,906.07 were made on the card online from device profile 'Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080': $478.95 (3476602, 2016-11-21 20:00), $456.96 (3476633, 2016-11-21 20:10), $488.04 (3476665, 2016-11-21 20:24), $482.12 (3476682, 2016-11-21 20:30). Every amount sat just below $500 and the purchases were placed minutes apart, a pattern consistent with deliberately staying under an authorisation threshold. The cardholder reported the transaction as unauthorised. The activity is suspicious because: 4 online purchases within 30 minutes, each between $400 and $500 ($478.95, $456.96, $488.04, $482.12; total $1,906.07). It closely resembles earlier confirmed fraud cases CC-0031, CC-3235, CC-3423. The bank has recommended blocking and reissuing the card, placed linked cards under monitoring where applicable, and retains the transaction, device and investigation records as supporting documentation.",
+    "narrative": "Customer C07297, holder of card C07297-K1, is the subject of this suspicious activity report. Between 2016-11-21 20:00 and 2016-11-21 20:30, four online transactions totaling $1,906.07 were executed on the card from device profile 'Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080'. The specific transactions include $478.95 on reference 3476602 at 20:00, $456.96 on reference 3476633 at 20:10, $488.04 on reference 3476665 at 20:24, and $482.12 on reference 3476682 at 20:30. Every amount was kept just below a $500 authorisation threshold, and product code C had never been used on this card before. The final transaction of $482.12 significantly exceeded the card's median of $60.73 and its 95th percentile of $319.86. The cardholder subsequently contacted the bank to dispute the activity, stating, \"I never made this $482.12 purchase. Please check my card.\" This activity closely resembles eight confirmed fraud cases, including CC-0031, CC-3235, CC-2079, and CC-3423. In response to these findings, the bank has executed a case creation and analyst escalation, while awaiting human approval for card blocking and report filing.",
     "subjects": [
       "C07297",
       "C07297-K1"
@@ -155,6 +155,6 @@
   },
   "stop_reason": "Fraud probability 0.98 is at or above 0.85 with 3 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 8,
-  "tokens": 0,
-  "latency_s": 0.09
+  "tokens": 2581,
+  "latency_s": 11.21
 }

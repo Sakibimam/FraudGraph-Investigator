@@ -87,7 +87,7 @@
       "CC-0454",
       "CC-2051"
     ],
-    "summary": "Legitimate: the flagged $39.08 in-person transaction fits the cardholder. Case-memory model score 0.059: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.48. Region 126 is familiar to this card: 545 of 5725 prior transactions were billed there. Evidence request answered (confirmed); probability moved 0.27 -> 0.04.",
+    "summary": "The cardholder initially disputed the $39.08 transaction, but upon reviewing the merchant name, time, and device, recognized the purchase as their own and withdrew the dispute. The transaction amount falls well within the card's usual range and utilizes a familiar billing region, supported by a low case-memory model score of 0.059. The verdict is legitimate with an exposure of $0.00 and no identified fraud pattern. The automated final actions executed for this case are ALLOW_TRANSACTION, CREATE_CASE, and CLOSE_NO_FRAUD.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-018"
   },
@@ -140,6 +140,6 @@
   },
   "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.04. Nothing left to investigate (policy 6, R3).",
   "tool_calls": 9,
-  "tokens": 0,
-  "latency_s": 0.23
+  "tokens": 1334,
+  "latency_s": 8.58
 }

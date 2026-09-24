@@ -122,26 +122,36 @@ def response_followup(st) -> bool:
     return any(e["step"] == "evidence_received" for e in st.timeline)
 
 
-def llm_rewrite(llm, kind: str, draft: str, st, facts, docs) -> str:
+def llm_rewrite(llm, kind: str, draft: str, st, facts, docs, actions: list[dict] | None = None,
+                must_keep: list[str] | None = None) -> str:
     if not llm.enabled:
         return draft
     guidance = "\n".join(f"- {d['section']}: {d['text'][:400]}" for d in docs[:3])
     evidence = "\n".join(f"- {s.claim}" for s in st.signals if s.weight or s.source == "customer")
     if kind == "sar":
         sys = ("You write FinCEN-style SAR narratives. Use only facts in the evidence and draft; keep every ID, date and "
-               "amount exactly as given; cover who, what, when, where, how and why suspicious; 6 to 12 sentences; plain prose.")
+               "amount exactly as given; cover who, what, when, where, how and why suspicious; name the linked cards and "
+               "devices listed in the draft; end with what the bank has done; 6 to 12 sentences; plain prose.")
     else:
         sys = ("You write internal fraud case summaries for analysts: 2 to 6 sentences, plain, factual, no invented facts, "
-               "state the verdict, the key evidence and what happens next.")
+               "state the verdict, the key evidence and what happens next using exactly the final actions given.")
     out = llm.complete(sys, f"Guidance retrieved from policy/regulatory store:\n{guidance}\n\nEvidence:\n{evidence}\n\n"
-                            f"Verdict: {facts.verdict}, pattern: {facts.pattern}, exposure ${facts.exposure:,.2f}\n\n"
+                            f"Verdict: {facts.verdict}, pattern: {facts.pattern}, exposure ${facts.exposure:,.2f}\n"
+                            f"Final actions recommended (auto = executed by the agent; L1/L2 = awaiting human approval): "
+                            f"{', '.join(a['action'] + ' (' + a['route'] + ')' for a in (actions or []))}\n\n"
                             f"Draft to improve:\n{draft}", max_tokens=650 if kind == "sar" else 300)
     if not out:
         return draft
     # guard: the rewrite must not introduce IDs that are not in the draft/evidence
     known = set(re.findall(r"\b(?:\d{7}|C\d{5}(?:-K\d)?|CC-\d{4})\b", draft + evidence))
     used = set(re.findall(r"\b(?:\d{7}|C\d{5}(?:-K\d)?|CC-\d{4})\b", out))
-    return out if used <= known else draft
+    known |= set(must_keep or []) | set(getattr(st, "_known_ids", set()))
+    known |= {st.trigger.card_id, st.trigger.customer_id, st.trigger.flagged_txn_id} | {t["id"] for t in st.window}
+    missing = [k for k in (must_keep or []) if k not in out]
+    if not used <= known or missing:
+        llm.rejected = {"kind": kind, "unknown_ids": sorted(used - known)[:5], "missing": missing[:5]}
+        return draft
+    return out
 
 
 def stop_reason(facts, prob, indep, response) -> str:
@@ -178,10 +188,14 @@ def build_case(llm, st, facts, findings, episode, prob0, prob, indep, plan0: Act
     similar += [c["case_id"] for c in st.history if c["relation"] == "same_card" and c["case_id"].startswith("CC-")][:2]
     similar = list(dict.fromkeys(similar))[:8]
 
-    summary = llm_rewrite(llm, "summary", template_summary(st, facts, prob0, prob, asked, episode), st, facts, st.docs)
+    summary = llm_rewrite(llm, "summary", template_summary(st, facts, prob0, prob, asked, episode), st, facts, st.docs,
+                          final_items, [])
     file_sar = sar[0] and any(i["action"] == "FILE_REPORT" for i in final_items)
     if file_sar:
-        narrative = llm_rewrite(llm, "sar", template_sar(st, facts, findings, episode), st, facts, st.docs)
+        keep = [trig.card_id, trig.customer_id] + [t["id"] for t in episode[:8]]
+        st._known_ids = set(connected_cards) | {c["case_id"] for c in st.similar} | {c["case_id"] for c in st.device_cases}
+        narrative = llm_rewrite(llm, "sar", template_sar(st, facts, findings, episode), st, facts, st.docs,
+                                final_items, keep)
         dates = sorted(t["ts"][:10] for t in episode)
         subjects = [trig.customer_id, trig.card_id] + connected_cards[:25] + devices[:3]
         sar_obj = {"file": True, "reason": sar[1], "narrative": narrative, "subjects": list(dict.fromkeys(subjects)),

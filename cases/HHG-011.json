@@ -82,7 +82,7 @@
       "CC-3039",
       "CC-2247"
     ],
-    "summary": "Fraud: card-not-present fraud from a new device on card C11923-K2. Cardholder reported they did not make the $131.30 transaction: \"'I never made this $131.30 purchase. Please check my card.' Refers to 3583368.\". Identity record marks the device as New for this account and the profile 'SM-G610F Build/NRD90M |  | chrome 66.0 for android | ' never appears in the card's prior history. Evidence request answered (denied); probability moved 0.82 -> 0.96. Episode of 1 transaction(s), exposure $131.30.",
+    "summary": "Verdict: fraud, pattern: card_not_present_new_device, exposure $131.30. The cardholder reported they did not make the $131.30 transaction, and the identity record marks the device as new for this account with a profile that never appears in the card's prior history. Final actions recommended: BLOCK_CARD (L1), CREATE_CASE (auto).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-011"
   },
@@ -135,6 +135,6 @@
   },
   "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.96. Further graph steps would not change the actions (policy 6).",
   "tool_calls": 10,
-  "tokens": 0,
-  "latency_s": 0.21
+  "tokens": 1342,
+  "latency_s": 5.41
 }

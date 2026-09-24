@@ -47,25 +47,25 @@
         ]
       },
       {
-        "claim": "5 of the 8 most similar closed cases were confirmed fraud (CC-3168, CC-0445, CC-3034, CC-2753)",
+        "claim": "5 of the 8 most similar closed cases were confirmed fraud (CC-0445, CC-3168, CC-3034, CC-2753)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-3168",
           "CC-0445",
+          "CC-3168",
           "CC-3034",
           "CC-2753"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-3168",
       "CC-0445",
+      "CC-3168",
       "CC-3034",
       "CC-2753",
       "CC-5528"
     ],
-    "summary": "Fraud: card-not-present fraud on card C08299-K1. Case-memory model score 0.793: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.28. Cardholder reported they did not make the $30.02 transaction: \"'I never made this $30.02 purchase. Please check my card.' Refers to 3581141.\". Episode of 1 transaction(s), exposure $30.02.",
+    "summary": "The cardholder reported they did not make the $30.02 transaction, which is classified as card-not-present fraud with an exposure of $30.02. Key evidence includes a case-memory model score of 0.793 showing similarity to confirmed-fraud closed cases and prior device usage on the card. The verdict is confirmed fraud. The system automatically created a case, and pending human approval is required to block the card.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-009"
   },
@@ -107,6 +107,6 @@
   },
   "stop_reason": "Fraud probability 0.85 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 8,
-  "tokens": 0,
-  "latency_s": 0.12
+  "tokens": 1051,
+  "latency_s": 8.64
 }

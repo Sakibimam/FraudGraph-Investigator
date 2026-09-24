@@ -48,25 +48,25 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-5095, CC-3107, CC-4095, CC-2285)",
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-3107, CC-2285, CC-4095, CC-5095)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-5095",
           "CC-3107",
+          "CC-2285",
           "CC-4095",
-          "CC-2285"
+          "CC-5095"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-5095",
       "CC-3107",
-      "CC-4095",
       "CC-2285",
-      "CC-0010"
+      "CC-4095",
+      "CC-5095",
+      "CC-0180"
     ],
-    "summary": "Fraud: card-not-present fraud from a new device on card C09988-K1. Case-memory model score 0.651: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.37. Cardholder reported they did not make the $59.67 transaction: \"'I never made this $59.67 purchase. Please check my card.' Refers to 3534820.\". Episode of 1 transaction(s), exposure $59.67.",
+    "summary": "A cardholder disputed a $59.67 card-not-present transaction originating from a new device profile. The case-memory model scored 0.651, aligning the feature profile with confirmed-fraud cases despite similar historical transaction amounts. The verdict is fraud with a pattern of card_not_present_new_device and an exposure of $59.67. The automated system has created a case, and the card block (BLOCK_CARD) is awaiting L1 human approval.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-016"
   },
@@ -108,6 +108,6 @@
   },
   "stop_reason": "Fraud probability 0.88 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 8,
-  "tokens": 0,
-  "latency_s": 0.33
+  "tokens": 1090,
+  "latency_s": 8.76
 }

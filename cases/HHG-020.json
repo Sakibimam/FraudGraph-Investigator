@@ -46,27 +46,27 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-1159, CC-3540, CC-1431, CC-2952)",
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-2952, CC-0889, CC-0881, CC-0873)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-1159",
-          "CC-3540",
-          "CC-1431",
-          "CC-2952"
+          "CC-2952",
+          "CC-0889",
+          "CC-0881",
+          "CC-0873"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-1159",
-      "CC-3540",
-      "CC-1431",
       "CC-2952",
       "CC-0889",
+      "CC-0881",
+      "CC-0873",
+      "CC-0682",
       "CC-2447",
       "CC-2277"
     ],
-    "summary": "Legitimate: the flagged $125.08 online transaction fits the cardholder. Case-memory model score 0.007: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) clearly does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.52. 0 of the 8 most similar closed cases were confirmed fraud (CC-1159, CC-3540, CC-1431, CC-2952).",
+    "summary": "The flagged $125.08 online transaction is deemed legitimate with an exposure of $0.00 and no identified fraud pattern. Key evidence shows the amount falls within the card's usual range, the case-memory model score is 0.007 with no resemblance to confirmed-fraud cases, and none of the 8 most similar closed cases involve fraud, despite a new device and product code R usage. Following this verdict, the transaction is automatically allowed and the case is closed with no fraud.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-020"
   },
@@ -108,6 +108,6 @@
   },
   "stop_reason": "Fraud probability 0.10 is at or below 0.15 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 7,
-  "tokens": 0,
-  "latency_s": 0.07
+  "tokens": 1073,
+  "latency_s": 10.96
 }

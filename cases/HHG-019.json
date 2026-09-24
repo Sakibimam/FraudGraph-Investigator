@@ -56,14 +56,14 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-2952, CC-0889, CC-0881, CC-0873)",
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-1159, CC-3540, CC-1431, CC-2952)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-2952",
-          "CC-0889",
-          "CC-0881",
-          "CC-0873"
+          "CC-1159",
+          "CC-3540",
+          "CC-1431",
+          "CC-2952"
         ]
       },
       {
@@ -82,22 +82,22 @@
       }
     ],
     "similar_prior_cases": [
+      "CC-1159",
+      "CC-3540",
+      "CC-1431",
       "CC-2952",
       "CC-0889",
-      "CC-0881",
-      "CC-0873",
-      "CC-0682",
       "CC-2011",
       "CC-2087"
     ],
-    "summary": "Fraud: card-not-present fraud from a new device on card C07987-K2. Case-memory model score 0.651: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.90. Evidence request answered (denied); probability moved 0.86 -> 0.97. Episode of 1 transaction(s), exposure $99.92.",
+    "summary": "The cardholder confirmed they did not make the $99.92 transaction and still holds the card, matching the card-not-present fraud pattern from a new device. The bank model scored the transaction 0.90 and the case-memory model scored it 0.651, alongside prior compromise history on the card. The verdict is fraud with an exposure of $99.92. The next actions are to execute CREATE_CASE and await approval for BLOCK_CARD.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-019"
   },
   "evidence_requests": [
     {
       "type": "step_up_auth",
-      "asked_after_step": 7,
+      "asked_after_step": 8,
       "assumed_response": "Simulated: the one-time passcode sent to the cardholder's registered phone was not completed for the session that made the $99.92 purchase; contacted separately, the cardholder said they did not make it and still holds the card"
     }
   ],
@@ -142,7 +142,7 @@
     "activity_dates": []
   },
   "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.97. Further graph steps would not change the actions (policy 6).",
-  "tool_calls": 8,
-  "tokens": 0,
-  "latency_s": 0.08
+  "tool_calls": 9,
+  "tokens": 1418,
+  "latency_s": 8.33
 }

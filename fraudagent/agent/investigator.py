@@ -202,7 +202,7 @@ class Investigator:
             name = self.plan_next(st)
             if name is None:
                 break
-            if len(st.done_tools) >= 4:
+            if len(st.done_tools) == 4:  # one LLM planning decision per case, once the basics are known
                 name = self.llm_plan(st, name)
             self.execute(st, name)
             self.update_signals(st)
