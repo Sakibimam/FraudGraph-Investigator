@@ -23,7 +23,7 @@ class Embedder:
         self._p = pipeline
 
     @classmethod
-    def fit(cls, corpus: list[str]) -> "Embedder":
+    def fit(cls, corpus: list[str]) -> Embedder:
         pipe = make_pipeline(
             TfidfVectorizer(ngram_range=(1, 2), min_df=2, sublinear_tf=True, token_pattern=r"[A-Za-z_][A-Za-z_0-9]+"),
             TruncatedSVD(n_components=DIM, random_state=7),
@@ -42,5 +42,5 @@ class Embedder:
         joblib.dump(self._p, path)
 
     @classmethod
-    def load(cls, path: Path) -> "Embedder":
+    def load(cls, path: Path) -> Embedder:
         return cls(joblib.load(path))

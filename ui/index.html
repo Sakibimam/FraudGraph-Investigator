@@ -1,79 +1,140 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FraudGraph Investigator</title>
+  <meta name="description" content="Agentic fraud investigation on TigerGraph: evidence, uncertainty, next best action, approvals and case memory." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 29 16 16 30 3 16Z' fill='%23f08a24'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/ui/styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js" defer></script>
 </head>
 <body>
+  <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
-    <div class="brand"><span class="logo">◆</span> FraudGraph <span class="muted">Investigator</span></div>
-    <div class="status" id="status">connecting…</div>
+    <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 29 16 16 30 3 16Z" /></svg>
+      FraudGraph <span>Investigator</span></div>
+    <nav class="nav" aria-label="Views">
+      <button data-view="overview" class="on">Overview</button>
+      <button data-view="cases">Cases</button>
+      <button data-view="monitor">Monitoring</button>
+    </nav>
+    <div class="sys" id="sys" aria-live="polite"></div>
+    <button class="icon-btn" id="themeBtn" aria-label="Toggle light / dark theme" title="Toggle theme">◐</button>
   </header>
 
-  <main class="layout">
-    <aside class="queue">
-      <div class="queue-head">
-        <h2>Case queue</h2>
-        <div class="filters" id="filters">
-          <button data-f="all" class="on">All</button>
-          <button data-f="fraud">Fraud</button>
-          <button data-f="legitimate">Legit</button>
-          <button data-f="pending">Needs approval</button>
-        </div>
+  <main id="main">
+    <!-- OVERVIEW -->
+    <section class="view" data-view="overview">
+      <div class="page-head">
+        <div><h1>Investigation overview</h1>
+          <p class="lede">20 benchmark alerts investigated on TigerGraph. Every recommendation cites the policy rule it follows;
+            only <b>auto</b> actions run without a human.</p></div>
       </div>
-      <ul id="caseList"></ul>
-    </aside>
+      <div class="kpis" id="kpis"></div>
+      <div class="grid-3">
+        <article class="panel"><h2>Verdicts</h2><div id="verdictBar"></div></article>
+        <article class="panel"><h2>Patterns identified</h2><div id="patternBars"></div></article>
+        <article class="panel"><h2>Investigate a transaction</h2>
+          <form id="adhoc" class="adhoc" autocomplete="off">
+            <label>Transaction ID <input name="txn" inputmode="numeric" pattern="\d{5,9}" required placeholder="e.g. 3476602" /></label>
+            <label>Trigger
+              <select name="trigger">
+                <option value="analyst_request">Analyst request</option>
+                <option value="risk_score">Risk-score alert</option>
+                <option value="customer_report">Customer report</option>
+              </select></label>
+            <label>Note (optional) <input name="text" maxlength="300" placeholder="Why this needs a look" /></label>
+            <button class="btn primary" type="submit">Start investigation</button>
+            <p class="hint" id="adhocMsg" role="status"></p>
+          </form>
+        </article>
+      </div>
+      <div class="grid-2">
+        <article class="panel"><h2>Awaiting human approval</h2><div id="approvalQueue"></div></article>
+        <article class="panel"><h2>How the agent works</h2>
+          <ol class="flow">
+            <li><b>Trigger</b> risk score, customer report, analyst or monitor</li>
+            <li><b>Investigate</b> GSQL tools over TigerGraph via MCP</li>
+            <li><b>Assess</b> evidence families, calibrated probability</li>
+            <li><b>Gather more</b> step-up or customer check when uncertain</li>
+            <li><b>Decide</b> policy engine: actions + approval routes</li>
+            <li><b>Explain</b> evidence, rules, SAR when required</li>
+            <li><b>Remember</b> case written back to the graph</li>
+          </ol></article>
+      </div>
+    </section>
 
-    <section class="detail" id="detail">
-      <div class="empty">Select a case from the queue.</div>
+    <!-- CASES -->
+    <section class="view hidden" data-view="cases">
+      <div class="cases-layout">
+        <aside class="queue" aria-label="Case queue">
+          <div class="queue-head">
+            <input id="search" type="search" placeholder="Search case, card, pattern…" aria-label="Search cases" />
+            <div class="chips" id="filters" role="group" aria-label="Filter cases">
+              <button data-f="all" class="on">All</button><button data-f="fraud">Fraud</button>
+              <button data-f="legitimate">Legit</button><button data-f="uncertain">Uncertain</button>
+              <button data-f="pending">Needs approval</button>
+            </div>
+          </div>
+          <ul id="caseList"></ul>
+        </aside>
+        <div class="detail" id="detail"><div class="empty">Select a case from the queue.</div></div>
+      </div>
+    </section>
+
+    <!-- MONITOR -->
+    <section class="view hidden" data-view="monitor">
+      <div class="page-head"><div><h1>Autonomous monitoring</h1>
+        <p class="lede">The agent swept November–December with GSQL graph algorithms (weakly connected components over proxied
+          card↔device links, amount-band bursts) and investigated each hit on its own. These are outside the 20 scored cases.</p></div></div>
+      <div class="kpis" id="monKpis"></div>
+      <article class="panel"><div class="table-wrap"><table class="table" id="monTable"></table></div></article>
     </section>
   </main>
 
-  <template id="detailTpl">
+  <template id="caseTpl">
     <div class="case-head">
-      <div>
-        <div class="case-id"><span data-k="case_id"></span> <span class="chip" data-k="trigger_type"></span></div>
+      <div class="case-title">
+        <h1><span data-k="case_id"></span> <span class="chip" data-k="trigger"></span> <span class="chip" data-k="status"></span></h1>
         <p class="trigger" data-k="trigger_text"></p>
+        <p class="meta" data-k="meta"></p>
       </div>
-      <button class="run" id="runBtn">▶ Run investigation</button>
+      <button class="btn primary" id="runBtn">Run investigation</button>
+    </div>
+    <ol class="stepper" id="stepper" aria-label="Investigation progress"></ol>
+
+    <div class="cards">
+      <article class="card verdict-card"><h3>Verdict</h3><div data-k="verdict"></div><p data-k="pattern"></p></article>
+      <article class="card wide"><h3>Uncertainty <span class="tip" title="The policy lets the agent act on its own only outside 0.15–0.85 with at least two independent evidence families. Inside the band it gathers more evidence first.">?</span></h3>
+        <div id="probTrack" class="prob-track"></div>
+        <p class="small" data-k="uncertainty"></p></article>
+      <article class="card"><h3>Exposure</h3><div class="big" data-k="exposure"></div><p class="small" data-k="episode"></p></article>
+      <article class="card"><h3>Report</h3><div class="big" data-k="sar"></div><p class="small" data-k="sarwhy"></p></article>
     </div>
 
-    <div class="kpis">
-      <div class="kpi"><label>Verdict</label><div data-k="verdict" class="verdict"></div></div>
-      <div class="kpi"><label>Fraud probability</label>
-        <div class="prob"><span data-k="p0"></span><span class="arrow">→</span><span data-k="p1"></span></div>
-        <div class="bar"><div class="band"></div><i data-k="bar0"></i><b data-k="bar1"></b></div>
-      </div>
-      <div class="kpi"><label>Pattern</label><div data-k="pattern"></div></div>
-      <div class="kpi"><label>Exposure</label><div data-k="exposure"></div></div>
-      <div class="kpi"><label>Status</label><div data-k="status"></div></div>
-      <div class="kpi"><label>SAR</label><div data-k="sar"></div></div>
-    </div>
-
-    <nav class="tabs" id="tabs">
-      <button data-t="summary" class="on">Summary</button>
-      <button data-t="timeline">Agent timeline</button>
-      <button data-t="evidence">Evidence</button>
-      <button data-t="graph">Graph</button>
-      <button data-t="actions">Next best action</button>
-      <button data-t="sar">SAR</button>
-      <button data-t="memory">Case memory</button>
+    <nav class="tabs" id="tabs" role="tablist">
+      <button role="tab" data-t="summary" aria-selected="true">Summary</button>
+      <button role="tab" data-t="evidence">Evidence</button>
+      <button role="tab" data-t="actions">Next best action</button>
+      <button role="tab" data-t="graph">Graph</button>
+      <button role="tab" data-t="sar">SAR</button>
+      <button role="tab" data-t="memory">Case memory</button>
+      <button role="tab" data-t="timeline">Agent timeline</button>
     </nav>
-
-    <div class="tab" data-t="summary"></div>
-    <div class="tab hidden" data-t="timeline"><ol class="timeline" id="timeline"></ol></div>
-    <div class="tab hidden" data-t="evidence"></div>
-    <div class="tab hidden" data-t="graph"><div id="graph"></div><div class="legend" id="legend"></div></div>
-    <div class="tab hidden" data-t="actions"></div>
-    <div class="tab hidden" data-t="sar"></div>
-    <div class="tab hidden" data-t="memory"></div>
+    <div class="tab" data-t="summary" role="tabpanel"></div>
+    <div class="tab hidden" data-t="evidence" role="tabpanel"></div>
+    <div class="tab hidden" data-t="actions" role="tabpanel"></div>
+    <div class="tab hidden" data-t="graph" role="tabpanel"><div id="graph" aria-label="Evidence graph"></div><div class="legend" id="legend"></div></div>
+    <div class="tab hidden" data-t="sar" role="tabpanel"></div>
+    <div class="tab hidden" data-t="memory" role="tabpanel"></div>
+    <div class="tab hidden" data-t="timeline" role="tabpanel"><ol class="timeline" id="timeline"></ol></div>
   </template>
 
-  <script src="/ui/app.js"></script>
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+  <script src="/ui/app.js" defer></script>
 </body>
 </html>

@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import time
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from datetime import timedelta
 from typing import Any
 
 import numpy as np
@@ -332,7 +332,7 @@ class LocalTools(GraphTools):
                  "distance": float(1 - sims[i])} for i in top]
 
     def _search_docs(self, qv, k=5):
-        from fraudagent.memory.case_store import local_vectors, load_doc_chunks
+        from fraudagent.memory.case_store import load_doc_chunks, local_vectors
         ids, mat = local_vectors("docs")
         sims = mat @ np.asarray(qv, dtype="float32")
         chunks = {c["id"]: c for c in load_doc_chunks()}

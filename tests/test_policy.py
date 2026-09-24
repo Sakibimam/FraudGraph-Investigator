@@ -1,6 +1,12 @@
 """Policy engine tests: every rule in the Fraud Policy v1.0 that the agent relies on."""
-from fraudagent.agent.policy import (PolicyFacts, final_plan, initial_plan, route_for, sar_required,
-                                     should_stop)
+from fraudagent.agent.policy import (
+    PolicyFacts,
+    final_plan,
+    initial_plan,
+    route_for,
+    sar_required,
+    should_stop,
+)
 
 
 def facts(**kw):

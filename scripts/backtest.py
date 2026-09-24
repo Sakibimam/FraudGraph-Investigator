@@ -50,7 +50,7 @@ def main(args: list[str]) -> None:
         "fraud_recall": round((pred & y).sum() / y.sum(), 3), "legit_specificity": round((~pred & ~y).sum() / (~y).sum(), 3),
         "auc_agent_probability": round(roc_auc_score(y, df.p_graph), 3),
         "pattern_match_on_confirmed": round((df[y].pattern == df[y].agent_pattern).mean(), 3),
-        "pattern_confusion": {f"{a}->{b}": c for (a, b), c in Counter(zip(df[y].pattern, df[y].agent_pattern)).most_common(12)},
+        "pattern_confusion": {f"{a}->{b}": c for (a, b), c in Counter(zip(df[y].pattern, df[y].agent_pattern, strict=True)).most_common(12)},
     }
     print(json.dumps(res, indent=2))
     (ROOT / "docs" / "backtest_october.json").write_text(json.dumps(res, indent=2) + "\n")

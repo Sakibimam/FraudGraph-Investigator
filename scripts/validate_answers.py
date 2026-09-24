@@ -43,7 +43,8 @@ def main(folder: str = "cases") -> int:
         bad += [i for i in s["subjects"] if i not in known]
         if bad:
             errs.append(f"unknown IDs {bad[:5]}")
-        exp = round(sum(abs(float(tx_amt)) for tx_amt in []), 2)
+        if c["affected_txn_ids"] and c["exposure_usd"] <= 0:
+            errs.append("affected transactions but no exposure")
         final = {a["action"] for a in n["final"]}
         if s["file"] != ("FILE_REPORT" in final):
             errs.append("sar.file disagrees with FILE_REPORT in final actions")

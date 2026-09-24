@@ -6,16 +6,15 @@ from __future__ import annotations
 
 import json
 import queue
+import re
 import threading
 from datetime import datetime
-from pathlib import Path
+from typing import Literal
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from typing import Literal
-
 from pydantic import BaseModel, Field
 
 from fraudagent.agent.investigator import Investigator, Trigger
@@ -40,8 +39,13 @@ def _pack() -> pd.DataFrame:
 
 
 def _trace(case_id: str) -> dict | None:
-    p = TRACES / f"{case_id}.json"
-    return json.loads(p.read_text()) if p.exists() else None
+    if not re.fullmatch(r"[A-Z]{3,5}-\d{3,9}", case_id):
+        return None  # ids only: never a path
+    for folder in (TRACES, ROOT / "monitor"):
+        p = folder / f"{case_id}.json"
+        if p.exists():
+            return json.loads(p.read_text())
+    return None
 
 
 def _approvals() -> list[dict]:
@@ -91,10 +95,47 @@ def _trigger(case_id: str) -> Trigger:
                    r.customer_id, None if pd.isna(r.risk_score) else float(r.risk_score))
 
 
+@app.get("/api/overview")
+def overview() -> dict:
+    cs = cases()
+    done = [c for c in cs if c["verdict"]]
+    adhoc = sorted(TRACES.glob("ADHOC-*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    return {
+        "cases": len(cs), "investigated": len(done),
+        "verdicts": {v: sum(1 for c in done if c["verdict"] == v) for v in ("fraud", "legitimate", "uncertain")},
+        "exposure": round(sum(c["exposure"] or 0 for c in done), 2),
+        "sars": sum(1 for c in done if c["sar"]), "pending_approvals": sum(c["pending"] for c in done),
+        "patterns": {p: sum(1 for c in done if c["pattern"] == p) for p in {c["pattern"] for c in done}},
+        "adhoc": [{"case_id": p.stem, **{k: json.loads(p.read_text())["case"][k] for k in ("verdict", "fraud_probability", "pattern")}}
+                  for p in adhoc[:10]],
+        "health": health(),
+    }
+
+
+@app.get("/api/investigate")
+def investigate_any(txn: str, trigger: Literal["risk_score", "customer_report", "analyst_request"] = "analyst_request",
+                    text: str = "") -> StreamingResponse:
+    """Ad-hoc investigation of any transaction (the analyst trigger)."""
+    if not txn.isdigit() or len(txn) > 9:
+        raise HTTPException(400, "txn must be a transaction id")
+    detail = _tools.call("txn_detail", txn_id=txn)
+    if not detail:
+        raise HTTPException(404, f"transaction {txn} not found")
+    card = detail.get("card", "")
+    trig = Trigger(f"ADHOC-{txn}", detail["ts"], trigger,
+                   text[:300] or f"Analyst request: review transaction {txn} (${detail['amt']:.2f}, {detail['channel']}).",
+                   txn, card, card.split("-")[0])
+    return _stream(trig)
+
+
 @app.get("/api/cases/{case_id}/investigate")
 def investigate(case_id: str) -> StreamingResponse:
     """Run the agent now and stream each step as a server-sent event."""
-    trig = _trigger(case_id)
+    return _stream(_trigger(case_id))
+
+
+def _stream(trig: Trigger) -> StreamingResponse:
+    case_id = trig.case_id
     q: queue.Queue = queue.Queue()
 
     def work() -> None:
@@ -179,7 +220,7 @@ def approve(case_id: str, d: Decision) -> dict:
         return _record_approval(case_id, d, rec, t)
 
 
-def _record_approval(case_id: str, d: "Decision", rec: dict, t: dict) -> dict:
+def _record_approval(case_id: str, d: Decision, rec: dict, t: dict) -> dict:
     log = _approvals()
     prior = next((a for a in log if a["case_id"] == case_id and a["action"] == d.action
                   and a.get("run") == t.get("latency_s")), None)

@@ -64,9 +64,24 @@ Architecture diagram and design notes: [`docs/ARCHITECTURE.md`](docs/ARCHITECTUR
 | HHG-019 | risk score | fraud | 0.97 | card not present new device | $99.92 | step_up_auth | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
 | HHG-020 | risk score | legitimate | 0.10 | none | $0.00 | – | ALLOW_TRANSACTION (auto), CLOSE_NO_FRAUD (auto) | no |
 
-Answer files: [`cases/`](cases). Autonomous monitoring (optional, Innovation): [`monitor/`](monitor).
+Screenshots: [`docs/img/`](docs/img). Answer files: [`cases/`](cases). Autonomous monitoring (optional, Innovation): [`monitor/`](monitor).
 Back-test on 200 October closed cases (graph evidence only, no customer contact): 72.5% verdict accuracy, AUC 0.75
 ([`docs/backtest_october.json`](docs/backtest_october.json)).
+
+## Testing and robustness
+
+| Check | Result |
+|---|---|
+| `pytest tests/` | 23 tests: policy rules R1–R10, SAR test, routes, stopping rule, detectors, answer-file validation |
+| `scripts/stress_test.py` | 144 random alerts across channels, months and trigger types: 0 crashes, 0 invalid outputs, p50 0.09 s / p95 0.2 s per investigation on TigerGraph |
+| Edge cases | single-transaction cards, the largest aggregated card, in-person rows without a region, unknown transaction IDs (clean "not found") |
+| Determinism | all 20 cases give identical verdicts, episodes and actions when re-run, in forward or reverse order |
+| API | 200 concurrent reads in 1 s; 3 simultaneous live investigations; strict input validation; an approval from the wrong role is refused (403); a decided action cannot be approved twice (409) |
+| LLM outage | with no LLM the agent completes with templates; with Gemini out of quota it falls back to local Qwen2.5 3B |
+| `scripts/validate_answers.py` | 20/20 answer files match the format and reference only IDs that exist in the dataset |
+
+Stress testing found and fixed three real bugs: per-investigation state leaking into the next case's similar-case
+query, non-deterministic ordering of tied vector-search results, and approvals that accepted unknown roles.
 
 ## Quick start
 

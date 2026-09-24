@@ -13,15 +13,23 @@ scoring and policy stay deterministic so the outcome is reproducible and auditab
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Callable
 
 from fraudagent.agent import detectors as D
 from fraudagent.agent import narrative as N
 from fraudagent.agent.llm import LLM
-from fraudagent.agent.policy import (STOP_HIGH, STOP_LOW, ActionPlan, PolicyFacts, final_plan, initial_plan,
-                                     sar_required, should_stop)
+from fraudagent.agent.policy import (
+    STOP_HIGH,
+    STOP_LOW,
+    ActionPlan,
+    PolicyFacts,
+    final_plan,
+    initial_plan,
+    sar_required,
+    should_stop,
+)
 from fraudagent.agent.simulator import CustomerSimulator
 from fraudagent.graph.tools import TOOL_DOCS, GraphTools
 from fraudagent.memory.case_store import embedder
@@ -151,6 +159,25 @@ class Investigator:
         case["tokens"] = self.llm.tokens - tokens0
         case["latency_s"] = round(time.perf_counter() - t0, 2)
         case["timeline"] = st.timeline
+        _, _, fams = D.score([x for x in st.signals if x.name != "evidence_response"])
+        case["scoring"] = {
+            "initial_probability": prob0, "final_probability": prob, "independent_families": indep,
+            "families": {k: round(v, 2) for k, v in fams.items() if v},
+            "signals": [{"name": x.name, "family": x.family, "weight": x.weight, "claim": x.claim}
+                        for x in st.signals if x.weight],
+            "stop_band": [STOP_LOW, STOP_HIGH],
+        }
+        case["memory"] = [{"case_id": c["case_id"], "outcome": c.get("outcome"), "pattern": c.get("pattern"),
+                           "exposure": c.get("exposure"), "similarity": round(1 - (c.get("distance") or 1), 3),
+                           "notes": (c.get("notes") or "")[:280]} for c in st.similar[:8]]
+        case["memory"] += [{"case_id": c["case_id"], "outcome": c.get("outcome"), "pattern": c.get("pattern"),
+                            "relation": "shared device", "notes": (c.get("notes") or "")[:280]}
+                           for c in st.device_cases[:4]]
+        case["card_history"] = [{"case_id": c["case_id"], "relation": c["relation"], "outcome": c["outcome"],
+                                 "pattern": c["pattern"], "opened_at": c["opened_at"]} for c in st.history[:12]]
+        case["flag"] = st.flag
+        case["llm"] = self.llm.label
+        case["graph_backend"] = self.tools.backend
         return case
 
     # ------------------------------------------------------------------------------------
@@ -191,13 +218,12 @@ class Investigator:
             f"Tools available: {{{', '.join(f'{t}: {TOOL_DOCS[t]}' for t in remaining)}}}\n"
             f"Default next tool: {candidate}. Pick the most informative one.", max_tokens=120)
         if ans and ans.get("tool") in remaining:
-            if ans["tool"] != candidate:
-                self.log(st, "plan", f"LLM planner chose {ans['tool']} over {candidate}: {ans.get('why', '')[:160]}")
+            verb = f"chose {ans['tool']} over {candidate}" if ans["tool"] != candidate else f"confirmed {candidate}"
+            self.log(st, "plan", f"LLM planner {verb}: {str(ans.get('why', ''))[:180]}")
             return ans["tool"]
         return candidate
 
     def investigate(self, st: State) -> None:
-        f, trig = st.flag, st.trigger
         budget = 12
         while budget:
             budget -= 1
@@ -278,6 +304,8 @@ class Investigator:
         if st.neighbors:
             s, rf = D.device_ring(f, st.neighbors, st.ring, st.device_cases)
             if s:
+                # a handset that belongs to a ring is not reassuring just because it was seen on this card before
+                sig = [x for x in sig if x.name != "known_device"]
                 sig.append(s)
                 self._findings.device_ring = True
                 self._findings.connected_card_ids = rf.connected_card_ids
@@ -311,7 +339,6 @@ class Investigator:
         ep = [f]
         t0 = datetime.strptime(f["ts"], TS)
         if findings.device_ring and st.neighbors:
-            ring_devs = set(findings.connected_device_profiles)
             own = [u for u in st.neighbors.get("uses", []) if u["card"] == st.trigger.card_id]
             ids = {f["id"]} | {u["txn"] for u in own}
             rows = {t["id"]: t for t in st.window}
@@ -354,7 +381,6 @@ class Investigator:
         ep = self.episode(st, findings, prob) if verdict != "legitimate" else []
         pattern = D.classify_pattern(st.flag, st.signals, ep) if verdict != "legitimate" else "none"
         exposure = round(sum(abs(t["amt"]) for t in ep), 2)
-        fam = {s.family for s in st.signals if s.weight >= 0.5}
         conflicts = any(s.weight >= 1.0 for s in st.signals) and any(s.weight <= -1.0 for s in st.signals)
         self._episode, self._pattern = ep, pattern
         return PolicyFacts(
@@ -394,7 +420,17 @@ class Investigator:
             tok.append("sub_threshold_cluster")
         if findings.card_testing:
             tok.append("micro_auth_run")
-        text = " ".join(tok) + " " + " ".join(s.claim for s in st.signals if abs(s.weight) >= 0.5)
+        # structure only: the closed-case notes are templated, so free-text claims would match on wording
+        # ("reported they did not make") rather than on what actually happened
+        hints = {"new_region": "billing region the cardholder had no history in card-present",
+                 "new_device": "device not previously seen on this account",
+                 "sub_threshold_structuring": "just under $500 authorization threshold",
+                 "shared_device_ring": "same device profile other cardholders anonymous proxy",
+                 "card_testing": "very small online authorizations followed by a larger purchase"}
+        tok += [hints[s.name] for s in st.signals if s.name in hints and s.weight > 0]
+        if f["channel"] == "in_person":
+            tok.append("card-present")
+        text = " ".join(tok)
         if facts:
             text += f" pattern {facts.pattern} verdict {facts.verdict}"
         return text

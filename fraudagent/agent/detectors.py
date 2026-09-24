@@ -17,6 +17,21 @@ from datetime import datetime, timedelta
 from statistics import median
 
 TS = "%Y-%m-%d %H:%M:%S"
+
+
+def _history_fraud_rate() -> float:
+    """Share of closed cases that were confirmed fraud: the baseline a similar-case vote is compared against."""
+    try:
+        import pandas as pd
+
+        from fraudagent.config import settings
+        outcomes = pd.read_csv(settings.data_dir / "closed_cases_history.csv", usecols=["outcome"])["outcome"]
+        return float((outcomes == "confirmed_fraud").mean())
+    except Exception:
+        return 0.84
+
+
+HISTORY_FRAUD_RATE = _history_fraud_rate()
 # Device profiles this common are browser/OS defaults, not devices: they link unrelated people.
 GENERIC_DEVICE_CARDS = 60
 PATTERNS = ("card_testing", "card_not_present_fraud", "card_not_present_new_device",
@@ -262,7 +277,7 @@ def recurring_signal(flag: dict, matches: list[dict], trigger_type: str) -> tupl
     months = sorted({m["ts"][:7] for m in same_src} | {flag["ts"][:7]})
     idx = [int(m[:4]) * 12 + int(m[5:7]) for m in months]
     run = best = 1
-    for a, b in zip(idx, idx[1:]):
+    for a, b in zip(idx, idx[1:], strict=False):
         run = run + 1 if b - a == 1 else 1
         best = max(best, run)
     # monthly: at least three consecutive months (including the disputed one), not a burst of look-alikes
@@ -287,10 +302,12 @@ def memory_signals(flag: dict, history: list[dict], similar: list[dict]) -> list
     if similar:
         conf = [c for c in similar if c["outcome"] == "confirmed_fraud"]
         frac = len(conf) / len(similar)
-        w = round((frac - 0.75) * 1.2, 2)  # the history is 84% confirmed, so only deviations carry information
+        # the case history is mostly confirmed fraud, so a vote only carries information where it departs from it
+        w = round((frac - HISTORY_FRAUD_RATE) * 1.5, 2)
         if abs(w) >= 0.1:
             out.append(Signal("similar_case_outcomes", f"{len(conf)} of the {len(similar)} most similar closed cases were "
-                              f"confirmed fraud ({', '.join(c['case_id'] for c in similar[:4])})", w, "memory",
+                              f"confirmed fraud vs {HISTORY_FRAUD_RATE:.0%} across all closed cases "
+                              f"({', '.join(c['case_id'] for c in similar[:4])})", w, "memory",
                               ref="query:similar_closed_cases (TigerVector)", entity_ids=[c["case_id"] for c in similar[:4]]))
     return out
 

@@ -83,7 +83,7 @@ count of *independent* evidence used by the stopping rule (policy §6).
 | `region` | first-time region for card-present use, or a familiar region |
 | `behaviour` | amount vs the card's distribution, new product code |
 | `recurring` | same charge in consecutive months (R7) |
-| `memory` | recent confirmed fraud on the card, outcomes of the most similar closed cases |
+| `memory` | recent confirmed fraud on the card; outcomes of the most similar closed cases, measured against the 84% confirmed-fraud base rate of the history (computed from the data) so that a vote only counts where it departs from what retrieval would return by chance |
 | `customer` / `analyst` | the trigger itself and any verification response |
 
 ## The case-memory model
@@ -100,6 +100,14 @@ October. Holdout results (`docs/case_model_metrics.json`):
 | Confirmed vs cleared (investigated alerts only) — bank / model | 0.052 / **0.877** | |
 
 The score is stored on each `Txn` vertex (`cm_score`) and enters the agent as one evidence family, never as the verdict.
+
+## Similar-case retrieval
+
+Closed cases are embedded from a structural profile (channel, product, amount band, number of transactions, New-device
+and proxy flags, sequence markers) plus the analyst notes. A new investigation is queried with the same structural
+tokens and the typology phrases its detectors fired, never with free-text evidence claims, because the notes are
+templated and wording would otherwise dominate similarity. Tied distances are broken by case ID so retrieval is
+deterministic.
 
 ## Uncertainty and the evidence loop
 

@@ -44,7 +44,7 @@ def push_edges(tg: TigerGraph, src_type: str, etype: str, dst_type: str, df: pd.
     for i in range(0, len(rows), BATCH):
         body: dict = defaultdict(dict)
         for r in rows[i:i + BATCH]:
-            a = {k: {"value": v} for k, v in zip(attrs or [], r[2:])}
+            a = {k: {"value": v} for k, v in zip(attrs or [], r[2:], strict=False)}
             body[str(r[0])].setdefault(etype, {}).setdefault(dst_type, {})[str(r[1])] = a
         tg.upsert(edges={src_type: dict(body)}, name=f"load_{etype}")
     print(f"  {etype:18} {len(rows):>8,} edges     {time.time() - t0:6.1f}s")

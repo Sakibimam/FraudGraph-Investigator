@@ -12,6 +12,7 @@ probability update is a fixed likelihood ratio per reply type.
 from __future__ import annotations
 
 DENY_LR, CONFIRM_LR = 6.0, 1 / 8.0
+DENY_AT, NO_REPLY_AT = 0.55, 0.42  # one rule for every trigger and evidence type
 
 
 def _update(p: float, lr: float) -> float:
@@ -23,17 +24,17 @@ class CustomerSimulator:
     def respond(self, kind: str, trigger_type: str, p: float, facts, flag: dict) -> tuple[str, str, float]:
         amt = f"${flag['amt']:.2f}"
         if kind == "step_up_auth":
-            if p >= 0.55:
+            if p >= DENY_AT:
                 return ("denied", f"Simulated: the one-time passcode sent to the cardholder's registered phone was not "
                         f"completed for the session that made the {amt} purchase; contacted separately, the cardholder "
                         "said they did not make it and still holds the card", _update(p, DENY_LR))
-            if p >= 0.42:
+            if p >= NO_REPLY_AT:
                 return ("no_reply", "Simulated: step-up challenge issued; no response from the cardholder within 24 hours",
                         p)
             return ("confirmed", f"Simulated: the cardholder passed the step-up challenge on their registered device and "
                     f"confirmed the {amt} purchase", _update(p, CONFIRM_LR))
         if kind == "analyst_info":
-            if p >= 0.5:
+            if p >= DENY_AT:
                 return ("denied", "Simulated: analyst review agrees the linked activity is not the cardholder's",
                         _update(p, DENY_LR))
             return ("confirmed", "Simulated: analyst found a benign explanation for the linked activity",
@@ -43,17 +44,17 @@ class CustomerSimulator:
             if facts.recurring_dispute:
                 return ("confirmed", f"Simulated: shown the merchant descriptor and prior monthly charges, the cardholder "
                         f"recognised the {amt} charge as their own recurring subscription", _update(p, CONFIRM_LR))
-            if p >= 0.5:
+            if p >= DENY_AT:
                 return ("denied", f"Simulated: on follow-up the cardholder repeated that they did not make the {amt} "
                         "purchase, still has the card and has not shared the card details", _update(p, DENY_LR))
-            if p >= 0.42:
+            if p >= NO_REPLY_AT:
                 return ("no_reply", "Simulated: follow-up questions sent to the cardholder; no reply within 24 hours", p)
             return ("confirmed", f"Simulated: shown the merchant name, time and device of the {amt} purchase, the "
                     "cardholder recognised it as their own and withdrew the dispute",
                     _update(p, CONFIRM_LR))
-        if p >= 0.55:
+        if p >= DENY_AT:
             return ("denied", f"Simulated: the cardholder replied that they did not make the {amt} transaction and still "
                     "holds the card", _update(p, DENY_LR))
-        if p >= 0.42:
+        if p >= NO_REPLY_AT:
             return ("no_reply", "Simulated: verification message sent; no reply within 24 hours (R4)", p)
         return ("confirmed", f"Simulated: the cardholder confirmed they made the {amt} transaction", _update(p, CONFIRM_LR))

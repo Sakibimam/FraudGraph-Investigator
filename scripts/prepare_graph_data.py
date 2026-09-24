@@ -92,7 +92,7 @@ def main() -> None:
     tx = tx.merge(ident, on="TransactionID", how="left")
     tx["device_id"] = [
         device_profile_id(a, b, c, d) if isinstance(a, str) or isinstance(c, str) else ""
-        for a, b, c, d in zip(tx["DeviceInfo"], tx["id_30"], tx["id_31"], tx["id_33"])
+        for a, b, c, d in zip(tx["DeviceInfo"], tx["id_30"], tx["id_31"], tx["id_33"], strict=True)
     ]
     tx["region"] = tx["addr1"].map(region_code)
     tx = tx.sort_values(["card_id", "TransactionDT"]).reset_index(drop=True)

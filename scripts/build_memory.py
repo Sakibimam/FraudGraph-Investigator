@@ -15,7 +15,11 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from fraudagent.config import settings  # noqa: E402
-from fraudagent.memory.case_store import EMBEDDER_PATH, VEC_PATH, load_doc_chunks  # noqa: E402
+from fraudagent.memory.case_store import (  # noqa: E402
+    EMBEDDER_PATH,
+    VEC_PATH,
+    load_doc_chunks,
+)
 from fraudagent.memory.embed import Embedder  # noqa: E402
 
 PATTERNS = {
@@ -48,12 +52,12 @@ def main(push: bool) -> None:
     vec = lambda v: [round(float(x), 6) for x in v]  # noqa: E731
     tg.upsert({"DocChunk": {c["id"]: {"source": {"value": c["source"]}, "section": {"value": c["section"]},
                                       "text": {"value": c["text"]}, "emb": {"value": vec(v)}}
-                            for c, v in zip(chunks, doc_vecs)},
+                            for c, v in zip(chunks, doc_vecs, strict=True)},
                "FraudPattern": {k: {"name": {"value": n}, "documented": {"value": d}, "description": {"value": desc}}
                                 for k, (n, d, desc) in PATTERNS.items()}})
     ids = prof["id"].tolist()
     for i in range(0, len(ids), 500):
-        tg.upsert({"ClosedCase": {cid: {"emb": {"value": vec(v)}} for cid, v in zip(ids[i:i + 500], case_vecs[i:i + 500])}})
+        tg.upsert({"ClosedCase": {cid: {"emb": {"value": vec(v)}} for cid, v in zip(ids[i:i + 500], case_vecs[i:i + 500], strict=True)}})
     print("pushed DocChunk, FraudPattern and ClosedCase.emb to TigerGraph")
 
 
