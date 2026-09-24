@@ -1,5 +1,7 @@
 # Architecture
 
+![Architecture](img/architecture.png)
+
 ```mermaid
 flowchart LR
   subgraph Triggers

@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 860" width="1400" height="860" font-family="Inter, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8593a3"/>
+    </marker>
+    <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f08a24"/>
+    </marker>
+    <style>
+      .bg { fill: #0e1116; }
+      .panel { fill: #151b23; stroke: #28323f; stroke-width: 1.5; }
+      .box { fill: #1b232e; stroke: #33404f; stroke-width: 1.2; }
+      .tg { fill: #1d1a14; stroke: #f08a24; stroke-width: 1.6; }
+      .tgbox { fill: #26201a; stroke: #6b4a22; stroke-width: 1.2; }
+      .h { fill: #e6edf3; font-size: 15px; font-weight: 700; }
+      .t { fill: #e6edf3; font-size: 13px; font-weight: 600; }
+      .s { fill: #9aa7b6; font-size: 11.5px; }
+      .cap { fill: #8593a3; font-size: 11px; letter-spacing: .08em; font-weight: 600; }
+      .acc { fill: #f08a24; }
+      .line { stroke: #8593a3; stroke-width: 1.6; fill: none; }
+      .lineA { stroke: #f08a24; stroke-width: 1.8; fill: none; }
+      .dash { stroke-dasharray: 5 4; }
+      .num { fill: #0e1116; font-size: 11px; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1400" height="860" rx="18"/>
+
+  <!-- title -->
+  <text x="40" y="52" class="h" style="font-size:24px">FraudGraph Investigator · architecture</text>
+  <text x="40" y="76" class="s" style="font-size:13px">Agentic fraud investigation on TigerGraph: graph evidence → calibrated uncertainty → policy-routed next best action → case memory</text>
+
+  <!-- ================= TRIGGERS ================= -->
+  <rect class="panel" x="40" y="110" width="210" height="330" rx="12"/>
+  <text x="58" y="138" class="cap">TRIGGERS</text>
+  <rect class="box" x="58" y="152" width="174" height="56" rx="8"/><text x="72" y="176" class="t">Risk-score alert</text><text x="72" y="194" class="s">bank model fired</text>
+  <rect class="box" x="58" y="218" width="174" height="56" rx="8"/><text x="72" y="242" class="t">Customer report</text><text x="72" y="260" class="s">"I never made this"</text>
+  <rect class="box" x="58" y="284" width="174" height="56" rx="8"/><text x="72" y="308" class="t">Analyst request</text><text x="72" y="326" class="s">UI / ad-hoc transaction</text>
+  <rect class="box" x="58" y="350" width="174" height="72" rx="8"/><text x="72" y="374" class="t">Monitor sweep</text><text x="72" y="392" class="s">WCC rings + band bursts</text><text x="72" y="408" class="s">(autonomous)</text>
+
+  <!-- ================= AGENT ================= -->
+  <rect class="panel" x="290" y="110" width="560" height="560" rx="12"/>
+  <text x="308" y="138" class="cap">INVESTIGATION AGENT  ·  fraudagent/agent</text>
+
+  <!-- step boxes -->
+  <g>
+    <rect class="box" x="308" y="152" width="250" height="62" rx="8"/>
+    <circle cx="326" cy="172" r="10" class="acc"/><text x="322" y="176" class="num">1</text>
+    <text x="344" y="177" class="t">Open case &amp; plan</text>
+    <text x="344" y="197" class="s">heuristic planner + LLM tool choice</text>
+
+    <rect class="box" x="582" y="152" width="250" height="62" rx="8"/>
+    <circle cx="600" cy="172" r="10" class="acc"/><text x="596" y="176" class="num">2</text>
+    <text x="618" y="177" class="t">Investigate the graph</text>
+    <text x="618" y="197" class="s">GSQL tools via TigerGraph MCP</text>
+
+    <rect class="box" x="582" y="236" width="250" height="72" rx="8"/>
+    <circle cx="600" cy="256" r="10" class="acc"/><text x="596" y="260" class="num">3</text>
+    <text x="618" y="261" class="t">Detect &amp; score evidence</text>
+    <text x="618" y="281" class="s">ring · structuring · card testing ·</text>
+    <text x="618" y="297" class="s">region · device · model · memory</text>
+
+    <rect class="box" x="308" y="236" width="250" height="72" rx="8"/>
+    <circle cx="326" cy="256" r="10" class="acc"/><text x="322" y="260" class="num">4</text>
+    <text x="344" y="261" class="t">Assess uncertainty</text>
+    <text x="344" y="281" class="s">log-odds per evidence family</text>
+    <text x="344" y="297" class="s">act only outside 0.15–0.85 + 2 families</text>
+
+    <rect class="box" x="308" y="330" width="250" height="72" rx="8"/>
+    <circle cx="326" cy="350" r="10" class="acc"/><text x="322" y="354" class="num">5</text>
+    <text x="344" y="355" class="t">Gather more evidence</text>
+    <text x="344" y="375" class="s">verify customer / step-up auth /</text>
+    <text x="344" y="391" class="s">analyst · reply recorded (simulated)</text>
+
+    <rect class="box" x="582" y="330" width="250" height="72" rx="8"/>
+    <circle cx="600" cy="350" r="10" class="acc"/><text x="596" y="354" class="num">6</text>
+    <text x="618" y="355" class="t">Policy engine decides</text>
+    <text x="618" y="375" class="s">R1–R10 · case vs SAR (3a) · routes</text>
+    <text x="618" y="391" class="s">auto · L1 team lead · L2 manager</text>
+
+    <rect class="box" x="582" y="424" width="250" height="62" rx="8"/>
+    <circle cx="600" cy="444" r="10" class="acc"/><text x="596" y="448" class="num">7</text>
+    <text x="618" y="449" class="t">Explain</text>
+    <text x="618" y="469" class="s">summary · SAR · pattern text (LLM)</text>
+
+    <rect class="box" x="308" y="424" width="250" height="62" rx="8"/>
+    <circle cx="326" cy="444" r="10" class="acc"/><text x="322" y="448" class="num">8</text>
+    <text x="344" y="449" class="t">Update case memory</text>
+    <text x="344" y="469" class="s">InvestigationCase written to graph</text>
+  </g>
+
+  <!-- flow arrows inside agent -->
+  <path class="line" d="M558 183 H578" marker-end="url(#arr)"/>
+  <path class="line" d="M707 214 V232" marker-end="url(#arr)"/>
+  <path class="line" d="M582 272 H562" marker-end="url(#arr)"/>
+  <path class="line" d="M433 308 V326" marker-end="url(#arr)"/>
+  <path class="line dash" d="M540 269 C 570 300, 570 330, 582 360" marker-end="url(#arr)"/>
+  <text x="441" y="322" class="s" style="font-size:10.5px">if unsure</text>
+  <text x="578" y="323" class="s" style="font-size:10.5px">if sure</text>
+  <path class="line" d="M558 366 H578" marker-end="url(#arr)"/>
+  <path class="line" d="M707 402 V420" marker-end="url(#arr)"/>
+  <path class="line" d="M582 455 H562" marker-end="url(#arr)"/>
+
+  <!-- supporting components inside agent panel -->
+  <text x="308" y="522" class="cap">SUPPORTING COMPONENTS</text>
+  <rect class="box" x="308" y="534" width="165" height="118" rx="8"/>
+  <text x="322" y="558" class="t">LLM chain</text>
+  <text x="322" y="578" class="s">Gemini 3.5 Flash-Lite</text>
+  <text x="322" y="594" class="s">→ local Qwen2.5 3B</text>
+  <text x="322" y="610" class="s">(Ollama) → templates</text>
+  <text x="322" y="632" class="s">explains, never decides</text>
+
+  <rect class="box" x="487" y="534" width="165" height="118" rx="8"/>
+  <text x="501" y="558" class="t">Case-memory model</text>
+  <text x="501" y="578" class="s">trained on 5,565 closed</text>
+  <text x="501" y="594" class="s">cases · AUC 0.955 vs</text>
+  <text x="501" y="610" class="s">0.866 bank score</text>
+  <text x="501" y="632" class="s">one evidence family</text>
+
+  <rect class="box" x="666" y="534" width="166" height="118" rx="8"/>
+  <text x="680" y="558" class="t">Evidence simulator</text>
+  <text x="680" y="578" class="s">customer / step-up /</text>
+  <text x="680" y="594" class="s">analyst replies from the</text>
+  <text x="680" y="610" class="s">posterior; assumption</text>
+  <text x="680" y="626" class="s">stored in the case file</text>
+
+  <!-- triggers -> agent -->
+  <path class="lineA" d="M250 275 H290 V183 H304" marker-end="url(#arrA)"/>
+
+  <!-- ================= TIGERGRAPH ================= -->
+  <rect class="tg" x="890" y="110" width="470" height="560" rx="12"/>
+  <text x="908" y="138" class="cap" style="fill:#f08a24">TIGERGRAPH  ·  FraudGraph (Community Edition 4.2.5)</text>
+
+  <rect class="tgbox" x="908" y="152" width="434" height="150" rx="8"/>
+  <text x="922" y="176" class="t">Graph</text>
+  <text x="922" y="198" class="s">Customer ─OWNS→ Card ─MADE→ Txn ─FROM_DEVICE→ DeviceProfile</text>
+  <text x="922" y="216" class="s">Txn ─BILLED_IN→ BillingRegion · Txn ─NEXT→ Txn · EmailDomain</text>
+  <text x="922" y="234" class="s">ClosedCase ─INVOLVES / ON_CARD / CONNECTED_TO→ Txn, Card</text>
+  <text x="922" y="252" class="s">InvestigationCase ─INV_* / SIMILAR_TO→ Txn, Card, Device, ClosedCase</text>
+  <text x="922" y="280" class="s" style="fill:#c9b79a">590,742 txns · 14,215 cards · 9,706 devices · 5,565 closed cases</text>
+
+  <rect class="tgbox" x="908" y="316" width="210" height="170" rx="8"/>
+  <text x="922" y="340" class="t">GSQL tools</text>
+  <text x="922" y="362" class="s">card_window</text>
+  <text x="922" y="378" class="s">card_baseline</text>
+  <text x="922" y="394" class="s">device_neighbors</text>
+  <text x="922" y="410" class="s">device_ring (multi-hop)</text>
+  <text x="922" y="426" class="s">region_cluster</text>
+  <text x="922" y="442" class="s">recurring_matches</text>
+  <text x="922" y="458" class="s">card_case_history</text>
+  <text x="922" y="474" class="s">device_case_links · txn_detail</text>
+
+  <rect class="tgbox" x="1132" y="316" width="210" height="80" rx="8"/>
+  <text x="1146" y="340" class="t">Graph algorithms</text>
+  <text x="1146" y="362" class="s">ring_components (WCC,</text>
+  <text x="1146" y="378" class="s">min-label propagation) · band_bursts</text>
+
+  <rect class="tgbox" x="1132" y="406" width="210" height="80" rx="8"/>
+  <text x="1146" y="430" class="t">TigerVector (GraphRAG)</text>
+  <text x="1146" y="452" class="s">similar_closed_cases</text>
+  <text x="1146" y="468" class="s">search_docs (policy, typologies, regs)</text>
+
+  <rect class="tgbox" x="908" y="500" width="434" height="70" rx="8"/>
+  <text x="922" y="524" class="t">Case memory</text>
+  <text x="922" y="546" class="s">closed cases + every agent case, its evidence, decisions and approvals</text>
+
+  <rect class="box" x="908" y="584" width="434" height="68" rx="8" style="stroke:#f08a24"/>
+  <text x="922" y="608" class="t">TigerGraph MCP server (tigergraph-mcp)</text>
+  <text x="922" y="630" class="s">agent calls tigergraph__run_installed_query for every tool</text>
+
+  <!-- agent <-> tigergraph -->
+  <path class="lineA" d="M832 183 H866 V618 H904" marker-end="url(#arrA)"/>
+  <text x="838" y="176" class="s" style="fill:#f08a24">MCP</text>
+  <path class="line dash" d="M308 455 H298 V690 H1352 V535 H1346" marker-end="url(#arr)"/>
+  <text x="620" y="684" class="s">write case + embedding back to the graph</text>
+
+  <!-- ================= OUTPUTS ================= -->
+  <rect class="panel" x="40" y="712" width="1320" height="118" rx="12"/>
+  <text x="58" y="740" class="cap">OUTPUTS</text>
+  <rect class="box" x="58" y="752" width="300" height="60" rx="8"/><text x="72" y="776" class="t">cases/HHG-*.json (20)</text><text x="72" y="796" class="s">case · evidence · SAR · actions before / after</text>
+  <rect class="box" x="372" y="752" width="300" height="60" rx="8"/><text x="386" y="776" class="t">Analyst dashboard</text><text x="386" y="796" class="s">live timeline · evidence · graph · SAR · memory</text>
+  <rect class="box" x="686" y="752" width="320" height="60" rx="8"/><text x="700" y="776" class="t">Human approvals (L1 / L2)</text><text x="700" y="796" class="s">role-checked · recorded in the case in TigerGraph</text>
+  <rect class="box" x="1020" y="752" width="322" height="60" rx="8"/><text x="1034" y="776" class="t">monitor/ (30 investigations)</text><text x="1034" y="796" class="s">found autonomously outside the benchmark</text>
+
+  </svg>

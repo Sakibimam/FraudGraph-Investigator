@@ -7,7 +7,9 @@ case is written back into the graph as memory for the next one.
 
 Built for the TigerGraph × Hacker House Goa 2026 challenge on the HHGOA_IEEE dataset.
 
-Architecture diagram and design notes: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+![FraudGraph Investigator architecture](docs/img/architecture.png)
+
+Design notes: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Highlights
 
