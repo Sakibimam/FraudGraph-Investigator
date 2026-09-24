@@ -19,6 +19,7 @@ class Settings:
     tg_password: str = os.getenv("TG_PASSWORD", "tigergraph")
     tg_secret: str = os.getenv("TG_SECRET", "")
     use_mcp: bool = os.getenv("USE_TIGERGRAPH_MCP", "0") == "1"
+    graph_backend: str = os.getenv("GRAPH_BACKEND", "tigergraph")  # tigergraph | mcp | local
 
     # Any OpenAI-compatible endpoint works: Gemini, Groq, OpenAI, a local Ollama.
     llm_provider: str = os.getenv("LLM_PROVIDER", "")
