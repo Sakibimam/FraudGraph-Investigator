@@ -12,7 +12,6 @@ Built for the TigerGraph × Hacker House Goa 2026 challenge on the HHGOA_IEEE da
 [![Watch the demo](https://img.youtube.com/vi/Cxw6vCJN0zw/maxresdefault.jpg)](https://www.youtube.com/watch?v=Cxw6vCJN0zw)
 
 - 🎥 **Demo video:** [FraudGraph Investigator end to end](https://www.youtube.com/watch?v=Cxw6vCJN0zw)
-- 📝 **Blog (Sakib):** [From a noisy risk score to a defensible decision](https://medium.com/@lifeofsakib/from-a-noisy-risk-score-to-a-defensible-decision-building-a-fraud-investigation-agent-on-b9ef9a4907cb)
 - 📝 **Blog (Kaveri):** [From a noisy risk score to a defensible decision](https://medium.com/@meshramkaveri57/from-a-noisy-risk-score-to-a-defensible-decision-building-a-fraud-investigation-agent-on-3f512e94de4e)
 
 ![FraudGraph Investigator architecture](docs/img/architecture.png)
