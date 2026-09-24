@@ -5,43 +5,51 @@
     "verdict": "fraud",
     "fraud_probability": 0.98,
     "pattern": "undocumented",
-    "pattern_description": "Threshold structuring on a compromised card: 4 online purchases ($481.66, $468.32, $485.41, $469.47) placed within about an hour, each kept just under $500, the level at which authorisation checks tighten. It affects cardholders whose card numbers are already compromised and matches five closed cases the bank confirmed but could not map to a known typology; the agent found it by scanning the card's window for clusters of same-band amounts.",
+    "pattern_description": "This pattern consists of 4 online purchases totaling $1,922.43 ($463.86, $497.63, $476.46, and $484.48) executed within 36 minutes on card C12641-K2, with each transaction kept just under a $500 authorisation threshold. It affects card C12641-K2 and matches 8 confirmed-fraud closed cases (including CC-0164, CC-4943, CC-1476, and CC-2910) that lack a known typology. The monitoring alert identified it through a structuring detection for 3 or more online purchases of $400 to $500 within 90 minutes.",
     "affected_txn_ids": [
-      "3507563",
-      "3507591",
-      "3507626",
-      "3507670"
+      "3497982",
+      "3498004",
+      "3498051",
+      "3498092"
     ],
-    "first_suspicious_txn_id": "3507563",
+    "first_suspicious_txn_id": "3497982",
     "connected_card_ids": [],
     "connected_device_profiles": [],
-    "exposure_usd": 1904.86,
+    "exposure_usd": 1922.43,
     "evidence": [
       {
-        "claim": "Analyst requested review: Monitoring alert (structuring): C02265-K1: 3+ online purchases of $400-$500 within 90 minutes. Review transaction 3507670 on card C02265-K1.",
+        "claim": "Analyst requested review: Monitoring alert (structuring): C12641-K2: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3498051 on card C12641-K2.",
         "source": "external",
         "ref": "trigger:analyst_request",
         "entity_ids": [
-          "3507670"
+          "3498051"
         ]
       },
       {
-        "claim": "4 online purchases within 30 minutes, each between $400 and $500 ($481.66, $468.32, $485.41, $469.47; total $1,904.86): amounts kept just under a $500 authorisation threshold",
+        "claim": "Case-memory model score 0.352: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.23",
+        "source": "graph",
+        "ref": "model:case_memory_gbm(holdout AUC 0.955 vs bank score 0.866)",
+        "entity_ids": [
+          "3498051"
+        ]
+      },
+      {
+        "claim": "4 online purchases within 36 minutes, each between $400 and $500 ($463.86, $497.63, $476.46, $484.48; total $1,922.43): amounts kept just under a $500 authorisation threshold",
         "source": "graph",
         "ref": "query:card_window",
         "entity_ids": [
-          "3507563",
-          "3507591",
-          "3507626",
-          "3507670"
+          "3497982",
+          "3498004",
+          "3498051",
+          "3498092"
         ]
       },
       {
-        "claim": "$469.47 is above the card's 95th percentile ($204.98; median $58.03)",
+        "claim": "$476.46 is above the card's 95th percentile ($170.04; median $105.91)",
         "source": "graph",
         "ref": "query:card_baseline",
         "entity_ids": [
-          "3507670"
+          "3498051"
         ]
       },
       {
@@ -49,37 +57,38 @@
         "source": "graph",
         "ref": "query:card_baseline",
         "entity_ids": [
-          "3507670"
+          "3498051"
         ]
       },
       {
-        "claim": "Device profile 'Windows | Windows 10 | chrome 64.0 | 1920x1080' was already used on this card before the alert (1 prior transactions)",
+        "claim": "Device profile 'Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1440x900' was already used on this card before the alert (1 prior transactions)",
         "source": "graph",
         "ref": "query:card_baseline",
         "entity_ids": [
-          "Windows | Windows 10 | chrome 64.0 | 1920x1080"
+          "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1440x900"
         ]
       },
       {
-        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-4124, CC-3841, CC-3907, CC-4086)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-0164, CC-4943, CC-1476, CC-2910)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-4124",
-          "CC-3841",
-          "CC-3907",
-          "CC-4086"
+          "CC-0164",
+          "CC-4943",
+          "CC-1476",
+          "CC-2910"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-4124",
-      "CC-3841",
-      "CC-3907",
-      "CC-4086",
-      "CC-3748"
+      "CC-0164",
+      "CC-4943",
+      "CC-1476",
+      "CC-2910",
+      "CC-0031",
+      "CC-0481"
     ],
-    "summary": "Fraud: an undocumented pattern on card C02265-K1. 4 online purchases within 30 minutes, each between $400 and $500 ($481.66, $468.32, $485.41, $469.47; total $1,904.86): amounts kept just under a $500 authorisation threshold. $469.47 is above the card's 95th percentile ($204.98; median $58.03). Episode of 4 transaction(s), exposure $1,904.86.",
+    "summary": "A monitoring alert for structuring triggered a review of card C12641-K2 following four online purchases totaling $1,922.43 made within 36 minutes to stay just under a $500 authorisation threshold. The case-memory model scored 0.352, and 8 of the 8 most similar closed cases were confirmed fraud. The verdict is fraud with an undocumented pattern and an exposure of $1,922.43. Next actions include executing CREATE_CASE and ESCALATE_TO_ANALYST, while awaiting human approval for BLOCK_CARD and FILE_REPORT.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-MON-004"
   },
@@ -89,7 +98,7 @@
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,904.86 <= $2,500 (L1)"
+        "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,922.43 <= $2,500 (L1)"
       },
       {
         "action": "CREATE_CASE",
@@ -99,7 +108,7 @@
       {
         "action": "FILE_REPORT",
         "route": "L2",
-        "reason": "File: exposure $1,904.86 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+        "reason": "File: exposure $1,922.43 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
       },
       {
         "action": "ESCALATE_TO_ANALYST",
@@ -111,7 +120,7 @@
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,904.86 <= $2,500 (L1)"
+        "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,922.43 <= $2,500 (L1)"
       },
       {
         "action": "CREATE_CASE",
@@ -121,7 +130,7 @@
       {
         "action": "FILE_REPORT",
         "route": "L2",
-        "reason": "File: exposure $1,904.86 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+        "reason": "File: exposure $1,922.43 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
       },
       {
         "action": "ESCALATE_TO_ANALYST",
@@ -133,154 +142,161 @@
   },
   "sar": {
     "file": true,
-    "reason": "File: exposure $1,904.86 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9).",
-    "narrative": "Customer C02265, holder of card C02265-K1, is the subject of this report. Between 2016-12-02 19:00 and 2016-12-02 19:30, 4 transaction(s) totalling $1,904.86 were made on the card online from device profile 'Windows | Windows 10 | chrome 64.0 | 1920x1080': $481.66 (3507563, 2016-12-02 19:00), $468.32 (3507591, 2016-12-02 19:08), $485.41 (3507626, 2016-12-02 19:20), $469.47 (3507670, 2016-12-02 19:30). Every amount sat just below $500 and the purchases were placed minutes apart, a pattern consistent with deliberately staying under an authorisation threshold. The activity is suspicious because: 4 online purchases within 30 minutes, each between $400 and $500 ($481.66, $468.32, $485.41, $469.47; total $1,904.86). It closely resembles earlier confirmed fraud cases CC-4124, CC-3841, CC-3907. The bank has recommended blocking and reissuing the card, placed linked cards under monitoring where applicable, and retains the transaction, device and investigation records as supporting documentation.",
+    "reason": "File: exposure $1,922.43 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9).",
+    "narrative": "Customer C12641, holder of card C12641-K2, is the subject of this report due to suspicious online activity detected by a monitoring alert for structuring. Between 2016-11-29 19:00 and 2016-11-29 19:36, four online purchases totaling $1,922.43 were executed on the card via device profile 'Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1440x900' in a band burst of under 90 minutes. Specifically, the transactions were $463.86 (transaction 3497982 at 19:00), $497.63 (transaction 3498004 at 19:07), $476.46 (transaction 3498051 at 19:20), and $484.48 (transaction 3498092 at 19:36). Each amount was kept just under a $500 authorization threshold, and the $476.46 transaction significantly exceeded the card's 95th percentile of $170.04 and median of $105.91. Furthermore, product code C was never used on this card before, and eight of the eight most similar closed cases\u2014including CC-0164, CC-4943, CC-1476, and CC-2910\u2014were confirmed fraud. A case-memory model score of 0.352 indicated that the transaction's feature profile, which includes Vesta's unnamed V/C/D/M/id features, strongly resembles transactions in confirmed-fraud closed cases from July to October, alongside a bank risk score of 0.23. The verdict for this activity is fraud with an undocumented pattern resulting in an exposure of $1,922.43. In response to these findings, the bank's automated systems executed a case creation and escalated the matter to an analyst, while recommending the execution of a card block (L1) and the filing of this report (L2).",
     "subjects": [
-      "C02265",
-      "C02265-K1"
+      "C12641",
+      "C12641-K2"
     ],
-    "total_amount_usd": 1904.86,
+    "total_amount_usd": 1922.43,
     "activity_dates": [
-      "2016-12-02",
-      "2016-12-02"
+      "2016-11-29",
+      "2016-11-29"
     ]
   },
-  "stop_reason": "Fraud probability 0.98 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
+  "stop_reason": "Fraud probability 0.98 is at or above 0.85 with 3 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 7,
-  "tokens": 0,
-  "latency_s": 0.08,
+  "tokens": 3568,
+  "latency_s": 21.47,
   "graph_case_id": "CASE-2016-MON-004",
-  "card_id": "C02265-K1",
-  "opened_at": "2016-12-02 19:30:00",
+  "card_id": "C12641-K2",
+  "opened_at": "2016-11-29 19:20:00",
   "trigger": {
     "type": "analyst_request",
-    "text": "Monitoring alert (structuring): C02265-K1: 3+ online purchases of $400-$500 within 90 minutes. Review transaction 3507670 on card C02265-K1.",
-    "flagged_txn_id": "3507670"
+    "text": "Monitoring alert (structuring): C12641-K2: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3498051 on card C12641-K2.",
+    "flagged_txn_id": "3498051"
   },
   "status": "closed_fraud",
   "pattern": "undocumented",
-  "exposure_usd": 1904.86,
-  "summary": "Fraud: an undocumented pattern on card C02265-K1. 4 online purchases within 30 minutes, each between $400 and $500 ($481.66, $468.32, $485.41, $469.47; total $1,904.86): amounts kept just under a $500 authorisation threshold. $469.47 is above the card's 95th percentile ($204.98; median $58.03). Episode of 4 transaction(s), exposure $1,904.86.",
+  "exposure_usd": 1922.43,
+  "summary": "A monitoring alert for structuring triggered a review of card C12641-K2 following four online purchases totaling $1,922.43 made within 36 minutes to stay just under a $500 authorisation threshold. The case-memory model scored 0.352, and 8 of the 8 most similar closed cases were confirmed fraud. The verdict is fraud with an undocumented pattern and an exposure of $1,922.43. Next actions include executing CREATE_CASE and ESCALATE_TO_ANALYST, while awaiting human approval for BLOCK_CARD and FILE_REPORT.",
   "timeline": [
     {
       "step": "trigger",
-      "at": "16:09:10",
-      "detail": "analyst_request: Monitoring alert (structuring): C02265-K1: 3+ online purchases of $400-$500 within 90 minutes. Review transaction 3507670 on card C02265-K1."
+      "at": "17:47:38",
+      "detail": "analyst_request: Monitoring alert (structuring): C12641-K2: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3498051 on card C12641-K2."
     },
     {
       "step": "tool",
-      "at": "16:09:10",
-      "detail": "txn_detail(txn_id=3507670) -> id=3507670, ts=2016-12-02 19:30:00, amt=469.47, product=C, channel=online",
+      "at": "17:47:38",
+      "detail": "txn_detail(txn_id=3498051) -> id=3498051, ts=2016-11-29 19:20:00, amt=476.46, product=C, channel=online",
       "tool": "txn_detail",
-      "ms": 10.8
+      "ms": 51.8
     },
     {
       "step": "open_case",
-      "at": "16:09:10",
-      "detail": "Case opened for C02265-K1; flagged $469.47 online txn 3507670 at 2016-12-02 19:30:00"
+      "at": "17:47:38",
+      "detail": "Case opened for C12641-K2; flagged $476.46 online txn 3498051 at 2016-11-29 19:20:00"
     },
     {
       "step": "tool",
-      "at": "16:09:10",
-      "detail": "card_window(card=C02265-K1, center_ts=2016-12-02 19:30:00, hours_before=48, hours_after=48) -> 5 rows",
+      "at": "17:47:38",
+      "detail": "card_window(card=C12641-K2, center_ts=2016-11-29 19:20:00, hours_before=48, hours_after=48) -> 7 rows",
       "tool": "card_window",
-      "ms": 6.6
+      "ms": 31.2
     },
     {
       "step": "evidence",
-      "at": "16:09:10",
-      "detail": "Analyst requested review: Monitoring alert (structuring): C02265-K1: 3+ online purchases of $400-$500 within 90 minutes. Review transaction 3507670 on card C02265-K1.",
+      "at": "17:47:38",
+      "detail": "Analyst requested review: Monitoring alert (structuring): C12641-K2: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3498051 on card C12641-K2.",
       "weight": 0.3,
       "family": "analyst"
     },
     {
       "step": "evidence",
-      "at": "16:09:10",
-      "detail": "4 online purchases within 30 minutes, each between $400 and $500 ($481.66, $468.32, $485.41, $469.47; total $1,904.86): amounts kept just under a $500 authorisation threshold",
+      "at": "17:47:38",
+      "detail": "Case-memory model score 0.352: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.23",
+      "weight": 1.0,
+      "family": "model"
+    },
+    {
+      "step": "evidence",
+      "at": "17:47:38",
+      "detail": "4 online purchases within 36 minutes, each between $400 and $500 ($463.86, $497.63, $476.46, $484.48; total $1,922.43): amounts kept just under a $500 authorisation threshold",
       "weight": 3.2,
       "family": "sequence"
     },
     {
       "step": "tool",
-      "at": "16:09:10",
-      "detail": "card_baseline(card=C02265-K1, before_ts=2016-11-30 19:30:00, lookback_days=150) -> n_txns=25, total_amt=2420.339999999999, amounts=25, regions=1, products=2",
+      "at": "17:47:38",
+      "detail": "card_baseline(card=C12641-K2, before_ts=2016-11-27 19:20:00, lookback_days=150) -> n_txns=56, total_amt=5744.349999999999, amounts=56, regions=2, products=3",
       "tool": "card_baseline",
-      "ms": 6.2
+      "ms": 50.2
     },
     {
       "step": "evidence",
-      "at": "16:09:10",
-      "detail": "$469.47 is above the card's 95th percentile ($204.98; median $58.03)",
+      "at": "17:47:38",
+      "detail": "$476.46 is above the card's 95th percentile ($170.04; median $105.91)",
       "weight": 0.5,
       "family": "behaviour"
     },
     {
       "step": "evidence",
-      "at": "16:09:10",
+      "at": "17:47:38",
       "detail": "Product code C never used on this card before",
       "weight": 0.4,
       "family": "behaviour"
     },
     {
       "step": "evidence",
-      "at": "16:09:10",
-      "detail": "Device profile 'Windows | Windows 10 | chrome 64.0 | 1920x1080' was already used on this card before the alert (1 prior transactions)",
+      "at": "17:47:38",
+      "detail": "Device profile 'Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1440x900' was already used on this card before the alert (1 prior transactions)",
       "weight": -0.6,
       "family": "device"
     },
     {
       "step": "tool",
-      "at": "16:09:10",
-      "detail": "card_case_history(card=C02265-K1) -> 1 rows",
+      "at": "17:47:38",
+      "detail": "card_case_history(card=C12641-K2) -> 1 rows",
       "tool": "card_case_history",
-      "ms": 7.5
+      "ms": 14.5
     },
     {
       "step": "tool",
-      "at": "16:09:10",
-      "detail": "device_neighbors(device=Windows | Windows 10 | chrome 64.0 | 1920x1080, center_ts=2016-12-02 19:30:00, days=30) -> uses=14, cards=11, card_cases=10, all_time_txns=460, all_time_cards=225",
+      "at": "17:47:44",
+      "detail": "device_neighbors(device=Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1440x900, center_ts=2016-11-29 19:20:00, days=30) -> uses=37, cards=31, card_cases=19, all_time_txns=159, all_time_cards=105",
       "tool": "device_neighbors",
-      "ms": 18.1
+      "ms": 111.3
     },
     {
       "step": "skip",
-      "at": "16:09:10",
-      "detail": "device_case_links skipped: 'Windows | Windows 10 | chrome 64.0 | 1920x1080' is a generic profile shared by 225 cards"
+      "at": "17:47:44",
+      "detail": "device_case_links skipped: 'Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1440x900' is a generic profile shared by 105 cards"
     },
     {
       "step": "tool",
-      "at": "16:09:10",
+      "at": "17:47:44",
       "detail": "similar_closed_cases(k=8) -> 8 rows",
       "tool": "similar_closed_cases",
-      "ms": 9.0
+      "ms": 27.7
     },
     {
       "step": "evidence",
-      "at": "16:09:10",
-      "detail": "8 of the 8 most similar closed cases were confirmed fraud (CC-4124, CC-3841, CC-3907, CC-4086)",
+      "at": "17:47:44",
+      "detail": "8 of the 8 most similar closed cases were confirmed fraud (CC-0164, CC-4943, CC-1476, CC-2910)",
       "weight": 0.3,
       "family": "memory"
     },
     {
       "step": "stop_gathering",
-      "at": "16:09:10",
-      "detail": "Probability 0.98 with 2 independent signals: enough to act (policy 6)"
+      "at": "17:47:44",
+      "detail": "Probability 0.98 with 3 independent signals: enough to act (policy 6)"
     },
     {
       "step": "assess",
-      "at": "16:09:10",
-      "detail": "initial assessment: fraud probability 0.98, 2 independent signal families (analyst +0.3, sequence +3.2, behaviour +0.9, device -0.6, memory +0.3)",
+      "at": "17:47:44",
+      "detail": "initial assessment: fraud probability 0.98, 3 independent signal families (analyst +0.3, model +1.0, sequence +3.2, behaviour +0.9, device -0.6, memory +0.3)",
       "probability": 0.98
     },
     {
       "step": "recommend_initial",
-      "at": "16:09:10",
+      "at": "17:47:44",
       "detail": "Initial next best action: CREATE_CASE, BLOCK_CARD, FILE_REPORT, ESCALATE_TO_ANALYST",
       "actions": [
         {
           "action": "BLOCK_CARD",
           "route": "L1",
-          "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,904.86 <= $2,500 (L1)"
+          "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,922.43 <= $2,500 (L1)"
         },
         {
           "action": "CREATE_CASE",
@@ -290,7 +306,7 @@
         {
           "action": "FILE_REPORT",
           "route": "L2",
-          "reason": "File: exposure $1,904.86 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+          "reason": "File: exposure $1,922.43 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
         },
         {
           "action": "ESCALATE_TO_ANALYST",
@@ -301,13 +317,13 @@
     },
     {
       "step": "recommend_final",
-      "at": "16:09:10",
+      "at": "17:47:44",
       "detail": "Final next best action: CREATE_CASE, BLOCK_CARD, FILE_REPORT, ESCALATE_TO_ANALYST",
       "actions": [
         {
           "action": "BLOCK_CARD",
           "route": "L1",
-          "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,904.86 <= $2,500 (L1)"
+          "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,922.43 <= $2,500 (L1)"
         },
         {
           "action": "CREATE_CASE",
@@ -317,7 +333,7 @@
         {
           "action": "FILE_REPORT",
           "route": "L2",
-          "reason": "File: exposure $1,904.86 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+          "reason": "File: exposure $1,922.43 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
         },
         {
           "action": "ESCALATE_TO_ANALYST",
@@ -328,7 +344,7 @@
     },
     {
       "step": "update_memory",
-      "at": "16:09:10",
+      "at": "17:47:59",
       "detail": "Case written to TigerGraph as CASE-2016-MON-004"
     }
   ]

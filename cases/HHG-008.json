@@ -69,7 +69,7 @@
       "CC-1715",
       "CC-3422"
     ],
-    "summary": "Cardholder dispute confirmed unauthorized activity for a $55.68 transaction, contributing to a total fraud exposure of $166.97 across the episode. The case-memory model scored 0.769, with all eight of the most similar historical closed cases confirmed as fraud. The verdict is fraud under the pattern card_not_present_new_device. Next steps are: CREATE_CASE (auto) and BLOCK_CARD (L1).",
+    "summary": "The cardholder disputed a $55.68 transaction, stating they never made the purchase. The case-memory model scored 0.769, and all eight of the most similar closed cases were confirmed fraud under the card_not_present_new_device pattern, resulting in a total exposure of $166.97. The verdict is fraud. Next steps are: CREATE_CASE (auto) and BLOCK_CARD (L1).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-008"
   },
@@ -111,6 +111,6 @@
   },
   "stop_reason": "Fraud probability 0.90 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 8,
-  "tokens": 1074,
-  "latency_s": 6.76
+  "tokens": 1097,
+  "latency_s": 7.94
 }

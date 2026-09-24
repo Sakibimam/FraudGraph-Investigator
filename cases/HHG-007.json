@@ -54,14 +54,14 @@
         ]
       },
       {
-        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-4240, CC-3457, CC-3044, CC-4254)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-4240, CC-3457, CC-3044, CC-2496)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
           "CC-4240",
           "CC-3457",
           "CC-3044",
-          "CC-4254"
+          "CC-2496"
         ]
       }
     ],
@@ -69,12 +69,12 @@
       "CC-4240",
       "CC-3457",
       "CC-3044",
-      "CC-4254",
       "CC-2496",
+      "CC-4254",
       "CC-1524",
       "CC-0104"
     ],
-    "summary": "A flagged transaction of $111.92 on card C09933-K2 resulted in a fraud verdict for account takeover with an exposure of $148.89. Key evidence includes a case-memory model score of 0.740 showing strong similarity to confirmed-fraud cases from July to October, alongside 8 of the 8 most similar closed cases being confirmed fraud and a prior confirmed-fraud case within the last 45 days indicating the card may still be compromised. The system automatically created a case, and the recommended next action is to block the card (L1).",
+    "summary": "An internal fraud investigation determined that card C09933-K2 was compromised through an account takeover, resulting in an exposure of $148.89. The verdict of fraud is supported by a case-memory model score of 0.740 and historical data showing that eight of the eight most similar closed cases were confirmed fraud, compounded by a previous compromise 45 days prior. Although the transaction amount and billing region were familiar to the card, the cumulative risk indicators confirmed malicious activity. Following this determination, the system automatically created a case, and the L1 human approval process is required to block the card.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-007"
   },
@@ -116,6 +116,6 @@
   },
   "stop_reason": "Fraud probability 0.88 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 7,
-  "tokens": 1025,
-  "latency_s": 9.05
+  "tokens": 1088,
+  "latency_s": 10.42
 }

@@ -27,9 +27,13 @@ Architecture diagram and design notes: [`docs/ARCHITECTURE.md`](docs/ARCHITECTUR
   simulated step-up / customer reply with the assumption recorded, and an explicit *before → after* recommendation.
 - **Policy as code**: actions, auto/L1/L2 routes, R1–R10, case-vs-SAR (§3a) in `fraudagent/agent/policy.py`; the API
   refuses approvals from the wrong role.
+- **Graph algorithms for monitoring**: `ring_components` runs weakly-connected-components (min-label propagation) over
+  proxied card↔device links in GSQL, and `band_bursts` finds threshold-structuring candidates; the monitor confirms
+  and investigates each hit.
 - **Two undocumented patterns detected**: sub-$500 structuring bursts and an anonymous-proxy device ring. The monitor
   found 30 more cases in November–December beyond the case pack (`monitor/`).
-- **LLM: Gemini 3.5 Flash-Lite** (free tier, via its OpenAI-compatible endpoint) re-ranks tools and writes the case
+- **LLM chain: Gemini 3.5 Flash-Lite → local Qwen2.5 3B (Ollama)**. Gemini (free tier) is used first; when its quota
+  runs out the agent switches to the local model automatically. The LLM re-ranks tools and writes the case
   summaries and SAR narratives from the retrieved evidence and policy text; an ID guard rejects any output that
   mentions an entity not in the evidence, and the policy engine alone decides actions and routes.
 - **Analyst dashboard**: live agent timeline (SSE), evidence with entity IDs, evidence graph, next best action with
@@ -84,7 +88,11 @@ python scripts/train_case_model.py            # case-memory model (writes docs/c
 scripts/gsql.sh gsql/schema.gsql && scripts/gsql.sh gsql/vectors.gsql
 python scripts/load_graph_rest.py             # ~2 minutes over RESTPP
 python scripts/build_memory.py --push         # embeddings -> TigerVector
-scripts/gsql.sh gsql/queries/investigation.gsql && scripts/gsql.sh gsql/install.gsql
+scripts/gsql.sh gsql/queries/investigation.gsql && scripts/gsql.sh gsql/queries/monitoring.gsql
+scripts/gsql.sh gsql/install.gsql
+
+# optional local LLM fallback
+brew install ollama && ollama serve & ollama pull qwen2.5:3b
 
 # 4. run
 python scripts/run_benchmark.py               # writes cases/HHG-*.json

@@ -36,20 +36,28 @@ def evidence_list(signals) -> list[dict]:
     return out
 
 
-def pattern_description(findings, flag, episode) -> str:
-    if findings.structuring:
+def pattern_description(findings, flag, episode, st=None) -> str:
+    """Describe an undocumented pattern from what this investigation actually found."""
+    prior = []
+    if st is not None:
+        seen = {c["case_id"]: c for c in (st.similar or []) + (st.device_cases or [])}
+        prior = [k for k, c in seen.items() if c.get("outcome") == "confirmed_fraud" and c.get("pattern") == "undocumented"]
+    memo = (f"It matches {len(prior)} confirmed closed case(s) the analysts could not map to a known typology "
+            f"({', '.join(sorted(prior)[:4])})" if prior else "No closed case records it under a known typology")
+    if findings.structuring and episode:
         amts = ", ".join(f"${t['amt']:.2f}" for t in episode)
-        return (f"Threshold structuring on a compromised card: {len(episode)} online purchases ({amts}) placed within "
-                "about an hour, each kept just under $500, the level at which authorisation checks tighten. It affects "
-                "cardholders whose card numbers are already compromised and matches five closed cases the bank "
-                "confirmed but could not map to a known typology; the agent found it by scanning the card's window for "
-                "clusters of same-band amounts.")
+        mins = int((datetime.strptime(episode[-1]["ts"][:19], "%Y-%m-%d %H:%M:%S")
+                    - datetime.strptime(episode[0]["ts"][:19], "%Y-%m-%d %H:%M:%S")).total_seconds() // 60)
+        return (f"Threshold structuring: {len(episode)} online purchases ({amts}) within {mins} minutes on one card, "
+                f"each kept just under $500 so no single authorisation crosses the threshold. {memo}. "
+                "The agent found it by scanning the card's transaction window in the graph for same-band bursts.")
     if findings.device_ring:
-        return (f"Shared-device fraud ring: one device profile ({flag.get('device')}) behind an anonymising proxy is used "
-                f"to make small online purchases on {len(findings.connected_card_ids) + 1} unrelated customers' cards "
-                "in the same weeks, each time appearing as a New device for that account. It affects many customers at "
-                "once rather than one compromised card; the agent found it by traversing card -> transaction -> device "
-                "-> card in TigerGraph and matching the profile to earlier confirmed undocumented cases.")
+        n = len(findings.connected_card_ids) + 1
+        amts = [t["amt"] for t in episode] or [flag["amt"]]
+        return (f"Shared-device ring: one handset profile ({flag.get('device')}) behind an anonymising proxy was used on "
+                f"{n} different customers' cards in the same weeks, appearing each time as a New device, with purchases "
+                f"of ${min(amts):,.2f}-${max(amts):,.2f} on this card. {memo}. The agent found it by traversing "
+                "card -> transaction -> device -> card in TigerGraph.")
     return ""
 
 
@@ -128,7 +136,12 @@ def llm_rewrite(llm, kind: str, draft: str, st, facts, docs, actions: list[dict]
         return draft
     guidance = "\n".join(f"- {d['section']}: {d['text'][:400]}" for d in docs[:3])
     evidence = "\n".join(f"- {s.claim}" for s in st.signals if s.weight or s.source == "customer")
-    if kind == "sar":
+    if kind == "pattern":  # rephrase the verified draft only; the evidence list invites over-reading
+        evidence, guidance = "(see draft)", ""
+    if kind == "pattern":
+        sys = ("You describe a fraud pattern that fits no known typology, in 2 or 3 plain sentences: what it is, who it "
+               "affects, how it was found. Use only facts in the draft and evidence; keep IDs and amounts exact.")
+    elif kind == "sar":
         sys = ("You write FinCEN-style SAR narratives. Use only facts in the evidence and draft; keep every ID, date and "
                "amount exactly as given; cover who, what, when, where, how and why suspicious; name the linked cards and "
                "devices listed in the draft; end with what the bank has done; 6 to 12 sentences; plain prose.")
@@ -223,7 +236,9 @@ def build_case(llm, st, facts, findings, episode, prob0, prob, indep, plan0: Act
             "verdict": facts.verdict,
             "fraud_probability": round(prob, 2),
             "pattern": facts.pattern if facts.verdict != "legitimate" else "none",
-            "pattern_description": pattern_description(findings, st.flag, episode) if facts.pattern == "undocumented" else "",
+            "pattern_description": (llm_rewrite(llm, "pattern", pattern_description(findings, st.flag, episode, st), st, facts,
+                                                 st.docs, final_items, [])
+                                    if facts.pattern == "undocumented" else ""),
             "affected_txn_ids": affected,
             "first_suspicious_txn_id": affected[0] if affected else "",
             "connected_card_ids": connected_cards,

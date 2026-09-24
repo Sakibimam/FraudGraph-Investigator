@@ -58,7 +58,7 @@
       "CC-2400",
       "CC-2717"
     ],
-    "summary": "The flagged $100.07 online transaction is considered legitimate as the amount falls within the card's usual spending range and the transaction profile does not resemble confirmed-fraud cases. The case-memory model scored 0.013, and none of the eight most similar closed cases involved confirmed fraud, despite the device being new to the account. The verdict is legitimate with an exposure of $0.00 and no identified pattern. The following actions have been executed: ALLOW_TRANSACTION (auto), CLOSE_NO_FRAUD (auto).",
+    "summary": "The flagged $100.07 online transaction is considered legitimate as the amount falls well within the cardholder's usual spending range. Key evidence includes a low case-memory model score of 0.013, which shows no resemblance to confirmed-fraud cases, and zero of the eight most similar closed cases being identified as fraud, despite the device being new to the account. The verdict is legitimate with an exposure of $0.00 and no identified pattern. The following actions have been executed: ALLOW_TRANSACTION (auto), CLOSE_NO_FRAUD (auto).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-005"
   },
@@ -100,6 +100,6 @@
   },
   "stop_reason": "Fraud probability 0.07 is at or below 0.15 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 7,
-  "tokens": 1066,
-  "latency_s": 13.18
+  "tokens": 1103,
+  "latency_s": 8.46
 }

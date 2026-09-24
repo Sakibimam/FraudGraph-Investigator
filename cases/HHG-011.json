@@ -82,7 +82,7 @@
       "CC-3039",
       "CC-2247"
     ],
-    "summary": "Verdict: fraud, pattern: card_not_present_new_device, exposure $131.30. The cardholder reported they did not make the $131.30 transaction, and the identity record marks the device as new for this account with a profile that never appears in the card's prior history. Final actions recommended: BLOCK_CARD (L1), CREATE_CASE (auto).",
+    "summary": "The investigation concluded that card C11923-K2 was compromised via card-not-present fraud from a new device, resulting in a total exposure of $131.30. Key evidence includes the cardholder's confirmed report that they did not make the transaction and the identity record marking the device as new for this account. The verdict is fraud. The automated system has executed `CREATE_CASE`, and `BLOCK_CARD (L1)` is awaiting human approval.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-011"
   },
@@ -135,6 +135,6 @@
   },
   "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.96. Further graph steps would not change the actions (policy 6).",
   "tool_calls": 10,
-  "tokens": 1342,
-  "latency_s": 5.41
+  "tokens": 1398,
+  "latency_s": 8.11
 }

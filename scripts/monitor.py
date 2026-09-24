@@ -26,6 +26,41 @@ from fraudagent.graph.tools import make_tools  # noqa: E402
 OUT = ROOT / "monitor"
 
 
+def graph_sweep(tools, start: str = "2016-11-01 00:00:00", end: str = "2016-12-31 23:59:59") -> list[dict]:
+    """Candidate generation with GSQL: WCC over proxied card<->device links, and amount-band bursts."""
+    pack = set(pd.read_csv(settings.data_dir / "case_pack.csv")["card_id"])
+    alerts: list[dict] = []
+    for card, hits in tools.call("band_bursts", start_ts=start, end_ts=end).items():
+        hits = sorted(hits, key=lambda h: h["ts"])
+        for i in range(len(hits) - 2):
+            t0, t2 = pd.Timestamp(hits[i]["ts"]), pd.Timestamp(hits[i + 2]["ts"])
+            if t2 - t0 <= pd.Timedelta(minutes=90):
+                h = hits[i + 2]
+                alerts.append({"kind": "structuring", "card_id": card, "customer_id": card.split("-")[0],
+                               "txn": h["txn"], "ts": h["ts"],
+                               "detail": f"{card}: 3+ online purchases of $400-$500 within 90 minutes (band_bursts)"})
+                break
+    # WCC gives candidate components; confirm each handset by its own card fan-out behind proxies
+    mid = str(pd.Timestamp(start) + (pd.Timestamp(end) - pd.Timestamp(start)) / 2)[:19]
+    days = (pd.Timestamp(end) - pd.Timestamp(start)).days // 2 + 1
+    for comp in tools.call("ring_components", start_ts=start, end_ts=end, min_cards=5):
+        for dev in comp["devices"]:
+            if is_generic_device(dev, 0):
+                continue
+            nb = tools.call("device_neighbors", device=dev, center_ts=mid, days=days)
+            uses = [u for u in nb.get("uses", []) if "ANONYMOUS" in u["proxy_type"] or "HIDDEN" in u["proxy_type"]]
+            ring = sorted({u["card"] for u in uses})
+            if len(ring) < 5:
+                continue
+            for card in ring:
+                last = max((u for u in uses if u["card"] == card), key=lambda u: u["ts"])
+                alerts.append({"kind": "device_ring", "card_id": card, "customer_id": card.split("-")[0],
+                               "txn": last["txn"], "ts": last["ts"],
+                               "detail": f"{card} used handset '{dev}' behind an anonymous proxy; WCC component of "
+                                         f"{len(comp['cards'])} cards, {len(ring)} on this handset (ring_components)"})
+    return [a for a in alerts if a["card_id"] not in pack]
+
+
 def sweep() -> list[dict]:
     tx = pd.read_parquet(settings.cache_dir / "txn_enriched.parquet",
                          columns=["TransactionID", "card_id", "customer_id", "ts", "TransactionAmt", "channel",
@@ -62,10 +97,11 @@ def sweep() -> list[dict]:
 
 def main(args: list[str]) -> None:
     limit = int(args[args.index("--limit") + 1]) if "--limit" in args else 15
-    alerts = sweep()
-    print(f"sweep found {len(alerts)} alerts outside the case pack")
+    tools = make_tools("local" if "--local" in args else settings.graph_backend)
+    alerts = sweep() if tools.backend == "local-mirror" else graph_sweep(tools)
+    print(f"{tools.backend} sweep found {len(alerts)} alerts outside the case pack")
     OUT.mkdir(exist_ok=True)
-    agent = Investigator(make_tools("local" if "--local" in args else settings.graph_backend), LLM())
+    agent = Investigator(tools, LLM())
     results = []
     by_kind: dict[str, int] = {}
     for i, a in enumerate(alerts):

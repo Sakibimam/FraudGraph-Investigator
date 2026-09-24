@@ -1,0 +1,60 @@
+USE GRAPH FraudGraph
+
+# ---------------------------------------------------------------------------------------
+# Weakly connected components by min-label propagation over the card <-> device projection
+# (card -MADE-> txn -FROM_DEVICE-> device), restricted to a time window and to transactions
+# that went through an anonymising proxy on a specific handset. Components with many cards
+# are device-farm rings.
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY ring_components(STRING start_ts, STRING end_ts, INT min_cards = 5,
+                                        INT max_iter = 8) FOR GRAPH FraudGraph SYNTAX v2 {
+  MinAccum<INT> @cc;
+  MapAccum<INT, SetAccum<STRING>> @@comp_cards, @@comp_devices;
+  ListAccum<INT> @@rings;
+  DATETIME lo = to_datetime(start_ts);
+  DATETIME hi = to_datetime(end_ts);
+
+  T = {Txn.*};
+  T = SELECT t FROM T:t
+      WHERE t.ts >= lo AND t.ts <= hi AND t.channel == "online"
+        AND (t.proxy_type LIKE "%ANONYMOUS%" OR t.proxy_type LIKE "%HIDDEN%");
+  D = SELECT d FROM T:t -(FROM_DEVICE>)- DeviceProfile:d
+      WHERE d.device_info != "" AND d.device_info != "Windows" AND d.device_info != "iOS Device"
+        AND d.device_info != "MacOS" AND d.device_info != "Trident/7.0"
+      POST-ACCUM d.@cc = getvid(d);
+  T = SELECT t FROM T:t -(FROM_DEVICE>)- DeviceProfile:d WHERE d.@cc > 0;
+  K = SELECT k FROM T:t -(MADE_BY>)- Card:k POST-ACCUM k.@cc = getvid(k);
+
+  WHILE TRUE LIMIT max_iter DO
+    X = SELECT d FROM T:t -(FROM_DEVICE>)- DeviceProfile:d, T:t -(MADE_BY>)- Card:k
+        ACCUM d.@cc += k.@cc, k.@cc += d.@cc;
+  END;
+
+  K = SELECT k FROM K:k POST-ACCUM @@comp_cards += (k.@cc -> k.id);
+  D = SELECT d FROM D:d POST-ACCUM @@comp_devices += (d.@cc -> d.id);
+  FOREACH (c, cards) IN @@comp_cards DO
+    IF cards.size() >= min_cards THEN @@rings += c; END;
+  END;
+  PRINT @@rings AS ring_ids, @@comp_cards AS cards, @@comp_devices AS devices;
+}
+
+# ---------------------------------------------------------------------------------------
+# Cards with several online purchases inside one amount band in a window (candidate
+# threshold structuring). Returns per-card timestamps so the agent can check the burst.
+# ---------------------------------------------------------------------------------------
+CREATE OR REPLACE QUERY band_bursts(STRING start_ts, STRING end_ts, DOUBLE lo_amt = 400,
+                                    DOUBLE hi_amt = 500, INT min_count = 3) FOR GRAPH FraudGraph SYNTAX v2 {
+  TYPEDEF TUPLE<STRING txn, STRING ts, DOUBLE amt> Hit;
+  ListAccum<Hit> @hits;
+  MapAccum<STRING, ListAccum<Hit>> @@cards;
+  DATETIME lo = to_datetime(start_ts);
+  DATETIME hi = to_datetime(end_ts);
+  T = {Txn.*};
+  T = SELECT t FROM T:t
+      WHERE t.ts >= lo AND t.ts <= hi AND t.channel == "online" AND t.amt >= lo_amt AND t.amt < hi_amt;
+  K = SELECT k FROM T:t -(MADE_BY>)- Card:k
+      ACCUM k.@hits += Hit(t.id, datetime_format(t.ts, "%Y-%m-%d %H:%M:%S"), t.amt)
+      HAVING k.@hits.size() >= min_count;
+  K = SELECT k FROM K:k POST-ACCUM @@cards += (k.id -> k.@hits);
+  PRINT @@cards AS cards;
+}

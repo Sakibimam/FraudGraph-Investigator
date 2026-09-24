@@ -34,6 +34,8 @@ TOOL_DOCS = {
     "device_case_links": "Closed cases on any card that used this device profile.",
     "similar_closed_cases": "Vector search over closed-case profiles (TigerVector) for similar past investigations.",
     "search_docs": "Vector search over policy, typologies and regulatory guidance (GraphRAG).",
+    "ring_components": "Monitoring: weakly connected components of cards linked by proxied specific handsets in a period.",
+    "band_bursts": "Monitoring: cards with several online purchases inside one amount band in a period.",
 }
 
 
@@ -167,6 +169,19 @@ class TigerGraphTools(GraphTools):
         out = [{"id": v["v_id"], "source": v["attributes"].get("R.source"), "section": v["attributes"].get("R.section"),
                 "text": v["attributes"].get("R.text"), "distance": dist.get(v["v_id"])} for v in r[0]["docs"]]
         return sorted(out, key=lambda x: x["distance"] if x["distance"] is not None else 1)
+
+    # monitoring sweeps (graph algorithms over the whole period)
+    def _ring_components(self, start_ts, end_ts, min_cards=5, max_iter=8):
+        r = self._q("ring_components", start_ts=start_ts, end_ts=end_ts, min_cards=min_cards, max_iter=max_iter)
+        if not r:
+            return []
+        out = r[0]
+        return [{"component": c, "cards": sorted(out["cards"].get(str(c), [])),
+                 "devices": sorted(out["devices"].get(str(c), []))} for c in out["ring_ids"]]
+
+    def _band_bursts(self, start_ts, end_ts, lo_amt=400.0, hi_amt=500.0, min_count=3):
+        r = self._q("band_bursts", start_ts=start_ts, end_ts=end_ts, lo_amt=lo_amt, hi_amt=hi_amt, min_count=min_count)
+        return r[0]["cards"] if r else {}
 
     def write_case(self, case: dict) -> bool:
         from fraudagent.memory.case_store import case_to_graph_payload

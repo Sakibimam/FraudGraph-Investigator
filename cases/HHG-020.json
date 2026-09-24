@@ -46,27 +46,27 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-2952, CC-0889, CC-0881, CC-0873)",
+        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-1159, CC-3540, CC-1431, CC-2952)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-2952",
-          "CC-0889",
-          "CC-0881",
-          "CC-0873"
+          "CC-1159",
+          "CC-3540",
+          "CC-1431",
+          "CC-2952"
         ]
       }
     ],
     "similar_prior_cases": [
+      "CC-1159",
+      "CC-3540",
+      "CC-1431",
       "CC-2952",
       "CC-0889",
-      "CC-0881",
-      "CC-0873",
-      "CC-0682",
       "CC-2447",
       "CC-2277"
     ],
-    "summary": "The flagged $125.08 online transaction is deemed legitimate with an exposure of $0.00 and no identified fraud pattern. Key evidence shows the amount falls within the card's usual range, the case-memory model score is 0.007 with no resemblance to confirmed-fraud cases, and none of the 8 most similar closed cases involve fraud, despite a new device and product code R usage. Following this verdict, the transaction is automatically allowed and the case is closed with no fraud.",
+    "summary": "The flagged $125.08 transaction is determined to be legitimate with no fraud pattern and $0.00 exposure. Key evidence includes a low case-memory model score of 0.007 that does not resemble confirmed fraud, an amount within the card's usual range, and zero similar closed cases marked as confirmed fraud. Although product code R is new for the card and the device profile is unrecognized, these weak links are outweighed by historical patterns. The system has automatically executed the following final actions: ALLOW_TRANSACTION (auto), CLOSE_NO_FRAUD (auto).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-020"
   },
@@ -108,6 +108,6 @@
   },
   "stop_reason": "Fraud probability 0.10 is at or below 0.15 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 7,
-  "tokens": 1073,
-  "latency_s": 10.96
+  "tokens": 1143,
+  "latency_s": 8.12
 }

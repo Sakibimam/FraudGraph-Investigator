@@ -5,7 +5,7 @@
     "verdict": "fraud",
     "fraud_probability": 0.98,
     "pattern": "undocumented",
-    "pattern_description": "Threshold structuring on a compromised card: 4 online purchases ($478.95, $456.96, $488.04, $482.12) placed within about an hour, each kept just under $500, the level at which authorisation checks tighten. It affects cardholders whose card numbers are already compromised and matches five closed cases the bank confirmed but could not map to a known typology; the agent found it by scanning the card's window for clusters of same-band amounts.",
+    "pattern_description": "This undocumented fraud pattern involves four online purchases totaling $1,906.07 made within 30 minutes on a single card, each kept just under $500 to avoid crossing a single authorization threshold. It affects cardholders and was found by the agent scanning the card's transaction window in the graph for same-band bursts.",
     "affected_txn_ids": [
       "3476602",
       "3476633",
@@ -69,25 +69,25 @@
         ]
       },
       {
-        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-0031, CC-3235, CC-2079, CC-3423)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-0031, CC-2079, CC-3235, CC-3423)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
           "CC-0031",
-          "CC-3235",
           "CC-2079",
+          "CC-3235",
           "CC-3423"
         ]
       }
     ],
     "similar_prior_cases": [
       "CC-0031",
-      "CC-3235",
       "CC-2079",
+      "CC-3235",
       "CC-3423",
       "CC-2636"
     ],
-    "summary": "A cardholder disputed a $482.12 transaction, which formed part of a rapid sequence of four online purchases totaling $1,906.07 designed to stay just under a $500 authorization threshold. Historical similarity analysis showed that eight of the eight most comparable closed cases were confirmed fraud. The verdict is fraud with an undocumented pattern and an exposure of $1,906.07. Final actions executed or awaiting approval are: BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), and ESCALATE_TO_ANALYST (auto).",
+    "summary": "A cardholder disputed a $482.12 transaction, which formed part of an undocumented fraud pattern totaling $1,906.07 across four rapid online purchases kept just under a $500 authorization threshold. The activity deviated from historical spending, as eight highly similar closed cases were confirmed fraud. The verdict is confirmed fraud with an exposure of $1,906.07. Automated and pending final actions include CREATE_CASE (auto), ESCALATE_TO_ANALYST (auto), BLOCK_CARD (L1), and FILE_REPORT (L2).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-006"
   },
@@ -142,7 +142,7 @@
   "sar": {
     "file": true,
     "reason": "File: exposure $1,906.07 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9).",
-    "narrative": "Customer C07297, holder of card C07297-K1, is the subject of this suspicious activity report. Between 2016-11-21 20:00 and 2016-11-21 20:30, four online transactions totaling $1,906.07 were executed on the card from device profile 'Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080'. The specific transactions include $478.95 on reference 3476602 at 20:00, $456.96 on reference 3476633 at 20:10, $488.04 on reference 3476665 at 20:24, and $482.12 on reference 3476682 at 20:30. Every amount was kept just below a $500 authorisation threshold, and product code C had never been used on this card before. The final transaction of $482.12 significantly exceeded the card's median of $60.73 and its 95th percentile of $319.86. The cardholder subsequently contacted the bank to dispute the activity, stating, \"I never made this $482.12 purchase. Please check my card.\" This activity closely resembles eight confirmed fraud cases, including CC-0031, CC-3235, CC-2079, and CC-3423. In response to these findings, the bank has executed a case creation and analyst escalation, while awaiting human approval for card blocking and report filing.",
+    "narrative": "Customer C07297, holder of card C07297-K1, is the subject of this report due to suspicious online activity occurring between 2016-11-21 20:00 and 2016-11-21 20:30. During this 30-minute window, four online purchases totaling $1,906.07 were executed on the card using device profile 'Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080'. The individual transactions included $478.95 on 2016-11-21 20:00 (reference 3476602), $456.96 on 2016-11-21 20:10 (reference 3476633), $488.04 on 2016-11-21 20:24 (reference 3476665), and $482.12 on 2016-11-21 20:30 (reference 3476682). Every amount was kept just under a $500 authorization threshold, and product code C was never used on this card before. Furthermore, the $482.12 transaction significantly exceeded the card's 95th percentile of $319.86 against a median of $60.73. The cardholder subsequently contacted the bank regarding reference 3476682, stating, \"I never made this $482.12 purchase. Please check my card.\" This activity closely resembles eight confirmed fraud cases, including CC-0031, CC-2079, CC-3235, and CC-3423, where 8 of the 8 most similar closed cases were confirmed fraud. In response to these findings, the bank automatically created a case and escalated the matter to an analyst, while recommending the execution of BLOCK_CARD and the filing of this report.",
     "subjects": [
       "C07297",
       "C07297-K1"
@@ -155,6 +155,6 @@
   },
   "stop_reason": "Fraud probability 0.98 is at or above 0.85 with 3 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 8,
-  "tokens": 2581,
-  "latency_s": 11.21
+  "tokens": 3031,
+  "latency_s": 13.99
 }

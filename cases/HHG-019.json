@@ -90,14 +90,14 @@
       "CC-2011",
       "CC-2087"
     ],
-    "summary": "The cardholder confirmed they did not make the $99.92 transaction and still holds the card, matching the card-not-present fraud pattern from a new device. The bank model scored the transaction 0.90 and the case-memory model scored it 0.651, alongside prior compromise history on the card. The verdict is fraud with an exposure of $99.92. The next actions are to execute CREATE_CASE and await approval for BLOCK_CARD.",
+    "summary": "The customer denied making the $99.92 card-not-present transaction originating from a new device, and confirmed they still hold the card. The bank model scored the transaction 0.90, and the case-memory model scored 0.651 while the card had one prior confirmed-fraud case within the last 45 days. The verdict is fraud categorized as card_not_present_new_device with an exposure of $99.92. The automated system has executed `CREATE_CASE`, and `BLOCK_CARD` is awaiting L1 human approval.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-019"
   },
   "evidence_requests": [
     {
       "type": "step_up_auth",
-      "asked_after_step": 8,
+      "asked_after_step": 7,
       "assumed_response": "Simulated: the one-time passcode sent to the cardholder's registered phone was not completed for the session that made the $99.92 purchase; contacted separately, the cardholder said they did not make it and still holds the card"
     }
   ],
@@ -142,7 +142,7 @@
     "activity_dates": []
   },
   "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.97. Further graph steps would not change the actions (policy 6).",
-  "tool_calls": 9,
-  "tokens": 1418,
-  "latency_s": 8.33
+  "tool_calls": 8,
+  "tokens": 1483,
+  "latency_s": 8.77
 }

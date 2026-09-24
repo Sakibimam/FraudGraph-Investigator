@@ -1,0 +1,2 @@
+USE GRAPH FraudGraph
+INSTALL QUERY ring_components, band_bursts

@@ -65,7 +65,7 @@
       "CC-2753",
       "CC-5528"
     ],
-    "summary": "The cardholder reported they did not make the $30.02 transaction, which is classified as card-not-present fraud with an exposure of $30.02. Key evidence includes a case-memory model score of 0.793 showing similarity to confirmed-fraud closed cases and prior device usage on the card. The verdict is confirmed fraud. The system automatically created a case, and pending human approval is required to block the card.",
+    "summary": "The cardholder reported they did not make the $30.02 transaction, which aligns with a case-memory model score of 0.793 indicating a strong resemblance to confirmed-fraud cases. The verdict is fraud with a pattern of card-not-present fraud and a total exposure of $30.02. CREATE_CASE has been executed automatically, and BLOCK_CARD is awaiting L1 human approval.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-009"
   },
@@ -107,6 +107,6 @@
   },
   "stop_reason": "Fraud probability 0.85 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 8,
-  "tokens": 1051,
-  "latency_s": 8.64
+  "tokens": 1070,
+  "latency_s": 10.1
 }

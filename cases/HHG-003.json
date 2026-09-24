@@ -65,11 +65,11 @@
       "CC-2985",
       "CC-2971",
       "CC-1527",
-      "CC-4592",
+      "CC-4349",
       "CC-2935",
       "CC-4957"
     ],
-    "summary": "The cardholder reported an unauthorized $49.00 transaction but subsequently recognized the purchase details and withdrew the dispute. The amount falls within the card's usual spending range and the transaction region is familiar. The verdict is legitimate, with no pattern of fraud and zero exposure. Final actions executed automatically are ALLOW_TRANSACTION, CREATE_CASE, and CLOSE_NO_FRAUD.",
+    "summary": "The cardholder reported an unauthorized $49.00 transaction, but upon reviewing the merchant name, time, and device, they recognized the purchase and withdrew the dispute. The amount falls within the card's usual spending range, and the billing region is familiar based on historical activity. The verdict is legitimate with an exposure of $0.00. The final actions executed are ALLOW_TRANSACTION, CREATE_CASE, and CLOSE_NO_FRAUD.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-003"
   },
@@ -122,6 +122,6 @@
   },
   "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.06. Nothing left to investigate (policy 6, R3).",
   "tool_calls": 9,
-  "tokens": 1137,
-  "latency_s": 22.18
+  "tokens": 1189,
+  "latency_s": 8.03
 }
