@@ -3,83 +3,91 @@
   "case": {
     "status": "closed_fraud",
     "verdict": "fraud",
-    "fraud_probability": 0.98,
+    "fraud_probability": 0.91,
     "pattern": "undocumented",
-    "pattern_description": "Threshold structuring involves three online purchases totaling $1,499.85 made within 10 minutes on card C12897-K1, with each amount kept just under a $500 authorisation threshold. It affects cardholders with previously compromised cards and matches confirmed-fraud closed cases (CC-3907, CC-3841, CC-4086, and CC-3748) that fit no known typology. The pattern was found through a monitoring alert triggered by band bursts of three or more online purchases of $400 to $500 within 90 minutes.",
+    "pattern_description": "The fraud pattern involves five online transactions totaling $1,906.11, with each transaction just under $500, all within 21 minutes on a single card. This pattern was identified by an agent scanning the transaction window, revealing a burst of similar transactions that matched five confirmed closed cases but did not fit any known fraud typology. The affected card was blocked, and a case was created for further review.",
     "affected_txn_ids": [
-      "3493524",
-      "3493535",
-      "3493541"
+      "3483817",
+      "3483854",
+      "3483876",
+      "3483895"
     ],
-    "first_suspicious_txn_id": "3493524",
+    "first_suspicious_txn_id": "3483817",
     "connected_card_ids": [],
     "connected_device_profiles": [],
-    "exposure_usd": 1499.85,
+    "exposure_usd": 1906.11,
     "evidence": [
       {
-        "claim": "Analyst requested review: Monitoring alert (structuring): C12897-K1: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3493541 on card C12897-K1.",
+        "claim": "Analyst requested review: Monitoring alert (structuring): C10751-K1: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3483876 on card C10751-K1.",
         "source": "external",
         "ref": "trigger:analyst_request",
         "entity_ids": [
-          "3493541"
+          "3483876"
         ]
       },
       {
-        "claim": "Case-memory model score 0.740: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.39",
+        "claim": "Case-memory model score 0.013: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) clearly does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.14",
         "source": "graph",
         "ref": "model:case_memory_gbm(holdout AUC 0.955 vs bank score 0.866)",
         "entity_ids": [
-          "3493541"
+          "3483876"
         ]
       },
       {
-        "claim": "3 online purchases within 10 minutes, each between $400 and $500 ($499.93, $499.96, $499.96; total $1,499.85): amounts kept just under a $500 authorisation threshold",
+        "claim": "4 online purchases within 21 minutes, each between $400 and $500 ($464.46, $488.58, $477.85, $475.22; total $1,906.11): amounts kept just under a $500 authorisation threshold",
         "source": "graph",
         "ref": "query:card_window",
         "entity_ids": [
-          "3493524",
-          "3493535",
-          "3493541"
+          "3483817",
+          "3483854",
+          "3483876",
+          "3483895"
         ]
       },
       {
-        "claim": "$499.96 is within the card's usual range (median $107.91, 95th percentile $500.01)",
+        "claim": "$477.85 is above the card's 95th percentile ($209.94; median $86.96)",
         "source": "graph",
         "ref": "query:card_baseline",
         "entity_ids": [
-          "3493541"
+          "3483876"
         ]
       },
       {
-        "claim": "Card had 1 confirmed-fraud case(s) in the 45 days before the alert (CC-5094); the number may still be compromised",
+        "claim": "Product code C never used on this card before",
         "source": "graph",
-        "ref": "query:card_case_history",
+        "ref": "query:card_baseline",
         "entity_ids": [
-          "CC-5094"
+          "3483876"
         ]
       },
       {
-        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-3907, CC-3841, CC-4086, CC-3748)",
+        "claim": "Device profile 'Windows | Windows 10 | chrome 63.0 | ' was already used on this card before the alert (13 prior transactions)",
+        "source": "graph",
+        "ref": "query:card_baseline",
+        "entity_ids": [
+          "Windows | Windows 10 | chrome 63.0 | "
+        ]
+      },
+      {
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-3748, CC-3841, CC-3907, CC-4124)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-3907",
+          "CC-3748",
           "CC-3841",
-          "CC-4086",
-          "CC-3748"
+          "CC-3907",
+          "CC-4124"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-3907",
-      "CC-3841",
-      "CC-4086",
       "CC-3748",
-      "CC-1316",
-      "CC-5094",
-      "CC-1594"
+      "CC-3841",
+      "CC-3907",
+      "CC-4124",
+      "CC-4086"
     ],
-    "summary": "An internal fraud review was initiated following a monitoring alert for structuring on card C12897-K1 involving three online purchases totaling $1,499.85 made within 10 minutes, with amounts kept just under a $500 authorization threshold. The case-memory model scored 0.740, showing a strong resemblance to confirmed-fraud closed cases where 8 of the 8 most similar cases were confirmed fraud, and the card had a prior confirmed-fraud case within the preceding 45 days. The verdict is fraud with an undocumented pattern and an exposure of $1,499.85. The following final actions are to be taken: BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), and ESCALATE_TO_ANALYST (auto).",
+    "summary": "Fraud verdict: The case of card C10751-K1 involves an undocumented pattern of structuring transactions. Four online purchases within 21 minutes, each between $400 and $500, totaling $1,906.11, with one transaction ($477.85) above the card's 95th percentile. The device profile was reused, and the transaction features do not match confirmed fraud cases. Final actions recommended: BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), and ESCALATE_TO_ANALYST (auto).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-MON-013"
   },
@@ -89,247 +97,422 @@
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,499.85 <= $2,500 (L1)"
+        "reason": "Probability 0.91 supported by independent evidence (R1 satisfied); exposure $1,906.11 <= $2,500 (L1)"
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "3a: fraud probability 0.98 >= 0.30"
+        "reason": "3a: fraud probability 0.91 >= 0.30"
       },
       {
         "action": "FILE_REPORT",
         "route": "L2",
-        "reason": "File: exposure $1,499.85 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+        "reason": "File: exposure $1,906.11 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
       },
       {
         "action": "ESCALATE_TO_ANALYST",
         "route": "auto",
-        "reason": "R9: undocumented / coordinated pattern, analyst review"
+        "reason": "R9: undocumented / coordinated pattern, analyst review; R8: evidence conflicts"
       }
     ],
     "final": [
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,499.85 <= $2,500 (L1)"
+        "reason": "Probability 0.91 supported by independent evidence (R1 satisfied); exposure $1,906.11 <= $2,500 (L1)"
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "3a: fraud probability 0.98 >= 0.30"
+        "reason": "3a: fraud probability 0.91 >= 0.30"
       },
       {
         "action": "FILE_REPORT",
         "route": "L2",
-        "reason": "File: exposure $1,499.85 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+        "reason": "File: exposure $1,906.11 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
       },
       {
         "action": "ESCALATE_TO_ANALYST",
         "route": "auto",
-        "reason": "R9: undocumented / coordinated pattern, analyst review"
+        "reason": "R9: undocumented / coordinated pattern, analyst review; R8: evidence conflicts"
       }
     ],
     "what_changed": "nothing"
   },
   "sar": {
     "file": true,
-    "reason": "File: exposure $1,499.85 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9).",
-    "narrative": "Customer C12897, holder of card C12897-K1, is the subject of this report following a monitoring alert for structuring. Between 2016-11-28 01:34 and 2016-11-28 01:44, three online transactions totaling $1,499.85 were executed on the card from the device profile 'iOS Device | iOS 11.0.3 | mobile safari generic | 2208x1242', including transaction 3493524 for $499.93 at 01:34, transaction 3493535 for $499.96 at 01:42, and transaction 3493541 for $499.96 at 01:44. Each amount sat just below a $500 authorization threshold and the purchases were placed minutes apart to evade detection. The activity is suspicious because a case-memory model score of 0.740 and a feature profile including Vesta V/C/D/M/id features strongly resemble confirmed-fraud closed cases such as CC-3907, CC-3841, CC-4086, and CC-3748. Furthermore, card C12897-K1 experienced one confirmed-fraud case (CC-5094) in the 45 days prior to the alert, indicating the card may still be compromised. In response to this activity, the bank has executed a case creation and escalated the matter to an analyst, while recommending the level 1 approval actions of blocking the card, level 2 approval of filing this report, and placing linked cards under monitoring.",
+    "reason": "File: exposure $1,906.11 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9).",
+    "narrative": "Customer C10751, holder of card C10751-K1, is the subject of this report. Between 2016-11-24 17:00 and 2016-11-24 17:21, 4 transaction(s) totalling $1,906.11 were made on the card online from device profile 'Windows | Windows 10 | chrome 63.0 | ': $464.46 (3483817, 2016-11-24 17:00), $488.58 (3483854, 2016-11-24 17:10), $477.85 (3483876, 2016-11-24 17:16), $475.22 (3483895, 2016-11-24 17:21). Every amount sat just below $500 and the purchases were placed minutes apart, a pattern consistent with deliberately staying under an authorisation threshold. The activity is suspicious because: 4 online purchases within 21 minutes, each between $400 and $500 ($464.46, $488.58, $477.85, $475.22; total $1,906.11). It closely resembles earlier confirmed fraud cases CC-3748, CC-3841, CC-3907. The bank has recommended blocking and reissuing the card, placing linked cards under monitoring where applicable, and retains the transaction, device and investigation records as supporting documentation.",
     "subjects": [
-      "C12897",
-      "C12897-K1"
+      "C10751",
+      "C10751-K1"
     ],
-    "total_amount_usd": 1499.85,
+    "total_amount_usd": 1906.11,
     "activity_dates": [
-      "2016-11-28",
-      "2016-11-28"
+      "2016-11-24",
+      "2016-11-24"
     ]
   },
-  "stop_reason": "Fraud probability 0.98 is at or above 0.85 with 3 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
+  "stop_reason": "Fraud probability 0.91 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 7,
-  "tokens": 3353,
-  "latency_s": 33.1,
+  "tokens": 3075,
+  "latency_s": 45.69,
   "graph_case_id": "CASE-2016-MON-013",
-  "card_id": "C12897-K1",
-  "opened_at": "2016-11-28 01:44:44",
+  "card_id": "C10751-K1",
+  "opened_at": "2016-11-24 17:16:00",
   "trigger": {
     "type": "analyst_request",
-    "text": "Monitoring alert (structuring): C12897-K1: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3493541 on card C12897-K1.",
-    "flagged_txn_id": "3493541"
+    "text": "Monitoring alert (structuring): C10751-K1: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3483876 on card C10751-K1.",
+    "flagged_txn_id": "3483876"
   },
   "status": "closed_fraud",
   "pattern": "undocumented",
-  "exposure_usd": 1499.85,
-  "summary": "An internal fraud review was initiated following a monitoring alert for structuring on card C12897-K1 involving three online purchases totaling $1,499.85 made within 10 minutes, with amounts kept just under a $500 authorization threshold. The case-memory model scored 0.740, showing a strong resemblance to confirmed-fraud closed cases where 8 of the 8 most similar cases were confirmed fraud, and the card had a prior confirmed-fraud case within the preceding 45 days. The verdict is fraud with an undocumented pattern and an exposure of $1,499.85. The following final actions are to be taken: BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), and ESCALATE_TO_ANALYST (auto).",
+  "exposure_usd": 1906.11,
+  "summary": "Fraud verdict: The case of card C10751-K1 involves an undocumented pattern of structuring transactions. Four online purchases within 21 minutes, each between $400 and $500, totaling $1,906.11, with one transaction ($477.85) above the card's 95th percentile. The device profile was reused, and the transaction features do not match confirmed fraud cases. Final actions recommended: BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), and ESCALATE_TO_ANALYST (auto).",
   "timeline": [
     {
       "step": "trigger",
-      "at": "17:51:09",
-      "detail": "analyst_request: Monitoring alert (structuring): C12897-K1: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3493541 on card C12897-K1."
+      "at": "19:24:17",
+      "detail": "analyst_request: Monitoring alert (structuring): C10751-K1: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3483876 on card C10751-K1."
     },
     {
       "step": "tool",
-      "at": "17:51:09",
-      "detail": "txn_detail(txn_id=3493541) -> id=3493541, ts=2016-11-28 01:44:44, amt=499.96, product=R, channel=online",
+      "at": "19:24:18",
+      "detail": "txn_detail(txn_id=3483876) -> id=3483876, ts=2016-11-24 17:16:00, amt=477.85, product=C, channel=online",
       "tool": "txn_detail",
-      "ms": 75.0
+      "ms": 497.2
     },
     {
       "step": "open_case",
-      "at": "17:51:09",
-      "detail": "Case opened for C12897-K1; flagged $499.96 online txn 3493541 at 2016-11-28 01:44:44"
+      "at": "19:24:18",
+      "detail": "Case opened for C10751-K1; flagged $477.85 online txn 3483876 at 2016-11-24 17:16:00"
     },
     {
       "step": "tool",
-      "at": "17:51:09",
-      "detail": "card_window(card=C12897-K1, center_ts=2016-11-28 01:44:44, hours_before=48, hours_after=48) -> 30 rows",
+      "at": "19:24:18",
+      "detail": "card_window(card=C10751-K1, center_ts=2016-11-24 17:16:00, hours_before=48, hours_after=48) -> 4 rows",
       "tool": "card_window",
-      "ms": 26.8
+      "ms": 99.8
     },
     {
       "step": "evidence",
-      "at": "17:51:09",
-      "detail": "Analyst requested review: Monitoring alert (structuring): C12897-K1: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3493541 on card C12897-K1.",
+      "at": "19:24:18",
+      "detail": "Analyst requested review: Monitoring alert (structuring): C10751-K1: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3483876 on card C10751-K1.",
       "weight": 0.3,
       "family": "analyst"
     },
     {
       "step": "evidence",
-      "at": "17:51:09",
-      "detail": "Case-memory model score 0.740: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) strongly resembles transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.39",
-      "weight": 2.0,
+      "at": "19:24:18",
+      "detail": "Case-memory model score 0.013: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) clearly does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.14",
+      "weight": -1.7,
       "family": "model"
     },
     {
       "step": "evidence",
-      "at": "17:51:09",
-      "detail": "3 online purchases within 10 minutes, each between $400 and $500 ($499.93, $499.96, $499.96; total $1,499.85): amounts kept just under a $500 authorisation threshold",
+      "at": "19:24:18",
+      "detail": "4 online purchases within 21 minutes, each between $400 and $500 ($464.46, $488.58, $477.85, $475.22; total $1,906.11): amounts kept just under a $500 authorisation threshold",
       "weight": 3.2,
       "family": "sequence"
     },
     {
       "step": "tool",
-      "at": "17:51:09",
-      "detail": "card_baseline(card=C12897-K1, before_ts=2016-11-26 01:44:44, lookback_days=150) -> n_txns=1358, total_amt=247152.3600000002, amounts=1358, regions=47, products=5",
+      "at": "19:24:18",
+      "detail": "card_baseline(card=C10751-K1, before_ts=2016-11-22 17:16:00, lookback_days=150) -> n_txns=43, total_amt=4541.240000000002, amounts=43, regions=9, products=4",
       "tool": "card_baseline",
-      "ms": 28.9
+      "ms": 61.6
     },
     {
       "step": "evidence",
-      "at": "17:51:09",
-      "detail": "$499.96 is within the card's usual range (median $107.91, 95th percentile $500.01)",
-      "weight": -0.3,
+      "at": "19:24:18",
+      "detail": "$477.85 is above the card's 95th percentile ($209.94; median $86.96)",
+      "weight": 0.5,
       "family": "behaviour"
     },
     {
-      "step": "tool",
-      "at": "17:51:09",
-      "detail": "card_case_history(card=C12897-K1) -> 16 rows",
-      "tool": "card_case_history",
-      "ms": 20.3
+      "step": "evidence",
+      "at": "19:24:18",
+      "detail": "Product code C never used on this card before",
+      "weight": 0.4,
+      "family": "behaviour"
     },
     {
       "step": "evidence",
-      "at": "17:51:09",
-      "detail": "Card had 1 confirmed-fraud case(s) in the 45 days before the alert (CC-5094); the number may still be compromised",
-      "weight": 0.4,
-      "family": "memory"
+      "at": "19:24:18",
+      "detail": "Device profile 'Windows | Windows 10 | chrome 63.0 | ' was already used on this card before the alert (13 prior transactions)",
+      "weight": -0.6,
+      "family": "device"
     },
     {
       "step": "tool",
-      "at": "17:51:32",
-      "detail": "device_neighbors(device=iOS Device | iOS 11.0.3 | mobile safari generic | 2208x1242, center_ts=2016-11-28 01:44:44, days=30) -> uses=6, cards=3, card_cases=2, all_time_txns=25, all_time_cards=18",
+      "at": "19:24:18",
+      "detail": "card_case_history(card=C10751-K1) -> 2 rows",
+      "tool": "card_case_history",
+      "ms": 104.6
+    },
+    {
+      "step": "plan",
+      "at": "19:24:22",
+      "detail": "LLM planner confirmed device_neighbors: To identify other cards that used the same device profile, which can help in understanding the broader context of the suspicious activity and potentially link this transaction to o"
+    },
+    {
+      "step": "tool",
+      "at": "19:24:22",
+      "detail": "device_neighbors(device=Windows | Windows 10 | chrome 63.0 | , center_ts=2016-11-24 17:16:00, days=30) -> uses=2, cards=1, card_cases=0, all_time_txns=194, all_time_cards=113",
       "tool": "device_neighbors",
-      "ms": 88.5
+      "ms": 303.8
     },
     {
       "step": "skip",
-      "at": "17:51:32",
-      "detail": "device_case_links skipped: 'iOS Device | iOS 11.0.3 | mobile safari generic | 2208x1242' is a generic profile shared by 18 cards"
+      "at": "19:24:22",
+      "detail": "device_case_links skipped: 'Windows | Windows 10 | chrome 63.0 | ' is a generic profile shared by 113 cards"
     },
     {
       "step": "tool",
-      "at": "17:51:32",
+      "at": "19:24:22",
       "detail": "similar_closed_cases(k=8) -> 8 rows",
       "tool": "similar_closed_cases",
-      "ms": 25.5
+      "ms": 55.1
     },
     {
       "step": "evidence",
-      "at": "17:51:32",
-      "detail": "8 of the 8 most similar closed cases were confirmed fraud (CC-3907, CC-3841, CC-4086, CC-3748)",
-      "weight": 0.3,
+      "at": "19:24:22",
+      "detail": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-3748, CC-3841, CC-3907, CC-4124)",
+      "weight": 0.24,
       "family": "memory"
     },
     {
       "step": "stop_gathering",
-      "at": "17:51:32",
-      "detail": "Probability 0.98 with 3 independent signals: enough to act (policy 6)"
+      "at": "19:24:22",
+      "detail": "Probability 0.91 with 2 independent signals: enough to act (policy 6)"
     },
     {
       "step": "assess",
-      "at": "17:51:32",
-      "detail": "initial assessment: fraud probability 0.98, 3 independent signal families (analyst +0.3, model +2.0, sequence +3.2, behaviour -0.3, memory +0.7)",
-      "probability": 0.98
+      "at": "19:24:22",
+      "detail": "initial assessment: fraud probability 0.91, 2 independent signal families (analyst +0.3, model -1.7, sequence +3.2, behaviour +0.9, device -0.6, memory +0.2)",
+      "probability": 0.912
     },
     {
       "step": "recommend_initial",
-      "at": "17:51:32",
+      "at": "19:24:22",
       "detail": "Initial next best action: CREATE_CASE, BLOCK_CARD, FILE_REPORT, ESCALATE_TO_ANALYST",
       "actions": [
         {
           "action": "BLOCK_CARD",
           "route": "L1",
-          "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,499.85 <= $2,500 (L1)"
+          "reason": "Probability 0.91 supported by independent evidence (R1 satisfied); exposure $1,906.11 <= $2,500 (L1)"
         },
         {
           "action": "CREATE_CASE",
           "route": "auto",
-          "reason": "3a: fraud probability 0.98 >= 0.30"
+          "reason": "3a: fraud probability 0.91 >= 0.30"
         },
         {
           "action": "FILE_REPORT",
           "route": "L2",
-          "reason": "File: exposure $1,499.85 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+          "reason": "File: exposure $1,906.11 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
         },
         {
           "action": "ESCALATE_TO_ANALYST",
           "route": "auto",
-          "reason": "R9: undocumented / coordinated pattern, analyst review"
+          "reason": "R9: undocumented / coordinated pattern, analyst review; R8: evidence conflicts"
         }
       ]
     },
     {
       "step": "recommend_final",
-      "at": "17:51:32",
+      "at": "19:24:22",
       "detail": "Final next best action: CREATE_CASE, BLOCK_CARD, FILE_REPORT, ESCALATE_TO_ANALYST",
       "actions": [
         {
           "action": "BLOCK_CARD",
           "route": "L1",
-          "reason": "Probability 0.98 supported by independent evidence (R1 satisfied); exposure $1,499.85 <= $2,500 (L1)"
+          "reason": "Probability 0.91 supported by independent evidence (R1 satisfied); exposure $1,906.11 <= $2,500 (L1)"
         },
         {
           "action": "CREATE_CASE",
           "route": "auto",
-          "reason": "3a: fraud probability 0.98 >= 0.30"
+          "reason": "3a: fraud probability 0.91 >= 0.30"
         },
         {
           "action": "FILE_REPORT",
           "route": "L2",
-          "reason": "File: exposure $1,499.85 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
+          "reason": "File: exposure $1,906.11 exceeds $1,000 (3a, R2); pattern is coordinated or undocumented (3a, R9)."
         },
         {
           "action": "ESCALATE_TO_ANALYST",
           "route": "auto",
-          "reason": "R9: undocumented / coordinated pattern, analyst review"
+          "reason": "R9: undocumented / coordinated pattern, analyst review; R8: evidence conflicts"
         }
       ]
     },
     {
       "step": "update_memory",
-      "at": "17:51:42",
+      "at": "19:25:03",
       "detail": "Case written to TigerGraph as CASE-2016-MON-013"
     }
-  ]
+  ],
+  "scoring": {
+    "initial_probability": 0.912,
+    "final_probability": 0.912,
+    "independent_families": 2,
+    "families": {
+      "analyst": 0.3,
+      "model": -1.7,
+      "sequence": 3.2,
+      "behaviour": 0.9,
+      "device": -0.6,
+      "memory": 0.24
+    },
+    "signals": [
+      {
+        "name": "analyst_concern",
+        "family": "analyst",
+        "weight": 0.3,
+        "claim": "Analyst requested review: Monitoring alert (structuring): C10751-K1: 3+ online purchases of $400-$500 within 90 minutes (band_bursts). Review transaction 3483876 on card C10751-K1."
+      },
+      {
+        "name": "case_memory_model",
+        "family": "model",
+        "weight": -1.7,
+        "claim": "Case-memory model score 0.013: the transaction's feature profile (including Vesta's unnamed V/C/D/M/id features) clearly does not resemble transactions in confirmed-fraud closed cases (Jul-Oct); bank risk score was 0.14"
+      },
+      {
+        "name": "sub_threshold_structuring",
+        "family": "sequence",
+        "weight": 3.2,
+        "claim": "4 online purchases within 21 minutes, each between $400 and $500 ($464.46, $488.58, $477.85, $475.22; total $1,906.11): amounts kept just under a $500 authorisation threshold"
+      },
+      {
+        "name": "amount_outlier",
+        "family": "behaviour",
+        "weight": 0.5,
+        "claim": "$477.85 is above the card's 95th percentile ($209.94; median $86.96)"
+      },
+      {
+        "name": "new_product",
+        "family": "behaviour",
+        "weight": 0.4,
+        "claim": "Product code C never used on this card before"
+      },
+      {
+        "name": "known_device",
+        "family": "device",
+        "weight": -0.6,
+        "claim": "Device profile 'Windows | Windows 10 | chrome 63.0 | ' was already used on this card before the alert (13 prior transactions)"
+      },
+      {
+        "name": "similar_case_outcomes",
+        "family": "memory",
+        "weight": 0.24,
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-3748, CC-3841, CC-3907, CC-4124)"
+      }
+    ],
+    "stop_band": [
+      0.15,
+      0.85
+    ]
+  },
+  "memory": [
+    {
+      "case_id": "CC-3748",
+      "outcome": "confirmed_fraud",
+      "pattern": "undocumented",
+      "exposure": 1905.21,
+      "similarity": 0.762,
+      "notes": "Case CC-3748: cardholder C12267 reported four online purchases within forty minutes, each just under $500, none of which they made. Amounts appear chosen to stay under a $500 authorization threshold. Pattern not matched to a documented typology. Card blocked and reissued."
+    },
+    {
+      "case_id": "CC-3841",
+      "outcome": "confirmed_fraud",
+      "pattern": "undocumented",
+      "exposure": 1899.3,
+      "similarity": 0.759,
+      "notes": "Case CC-3841: cardholder C01099 reported four online purchases within forty minutes, each just under $500, none of which they made. Amounts appear chosen to stay under a $500 authorization threshold. Pattern not matched to a documented typology. Card blocked and reissued."
+    },
+    {
+      "case_id": "CC-3907",
+      "outcome": "confirmed_fraud",
+      "pattern": "undocumented",
+      "exposure": 1922.65,
+      "similarity": 0.759,
+      "notes": "Case CC-3907: cardholder C03060 reported four online purchases within forty minutes, each just under $500, none of which they made. Amounts appear chosen to stay under a $500 authorization threshold. Pattern not matched to a documented typology. Card blocked and reissued."
+    },
+    {
+      "case_id": "CC-4124",
+      "outcome": "confirmed_fraud",
+      "pattern": "undocumented",
+      "exposure": 1922.37,
+      "similarity": 0.759,
+      "notes": "Case CC-4124: cardholder C02838 reported four online purchases within forty minutes, each just under $500, none of which they made. Amounts appear chosen to stay under a $500 authorization threshold. Pattern not matched to a documented typology. Card blocked and reissued."
+    },
+    {
+      "case_id": "CC-4086",
+      "outcome": "confirmed_fraud",
+      "pattern": "undocumented",
+      "exposure": 1871.13,
+      "similarity": 0.758,
+      "notes": "Case CC-4086: cardholder C13269 reported four online purchases within forty minutes, each just under $500, none of which they made. Amounts appear chosen to stay under a $500 authorization threshold. Pattern not matched to a documented typology. Card blocked and reissued."
+    },
+    {
+      "case_id": "CC-0190",
+      "outcome": "confirmed_fraud",
+      "pattern": "card_not_present_fraud",
+      "exposure": 123.47,
+      "similarity": 0.481,
+      "notes": "Case CC-0190: cardholder C11642 reported unrecognized activity on card C11642-K1. 1 transaction(s) between 2016-07-06 and 2016-07-06 totaling $123.47 were confirmed fraudulent. Online purchases inconsistent with the cardholder's usual merchants and amounts. Card blocked and reiss"
+    },
+    {
+      "case_id": "CC-5088",
+      "outcome": "confirmed_fraud",
+      "pattern": "card_not_present_fraud",
+      "exposure": 106.51,
+      "similarity": 0.455,
+      "notes": "Case CC-5088: cardholder C04386 reported unrecognized activity on card C04386-K1. 1 transaction(s) between 2016-10-20 and 2016-10-20 totaling $106.51 were confirmed fraudulent. Online purchases inconsistent with the cardholder's usual merchants and amounts. Card blocked and reiss"
+    },
+    {
+      "case_id": "CC-5519",
+      "outcome": "confirmed_fraud",
+      "pattern": "card_not_present_fraud",
+      "exposure": 107.39,
+      "similarity": 0.455,
+      "notes": "Case CC-5519: cardholder C04386 reported unrecognized activity on card C04386-K1. 1 transaction(s) between 2016-10-31 and 2016-10-31 totaling $107.39 were confirmed fraudulent. Online purchases inconsistent with the cardholder's usual merchants and amounts. Card blocked and reiss"
+    }
+  ],
+  "card_history": [
+    {
+      "case_id": "CASE-2016-MON-001",
+      "relation": "agent_case",
+      "outcome": "closed_fraud",
+      "pattern": "undocumented",
+      "opened_at": "2016-12-31"
+    },
+    {
+      "case_id": "CASE-2016-MON-011",
+      "relation": "agent_case",
+      "outcome": "closed_fraud",
+      "pattern": "undocumented",
+      "opened_at": "2016-11-25"
+    }
+  ],
+  "flag": {
+    "id": "3483876",
+    "ts": "2016-11-24 17:16:00",
+    "amt": 477.85,
+    "product": "C",
+    "channel": "online",
+    "risk": 0.14,
+    "region": "123",
+    "p_email": "",
+    "r_email": "icloud.com",
+    "device": "Windows | Windows 10 | chrome 63.0 | ",
+    "dev_status": "Found",
+    "proxy_type": "",
+    "m4": "",
+    "m6": "",
+    "cm_score": 0.013,
+    "card": "C10751-K1"
+  },
+  "llm": "ollama:qwen2.5:3b",
+  "graph_backend": "tigergraph-mcp"
 }

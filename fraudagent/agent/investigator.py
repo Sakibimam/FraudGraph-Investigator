@@ -381,7 +381,9 @@ class Investigator:
         ep = self.episode(st, findings, prob) if verdict != "legitimate" else []
         pattern = D.classify_pattern(st.flag, st.signals, ep) if verdict != "legitimate" else "none"
         exposure = round(sum(abs(t["amt"]) for t in ep), 2)
-        conflicts = any(s.weight >= 1.0 for s in st.signals) and any(s.weight <= -1.0 for s in st.signals)
+        # R8 "evidence conflicts": strong evidence families pulling in opposite directions
+        _, _, fams = D.score([x for x in st.signals if x.name != "evidence_response"])
+        conflicts = max(fams.values(), default=0) >= 0.8 and min(fams.values(), default=0) <= -0.8
         self._episode, self._pattern = ep, pattern
         return PolicyFacts(
             trigger_type=st.trigger.trigger_type, probability=prob, independent_signals=indep, verdict=verdict,

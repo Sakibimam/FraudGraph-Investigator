@@ -1,16 +1,18 @@
 {
   "case_id": "HHG-004",
   "case": {
-    "status": "closed_legitimate",
-    "verdict": "legitimate",
-    "fraud_probability": 0.05,
-    "pattern": "none",
+    "status": "escalated",
+    "verdict": "uncertain",
+    "fraud_probability": 0.55,
+    "pattern": "card_not_present_new_device",
     "pattern_description": "",
-    "affected_txn_ids": [],
-    "first_suspicious_txn_id": "",
+    "affected_txn_ids": [
+      "3583227"
+    ],
+    "first_suspicious_txn_id": "3583227",
     "connected_card_ids": [],
     "connected_device_profiles": [],
-    "exposure_usd": 0.0,
+    "exposure_usd": 128.33,
     "evidence": [
       {
         "claim": "Cardholder reported they did not make the $128.33 transaction: \"'I never made this $128.33 purchase. Please check my card.' Refers to 3583227.\"",
@@ -46,14 +48,14 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-0749, CC-1139, CC-2323, CC-2742)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-4369, CC-4159, CC-5508, CC-0713)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-0749",
-          "CC-1139",
-          "CC-2323",
-          "CC-2742"
+          "CC-4369",
+          "CC-4159",
+          "CC-5508",
+          "CC-0713"
         ]
       },
       {
@@ -63,7 +65,7 @@
         "entity_ids": []
       },
       {
-        "claim": "Simulated: shown the merchant name, time and device of the $128.33 purchase, the cardholder recognised it as their own and withdrew the dispute",
+        "claim": "Simulated: follow-up questions sent to the cardholder; no reply within 24 hours",
         "source": "customer",
         "ref": "evidence_request:1",
         "entity_ids": [
@@ -72,15 +74,15 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-0749",
-      "CC-1139",
-      "CC-2323",
-      "CC-2742",
-      "CC-3407",
+      "CC-4369",
+      "CC-4159",
+      "CC-5508",
+      "CC-0713",
+      "CC-0528",
       "CC-0696",
       "CC-3778"
     ],
-    "summary": "The customer initially reported they did not make the $128.33 online transaction, but upon reviewing the merchant name, time, and device, the cardholder recognized the purchase and withdrew the dispute. The case-memory model score was 0.007 and none of the similar closed cases were confirmed fraud. The verdict is legitimate with an exposure of $0.00. The final actions executed by the agent are ALLOW_TRANSACTION, CREATE_CASE, and CLOSE_NO_FRAUD.",
+    "summary": "Verdict: Uncertain, pattern: card_not_present_new_device, exposure $128.33. Key evidence includes the cardholder's denial of the transaction and the transaction's high risk score. The case will be escalated to an analyst for further review. Next steps include monitoring the card and requesting additional information from the cardholder.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-004"
   },
@@ -88,7 +90,7 @@
     {
       "type": "customer_validation",
       "asked_after_step": 8,
-      "assumed_response": "Simulated: shown the merchant name, time and device of the $128.33 purchase, the cardholder recognised it as their own and withdrew the dispute"
+      "assumed_response": "Simulated: follow-up questions sent to the cardholder; no reply within 24 hours"
     }
   ],
   "next_best_actions": {
@@ -102,13 +104,18 @@
         "action": "VERIFY_WITH_CUSTOMER",
         "route": "auto",
         "reason": "R1: signal below 0.70 or conflicting, ask the cardholder before any block"
+      },
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "reason": "Raise monitoring for 72h while the verification is pending"
       }
     ],
     "final": [
       {
-        "action": "ALLOW_TRANSACTION",
-        "route": "auto",
-        "reason": "R3: cardholder confirmed the transaction"
+        "action": "DECLINE_TRANSACTION",
+        "route": "L1",
+        "reason": "R4: decline pending authorisations"
       },
       {
         "action": "CREATE_CASE",
@@ -116,23 +123,28 @@
         "reason": "3a: case opened when evidence was requested; the response is recorded in it"
       },
       {
-        "action": "CLOSE_NO_FRAUD",
+        "action": "MONITOR_CARD",
         "route": "auto",
-        "reason": "R3: customer confirmation noted in the case file"
+        "reason": "R4: no reply within 24 hours; Keep monitoring while the case stays open"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R8: verdict uncertain and strong evidence points in opposite directions"
       }
     ],
-    "what_changed": "shown the merchant name, time and device of the $128.33 purchase, the cardholder recognised it as their own and withdrew the dispute. Probability 0.28 -> 0.05; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped VERIFY_WITH_CUSTOMER."
+    "what_changed": "Follow-up questions sent to the cardholder; no reply within 24 hours. Probability 0.55 -> 0.55; added DECLINE_TRANSACTION, ESCALATE_TO_ANALYST; dropped VERIFY_WITH_CUSTOMER."
   },
   "sar": {
     "file": false,
-    "reason": "No SAR: verdict is legitimate; policy 3a requires confirmed or strongly suspected fraud.",
+    "reason": "No SAR: verdict is uncertain; policy 3a requires confirmed or strongly suspected fraud.",
     "narrative": "",
     "subjects": [],
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.05. Nothing left to investigate (policy 6, R3).",
+  "stop_reason": "No reply within 24 hours; the verdict stays uncertain at 0.55. Protective actions under R4 are in place and the case is handed to an analyst (R8); further graph steps would not settle it.",
   "tool_calls": 9,
-  "tokens": 1381,
-  "latency_s": 68.12
+  "tokens": 1333,
+  "latency_s": 37.62
 }

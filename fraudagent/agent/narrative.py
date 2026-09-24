@@ -149,6 +149,9 @@ def llm_rewrite(llm, kind: str, draft: str, st, facts, docs, actions: list[dict]
         sys = ("You write internal fraud case summaries for analysts: 2 to 6 sentences, plain, factual, no invented facts, "
                "state the verdict, the key evidence and what happens next using exactly the final actions given.")
     out = llm.complete(sys, f"Guidance retrieved from policy/regulatory store:\n{guidance}\n\nEvidence:\n{evidence}\n\n"
+                            f"Flagged transaction (facts, do not contradict): ${st.flag['amt']:.2f}, channel "
+                            f"{'card-present (in person)' if st.flag['channel'] == 'in_person' else 'online'}, "
+                            f"billing region {st.flag.get('region') or 'n/a'}, device {st.flag.get('device') or 'none recorded'}\n"
                             f"Verdict: {facts.verdict}, pattern: {facts.pattern}, exposure ${facts.exposure:,.2f}\n"
                             f"Final actions recommended (auto = executed by the agent; L1/L2 = awaiting human approval): "
                             f"{', '.join(a['action'] + ' (' + a['route'] + ')' for a in (actions or []))}\n\n"
@@ -175,8 +178,10 @@ def stop_reason(facts, prob, indep, response) -> str:
         return (f"The requested verification settled it: the cardholder confirmed the activity, lowering the probability "
                 f"to {prob:.2f}. Nothing left to investigate (policy 6, R3).")
     if response == "no_reply":
-        return (f"No reply within 24 hours; the verdict stays uncertain at {prob:.2f}. Protective actions under R4/R8 are "
-                "in place and the case is handed to an analyst rather than investigated further by the agent.")
+        who = ("the case is handed to an analyst (R8)" if facts.evidence_conflicts or facts.exposure > 500
+               else "the case stays open under monitoring until the cardholder replies")
+        return (f"No reply within 24 hours; the verdict stays uncertain at {prob:.2f}. Protective actions under R4 are in "
+                f"place and {who}; further graph steps would not settle it.")
     side = "at or above 0.85" if prob >= 0.85 else "at or below 0.15"
     return (f"Fraud probability {prob:.2f} is {side} with {indep} independent pieces of evidence, so the decision is "
             "defensible without asking the customer (policy 6).")
@@ -223,7 +228,8 @@ def build_case(llm, st, facts, findings, episode, prob0, prob, indep, plan0: Act
     if evidence_requests:
         a0, a1 = {i["action"] for i in initial}, {i["action"] for i in final_items}
         added, removed = sorted(a1 - a0), sorted(a0 - a1)
-        what_changed = (f"{evidence_requests[0]['assumed_response'].replace('Simulated: ', '').rstrip('.')}. "
+        said = evidence_requests[0]["assumed_response"].replace("Simulated: ", "").rstrip(".")
+        what_changed = (f"{said[:1].upper() + said[1:]}. "
                         f"Probability {prob0:.2f} -> {prob:.2f}"
                         + (f"; added {', '.join(added)}" if added else "")
                         + (f"; dropped {', '.join(removed)}" if removed else "") + ".")

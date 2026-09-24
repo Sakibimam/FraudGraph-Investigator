@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_fraud",
     "verdict": "fraud",
-    "fraud_probability": 0.95,
+    "fraud_probability": 0.9,
     "pattern": "card_not_present_fraud",
     "pattern_description": "",
     "affected_txn_ids": [
@@ -47,65 +47,40 @@
         ]
       },
       {
-        "claim": "1 of the 8 most similar closed cases were confirmed fraud (CC-0445, CC-3168, CC-5164, CC-0707)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-3146, CC-0679, CC-0667, CC-5312)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-0445",
-          "CC-3168",
-          "CC-5164",
-          "CC-0707"
-        ]
-      },
-      {
-        "claim": "Retrieved guidance: R2 Customer denies the transaction. (fraud_policy_v1)",
-        "source": "document",
-        "ref": "doc:fraud_policy_v1#05",
-        "entity_ids": []
-      },
-      {
-        "claim": "Simulated: on follow-up the cardholder repeated that they did not make the $30.02 purchase, still has the card and has not shared the card details",
-        "source": "customer",
-        "ref": "evidence_request:1",
-        "entity_ids": [
-          "3581141"
+          "CC-3146",
+          "CC-0679",
+          "CC-0667",
+          "CC-5312"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-0445",
-      "CC-3168",
-      "CC-5164",
-      "CC-0707",
-      "CC-0593"
+      "CC-3146",
+      "CC-0679",
+      "CC-0667",
+      "CC-5312",
+      "CC-1489"
     ],
-    "summary": "The cardholder reported they did not make the $30.02 card-not-present transaction and still possesses the physical card. The case-memory model score of 0.793 indicated strong resemblance to confirmed-fraud closed cases. The verdict is fraud categorized as card-not-present fraud with an exposure of $30.02. The final actions are BLOCK_CARD (L1) and CREATE_CASE (auto).",
+    "summary": "A cardholder disputed a $30.02 online transaction, stating they never made the purchase. The case-memory model scored 0.793, with similar historical cases confirming fraud. The verdict is fraud categorized as card-not-present fraud with an exposure of $30.02. Next steps include: BLOCK_CARD (L1), CREATE_CASE (auto).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-009"
   },
-  "evidence_requests": [
-    {
-      "type": "customer_validation",
-      "asked_after_step": 8,
-      "assumed_response": "Simulated: on follow-up the cardholder repeated that they did not make the $30.02 purchase, still has the card and has not shared the card details"
-    }
-  ],
+  "evidence_requests": [],
   "next_best_actions": {
     "initial": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: customer denied the activity; exposure $30.02 <= $2,500 (L1)"
+      },
       {
         "action": "CREATE_CASE",
         "route": "auto",
         "reason": "3a: the customer disputes a charge"
-      },
-      {
-        "action": "VERIFY_WITH_CUSTOMER",
-        "route": "auto",
-        "reason": "R1: signal below 0.70 or conflicting, ask the cardholder before any block"
-      },
-      {
-        "action": "MONITOR_CARD",
-        "route": "auto",
-        "reason": "Raise monitoring for 72h while the verification is pending"
       }
     ],
     "final": [
@@ -117,10 +92,10 @@
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "3a: case opened when evidence was requested; the response is recorded in it"
+        "reason": "3a: the customer disputes a charge"
       }
     ],
-    "what_changed": "on follow-up the cardholder repeated that they did not make the $30.02 purchase, still has the card and has not shared the card details. Probability 0.76 -> 0.95; added BLOCK_CARD; dropped MONITOR_CARD, VERIFY_WITH_CUSTOMER."
+    "what_changed": "nothing"
   },
   "sar": {
     "file": false,
@@ -130,8 +105,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.95. Further graph steps would not change the actions (policy 6).",
-  "tool_calls": 9,
-  "tokens": 1393,
-  "latency_s": 17.65
+  "stop_reason": "Fraud probability 0.90 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
+  "tool_calls": 8,
+  "tokens": 1087,
+  "latency_s": 61.93
 }

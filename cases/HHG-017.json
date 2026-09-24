@@ -45,14 +45,14 @@
         ]
       },
       {
-        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-2944, CC-0650, CC-5181, CC-0832)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-4169, CC-0819, CC-2906, CC-3220)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-2944",
-          "CC-0650",
-          "CC-5181",
-          "CC-0832"
+          "CC-4169",
+          "CC-0819",
+          "CC-2906",
+          "CC-3220"
         ]
       },
       {
@@ -71,14 +71,14 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-2944",
-      "CC-0650",
-      "CC-5181",
-      "CC-0832",
-      "CC-1740",
+      "CC-4169",
+      "CC-0819",
+      "CC-2906",
+      "CC-3220",
+      "CC-3255",
       "CC-1383"
     ],
-    "summary": "The flagged $100.09 online transaction fits the cardholder's usual spending range and was verified as legitimate by the customer. Although the connection used a hidden proxy, the device profile had been previously used on this card and the case-memory model score of 0.093 showed no resemblance to confirmed fraud cases. The verdict is legitimate with an exposure of $0.00. The final actions executed by the agent are ALLOW_TRANSACTION, CREATE_CASE, and CLOSE_NO_FRAUD.",
+    "summary": "Verdict: Legitimate. Key evidence includes a low case-memory model score (0.093) and a bank risk score of 0.57, both indicating the transaction is unlikely to be fraudulent. The device profile was used before and the transaction amount ($100.09) is within the card's usual range. The flagged transaction was confirmed by the cardholder. No further action is recommended as the transaction is allowed.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-017"
   },
@@ -119,7 +119,7 @@
         "reason": "R3: customer confirmation noted in the case file"
       }
     ],
-    "what_changed": "the cardholder confirmed they made the $100.09 transaction. Probability 0.27 -> 0.04; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped VERIFY_WITH_CUSTOMER."
+    "what_changed": "The cardholder confirmed they made the $100.09 transaction. Probability 0.26 -> 0.04; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped VERIFY_WITH_CUSTOMER."
   },
   "sar": {
     "file": false,
@@ -131,6 +131,6 @@
   },
   "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.04. Nothing left to investigate (policy 6, R3).",
   "tool_calls": 8,
-  "tokens": 1376,
-  "latency_s": 8.53
+  "tokens": 1373,
+  "latency_s": 14.75
 }

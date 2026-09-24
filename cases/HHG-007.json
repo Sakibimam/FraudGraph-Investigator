@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_fraud",
     "verdict": "fraud",
-    "fraud_probability": 0.93,
+    "fraud_probability": 0.87,
     "pattern": "account_takeover",
     "pattern_description": "",
     "affected_txn_ids": [
@@ -54,82 +54,57 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-1527, CC-1757, CC-3411, CC-4000)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-2701, CC-2098, CC-2491, CC-3523)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-1527",
-          "CC-1757",
-          "CC-3411",
-          "CC-4000"
-        ]
-      },
-      {
-        "claim": "Retrieved guidance: 0. What the agent starts with (fraud_policy_v1)",
-        "source": "document",
-        "ref": "doc:fraud_policy_v1#01",
-        "entity_ids": []
-      },
-      {
-        "claim": "Simulated: the cardholder replied that they did not make the $111.92 transaction and still holds the card",
-        "source": "customer",
-        "ref": "evidence_request:1",
-        "entity_ids": [
-          "3514948"
+          "CC-2701",
+          "CC-2098",
+          "CC-2491",
+          "CC-3523"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-1527",
-      "CC-1757",
-      "CC-3411",
-      "CC-4000",
-      "CC-4217",
+      "CC-2701",
+      "CC-2098",
+      "CC-2491",
+      "CC-3523",
+      "CC-3710",
       "CC-1524",
       "CC-0104"
     ],
-    "summary": "A fraudulent account takeover occurred on card C09933-K2 involving a $111.92 transaction and total exposure of $148.89, supported by a case-memory score of 0.740 and a bank risk score of 0.87. The cardholder confirmed they did not make the transaction and still possess the card. The verdict is confirmed fraud under the account_takeover pattern. The following final actions are recommended: BLOCK_CARD (L1), CREATE_CASE (auto).",
+    "summary": "Fraud verdict: Account takeover. Key evidence includes a case-memory model score of 0.740, which closely matches confirmed fraud cases from July to October. The transaction's feature profile, including Vesta's unnamed V/C/D/M/id features, was similar to confirmed fraud cases. The exposure amount is $148.89. Final actions recommended: BLOCK_CARD (automatically executed) and CREATE_CASE (automatically created).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-007"
   },
-  "evidence_requests": [
-    {
-      "type": "customer_validation",
-      "asked_after_step": 7,
-      "assumed_response": "Simulated: the cardholder replied that they did not make the $111.92 transaction and still holds the card"
-    }
-  ],
+  "evidence_requests": [],
   "next_best_actions": {
     "initial": [
       {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "Probability 0.87 supported by independent evidence (R1 satisfied); exposure $148.89 <= $2,500 (L1)"
+      },
+      {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "3a: evidence is being requested"
-      },
-      {
-        "action": "VERIFY_WITH_CUSTOMER",
-        "route": "auto",
-        "reason": "R1: signal below 0.70 or conflicting, ask the cardholder before any block"
-      },
-      {
-        "action": "MONITOR_CARD",
-        "route": "auto",
-        "reason": "Raise monitoring for 72h while the verification is pending"
+        "reason": "3a: fraud probability 0.87 >= 0.30"
       }
     ],
     "final": [
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "R2: customer denied the activity; exposure $148.89 <= $2,500 (L1)"
+        "reason": "Probability 0.87 supported by independent evidence (R1 satisfied); exposure $148.89 <= $2,500 (L1)"
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "3a: case opened when evidence was requested; the response is recorded in it"
+        "reason": "3a: fraud probability 0.87 >= 0.30"
       }
     ],
-    "what_changed": "the cardholder replied that they did not make the $111.92 transaction and still holds the card. Probability 0.68 -> 0.93; added BLOCK_CARD; dropped MONITOR_CARD, VERIFY_WITH_CUSTOMER."
+    "what_changed": "nothing"
   },
   "sar": {
     "file": false,
@@ -139,8 +114,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.93. Further graph steps would not change the actions (policy 6).",
-  "tool_calls": 8,
-  "tokens": 1397,
-  "latency_s": 5.64
+  "stop_reason": "Fraud probability 0.87 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
+  "tool_calls": 7,
+  "tokens": 1049,
+  "latency_s": 26.46
 }

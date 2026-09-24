@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_fraud",
     "verdict": "fraud",
-    "fraud_probability": 0.88,
+    "fraud_probability": 0.96,
     "pattern": "card_not_present_new_device",
     "pattern_description": "",
     "affected_txn_ids": [
@@ -48,25 +48,25 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-0010, CC-0180, CC-2285, CC-3107)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-1895, CC-5182, CC-1353, CC-0971)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-0010",
-          "CC-0180",
-          "CC-2285",
-          "CC-3107"
+          "CC-1895",
+          "CC-5182",
+          "CC-1353",
+          "CC-0971"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-0010",
-      "CC-0180",
-      "CC-2285",
-      "CC-3107",
-      "CC-4095"
+      "CC-1895",
+      "CC-5182",
+      "CC-1353",
+      "CC-0971",
+      "CC-2579"
     ],
-    "summary": "The cardholder reported they did not make the $59.67 card-not-present transaction originating from a new device. The case-memory model scored 0.651, indicating similarity to confirmed-fraud cases despite the amount falling within the card's usual spending range. The verdict is fraud with a pattern of card-not-present-new-device, resulting in a total exposure of $59.67. The automated system has created the case, and the next step is to execute BLOCK_CARD (L1).",
+    "summary": "Fraud case summary: The transaction of $59.67 from card C09988-K1 is flagged as fraud due to a pattern of card-not-present from a new device. The cardholder reported not making the transaction. Key evidence includes a high case-memory model score (0.651) and the transaction's feature profile matching confirmed fraud cases. Final actions recommended are BLOCK_CARD (automated) and CREATE_CASE (automated).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-016"
   },
@@ -106,8 +106,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Fraud probability 0.88 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
+  "stop_reason": "Fraud probability 0.96 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 8,
-  "tokens": 1131,
-  "latency_s": 40.54
+  "tokens": 1146,
+  "latency_s": 67.71
 }

@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_legitimate",
     "verdict": "legitimate",
-    "fraud_probability": 0.02,
+    "fraud_probability": 0.07,
     "pattern": "none",
     "pattern_description": "",
     "affected_txn_ids": [],
@@ -46,14 +46,14 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-0037, CC-0116, CC-0308, CC-0408)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-1895, CC-5182, CC-1353, CC-0971)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-0037",
-          "CC-0116",
-          "CC-0308",
-          "CC-0408"
+          "CC-1895",
+          "CC-5182",
+          "CC-1353",
+          "CC-0971"
         ]
       },
       {
@@ -72,15 +72,15 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-0037",
-      "CC-0116",
-      "CC-0308",
-      "CC-0408",
-      "CC-0433",
+      "CC-1895",
+      "CC-5182",
+      "CC-1353",
+      "CC-0971",
+      "CC-2579",
       "CC-4294",
       "CC-3216"
     ],
-    "summary": "The flagged $35.66 online transaction is deemed legitimate as it fits the cardholder's usual spending range and the cardholder successfully passed the step-up challenge on their registered device to confirm the purchase. Although the bank model flagged the transaction with a risk score of 0.76, the case-memory model scored it at 0.033 with no similar closed cases confirmed as fraud. The verdict is legitimate with an exposure of $0.00. Final actions executed by the agent are ALLOW_TRANSACTION, CREATE_CASE, and CLOSE_NO_FRAUD.",
+    "summary": "Verdict: The flagged transaction is legitimate. Key evidence includes the low case-memory model score (0.033) and the fact that the transaction's feature profile does not match confirmed fraud cases. The transaction was within the card's usual range and passed a step-up challenge. The final actions recommended are ALLOW_TRANSACTION (auto) and CLOSE_NO_FRAUD (auto). No further investigation or reporting is needed.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-013"
   },
@@ -121,7 +121,7 @@
         "reason": "R3: customer confirmation noted in the case file"
       }
     ],
-    "what_changed": "the cardholder passed the step-up challenge on their registered device and confirmed the $35.66 purchase. Probability 0.16 -> 0.02; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped STEP_UP_AUTH."
+    "what_changed": "The cardholder passed the step-up challenge on their registered device and confirmed the $35.66 purchase. Probability 0.38 -> 0.07; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped STEP_UP_AUTH."
   },
   "sar": {
     "file": false,
@@ -131,8 +131,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.02. Nothing left to investigate (policy 6, R3).",
+  "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.07. Nothing left to investigate (policy 6, R3).",
   "tool_calls": 8,
-  "tokens": 1425,
-  "latency_s": 8.46
+  "tokens": 1282,
+  "latency_s": 84.3
 }

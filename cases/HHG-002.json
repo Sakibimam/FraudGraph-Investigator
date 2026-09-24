@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_fraud",
     "verdict": "fraud",
-    "fraud_probability": 0.93,
+    "fraud_probability": 0.94,
     "pattern": "card_not_present_fraud",
     "pattern_description": "",
     "affected_txn_ids": [
@@ -39,6 +39,17 @@
         ]
       },
       {
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-0190, CC-0876, CC-5088, CC-5519)",
+        "source": "graph",
+        "ref": "query:similar_closed_cases (TigerVector)",
+        "entity_ids": [
+          "CC-0190",
+          "CC-0876",
+          "CC-5088",
+          "CC-5519"
+        ]
+      },
+      {
         "claim": "Retrieved guidance: R6 Shared origin. (fraud_policy_v1)",
         "source": "document",
         "ref": "doc:fraud_policy_v1#09",
@@ -48,12 +59,12 @@
     "similar_prior_cases": [
       "CC-0190",
       "CC-0876",
+      "CC-5088",
+      "CC-5519",
       "CC-4275",
-      "CC-5374",
-      "CC-5375",
       "CC-4160"
     ],
-    "summary": "Fraud is confirmed as card_not_present_fraud with an exposure of $292.36 on card C11891-K1. Key evidence includes a case-memory model score of 0.740, showing strong resemblance to confirmed-fraud closed cases, and an amount significantly above the card's 95th percentile. The verdict is fraud. Final actions executed or awaiting approval are BLOCK_CARD (L1), CREATE_CASE (auto).",
+    "summary": "Verdict: Fraud, pattern: card-not-present fraud, exposure $292.36. Key evidence includes a bank model score of 0.79 and a case-memory model score of 0.740, which closely matches confirmed fraud cases. The transaction amount of $292.36 exceeds the card's 95th percentile. Final actions recommended are to block the card (L1) and create a case (auto).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-002"
   },
@@ -63,24 +74,24 @@
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "Probability 0.93 supported by independent evidence (R1 satisfied); exposure $292.36 <= $2,500 (L1)"
+        "reason": "Probability 0.94 supported by independent evidence (R1 satisfied); exposure $292.36 <= $2,500 (L1)"
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "3a: fraud probability 0.93 >= 0.30"
+        "reason": "3a: fraud probability 0.94 >= 0.30"
       }
     ],
     "final": [
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "Probability 0.93 supported by independent evidence (R1 satisfied); exposure $292.36 <= $2,500 (L1)"
+        "reason": "Probability 0.94 supported by independent evidence (R1 satisfied); exposure $292.36 <= $2,500 (L1)"
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "3a: fraud probability 0.93 >= 0.30"
+        "reason": "3a: fraud probability 0.94 >= 0.30"
       }
     ],
     "what_changed": "nothing"
@@ -93,8 +104,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Fraud probability 0.93 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
+  "stop_reason": "Fraud probability 0.94 is at or above 0.85 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
   "tool_calls": 7,
-  "tokens": 1127,
-  "latency_s": 73.94
+  "tokens": 1169,
+  "latency_s": 39.67
 }

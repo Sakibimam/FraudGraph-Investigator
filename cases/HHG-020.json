@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_legitimate",
     "verdict": "legitimate",
-    "fraud_probability": 0.1,
+    "fraud_probability": 0.04,
     "pattern": "none",
     "pattern_description": "",
     "affected_txn_ids": [],
@@ -46,57 +46,82 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-0807, CC-0843, CC-0896, CC-1232)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-2959, CC-2757, CC-5181, CC-0650)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-0807",
-          "CC-0843",
-          "CC-0896",
-          "CC-1232"
+          "CC-2959",
+          "CC-2757",
+          "CC-5181",
+          "CC-0650"
+        ]
+      },
+      {
+        "claim": "Retrieved guidance: R2 Customer denies the transaction. (fraud_policy_v1)",
+        "source": "document",
+        "ref": "doc:fraud_policy_v1#05",
+        "entity_ids": []
+      },
+      {
+        "claim": "Simulated: the cardholder passed the step-up challenge on their registered device and confirmed the $125.08 purchase",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": [
+          "3509359"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-0807",
-      "CC-0843",
-      "CC-0896",
-      "CC-1232",
-      "CC-2880",
+      "CC-2959",
+      "CC-2757",
+      "CC-5181",
+      "CC-0650",
+      "CC-0832",
       "CC-2447",
       "CC-2277"
     ],
-    "summary": "The flagged $125.08 transaction is assessed as legitimate with an exposure of $0.00 and no discernible fraud pattern. Key evidence includes a low case-memory model score of 0.007, zero confirmed fraud matches among the eight most similar closed cases, and an amount within the card's usual spending range, despite the new product code and device profile. The final actions are ALLOW_TRANSACTION (auto) and CLOSE_NO_FRAUD (auto).",
+    "summary": "Verdict: Legitimate. The flagged transaction of $125.08 online was consistent with the cardholder's profile, as evidenced by a case-memory model score of 0.007, indicating it did not resemble confirmed fraud cases from July to October. The bank risk score was 0.52, which is below the threshold for initiating further investigation. The transaction was within the card's usual range and the cardholder passed the step-up challenge. No shared origin was detected, and the device profile was new for this account. The final actions recommended were ALLOW_TRANSACTION (auto), CREATE_CASE (auto), and CLOSE_NO_FRAUD (auto).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-020"
   },
-  "evidence_requests": [],
+  "evidence_requests": [
+    {
+      "type": "step_up_auth",
+      "asked_after_step": 7,
+      "assumed_response": "Simulated: the cardholder passed the step-up challenge on their registered device and confirmed the $125.08 purchase"
+    }
+  ],
   "next_best_actions": {
     "initial": [
       {
-        "action": "ALLOW_TRANSACTION",
+        "action": "STEP_UP_AUTH",
         "route": "auto",
-        "reason": "Evidence supports a legitimate transaction"
+        "reason": "R1: single/weak signal below 0.70, confirm identity before any block"
       },
       {
-        "action": "CLOSE_NO_FRAUD",
+        "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "Stopping rule (6): probability <= 0.15 with independent evidence"
+        "reason": "3a: evidence is being requested"
       }
     ],
     "final": [
       {
         "action": "ALLOW_TRANSACTION",
         "route": "auto",
-        "reason": "Evidence supports a legitimate transaction"
+        "reason": "R3: cardholder confirmed the transaction"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "3a: case opened when evidence was requested; the response is recorded in it"
       },
       {
         "action": "CLOSE_NO_FRAUD",
         "route": "auto",
-        "reason": "Stopping rule (6): probability <= 0.15 with independent evidence"
+        "reason": "R3: customer confirmation noted in the case file"
       }
     ],
-    "what_changed": "nothing"
+    "what_changed": "The cardholder passed the step-up challenge on their registered device and confirmed the $125.08 purchase. Probability 0.27 -> 0.04; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped STEP_UP_AUTH."
   },
   "sar": {
     "file": false,
@@ -106,8 +131,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Fraud probability 0.10 is at or below 0.15 with 2 independent pieces of evidence, so the decision is defensible without asking the customer (policy 6).",
-  "tool_calls": 7,
-  "tokens": 1161,
-  "latency_s": 7.38
+  "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.04. Nothing left to investigate (policy 6, R3).",
+  "tool_calls": 8,
+  "tokens": 1441,
+  "latency_s": 39.15
 }

@@ -177,7 +177,9 @@ def _decided_plan(f: PolicyFacts, p: ActionPlan) -> ActionPlan:
             if x > R4_ESCALATE_EXPOSURE:
                 p.add("ESCALATE_TO_ANALYST", f"R4: exposure ${x:,.2f} exceeds $500")
         if x > R8_ESCALATE_EXPOSURE or f.evidence_conflicts:
-            p.add("ESCALATE_TO_ANALYST", "R8: verdict uncertain with exposure over $500 or conflicting evidence")
+            why = [f"exposure ${x:,.2f} exceeds $500"] if x > R8_ESCALATE_EXPOSURE else []
+            why += ["strong evidence points in opposite directions"] if f.evidence_conflicts else []
+            p.add("ESCALATE_TO_ANALYST", "R8: verdict uncertain and " + " and ".join(why))
         p.add("MONITOR_CARD", "Keep monitoring while the case stays open")
         if f.shared_origin:
             p.add("MONITOR_CONNECTED_CARDS", "R6: shared origin with other cards")

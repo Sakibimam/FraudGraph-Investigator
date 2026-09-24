@@ -48,14 +48,14 @@
         ]
       },
       {
-        "claim": "8 of the 8 most similar closed cases were confirmed fraud (CC-4016, CC-0590, CC-4283, CC-3694)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-4369, CC-4159, CC-5508, CC-0713)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-4016",
-          "CC-0590",
-          "CC-4283",
-          "CC-3694"
+          "CC-4369",
+          "CC-4159",
+          "CC-5508",
+          "CC-0713"
         ]
       },
       {
@@ -74,15 +74,15 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-4016",
-      "CC-0590",
-      "CC-4283",
-      "CC-3694",
-      "CC-4556",
+      "CC-4369",
+      "CC-4159",
+      "CC-5508",
+      "CC-0713",
+      "CC-0528",
       "CC-3039",
       "CC-2247"
     ],
-    "summary": "Verdict: fraud, pattern: card_not_present_new_device, exposure $131.30. The cardholder reported they did not make the $131.30 transaction, and the identity record marks the device as new for this account with a profile that never appears in the card's prior history. The final actions are BLOCK_CARD (L1) and CREATE_CASE (auto).",
+    "summary": "The cardholder reported they did not make the $131.30 online transaction and confirmed they still possess the card. The transaction occurred via card-not-present channel using a new device profile (`SM-G610F Build/NRD90M |  | chrome 66.0 for android |`) that never appears in the card's prior history. The verdict is fraud categorized as card-not-present fraud from a new device with an exposure of $131.30. The final actions are BLOCK_CARD (L1), CREATE_CASE (auto), and ESCALATE_TO_ANALYST (auto).",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-011"
   },
@@ -121,9 +121,14 @@
         "action": "CREATE_CASE",
         "route": "auto",
         "reason": "3a: case opened when evidence was requested; the response is recorded in it"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R8: evidence conflicts"
       }
     ],
-    "what_changed": "on follow-up the cardholder repeated that they did not make the $131.30 purchase, still has the card and has not shared the card details. Probability 0.82 -> 0.96; added BLOCK_CARD; dropped MONITOR_CARD, VERIFY_WITH_CUSTOMER."
+    "what_changed": "On follow-up the cardholder repeated that they did not make the $131.30 purchase, still has the card and has not shared the card details. Probability 0.81 -> 0.96; added BLOCK_CARD, ESCALATE_TO_ANALYST; dropped MONITOR_CARD, VERIFY_WITH_CUSTOMER."
   },
   "sar": {
     "file": false,
@@ -135,6 +140,6 @@
   },
   "stop_reason": "The requested verification settled it: the cardholder denied the activity, raising the probability to 0.96. Further graph steps would not change the actions (policy 6).",
   "tool_calls": 10,
-  "tokens": 1383,
-  "latency_s": 5.74
+  "tokens": 1493,
+  "latency_s": 48.94
 }

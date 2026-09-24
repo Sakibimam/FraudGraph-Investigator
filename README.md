@@ -41,28 +41,30 @@ Architecture diagram and design notes: [`docs/ARCHITECTURE.md`](docs/ARCHITECTUR
 
 ## Results on the 20 benchmark cases
 
+9 fraud, 9 legitimate, 2 uncertain (disputes where the cardholder's denial and the graph evidence disagree: R4 protections, R8 escalation when evidence conflicts).
+
 | Case | Trigger | Verdict | p | Pattern | Exposure | Evidence asked | Final actions (route) | SAR |
 |---|---|---|---|---|---|---|---|---|
-| HHG-001 | risk score | legitimate | 0.06 | none | $0.00 | customer_validation | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
-| HHG-002 | risk score | fraud | 0.93 | card not present fraud | $292.36 | – | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
-| HHG-003 | customer report | legitimate | 0.06 | none | $0.00 | customer_validation | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
-| HHG-004 | customer report | legitimate | 0.05 | none | $0.00 | customer_validation | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
-| HHG-005 | risk score | legitimate | 0.07 | none | $0.00 | – | ALLOW_TRANSACTION (auto), CLOSE_NO_FRAUD (auto) | no |
-| HHG-006 | customer report | fraud | 0.98 | undocumented | $1,906.07 | – | BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), ESCALATE_TO_ANALYST (auto) | yes |
-| HHG-007 | risk score | fraud | 0.88 | account takeover | $148.89 | – | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
+| HHG-001 | risk score | legitimate | 0.06 | none | $0.00 | customer validation | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
+| HHG-002 | risk score | fraud | 0.94 | card not present fraud | $292.36 | – | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
+| HHG-003 | customer report | uncertain | 0.51 | account takeover | $165.93 | customer validation | DECLINE_TRANSACTION (L1), CREATE_CASE (auto), MONITOR_CARD (auto) | no |
+| HHG-004 | customer report | uncertain | 0.55 | card not present new device | $128.33 | customer validation | DECLINE_TRANSACTION (L1), CREATE_CASE (auto), MONITOR_CARD (auto), ESCALATE_TO_ANALYST (auto) | no |
+| HHG-005 | risk score | legitimate | 0.03 | none | $0.00 | step up auth | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
+| HHG-006 | customer report | fraud | 0.97 | undocumented | $1,906.07 | – | BLOCK_CARD (L1), CREATE_CASE (auto), FILE_REPORT (L2), ESCALATE_TO_ANALYST (auto) | yes |
+| HHG-007 | risk score | fraud | 0.87 | account takeover | $148.89 | – | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
 | HHG-008 | customer report | fraud | 0.90 | card not present new device | $166.97 | – | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
-| HHG-009 | customer report | fraud | 0.85 | card not present fraud | $30.02 | – | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
-| HHG-010 | risk score | legitimate | 0.03 | none | $0.00 | step_up_auth | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
-| HHG-011 | customer report | fraud | 0.96 | card not present new device | $131.30 | customer_validation | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
-| HHG-012 | risk score | legitimate | 0.06 | none | $0.00 | – | ALLOW_TRANSACTION (auto), CLOSE_NO_FRAUD (auto) | no |
-| HHG-013 | risk score | legitimate | 0.02 | none | $0.00 | step_up_auth | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
-| HHG-014 | analyst request | fraud | 0.98 | undocumented | $439.61 | step_up_auth | BLOCK_CARD (L1), CREATE_CASE (auto), MONITOR_CONNECTED_CARDS (auto), FILE_REPORT (L2), ESCALATE_TO_ANALYST (auto) | yes |
-| HHG-015 | risk score | legitimate | 0.07 | none | $0.00 | step_up_auth | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
-| HHG-016 | customer report | fraud | 0.88 | card not present new device | $59.67 | – | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
-| HHG-017 | risk score | legitimate | 0.03 | none | $0.00 | customer_validation | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
-| HHG-018 | customer report | legitimate | 0.04 | none | $0.00 | customer_validation | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
-| HHG-019 | risk score | fraud | 0.97 | card not present new device | $99.92 | step_up_auth | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
-| HHG-020 | risk score | legitimate | 0.10 | none | $0.00 | – | ALLOW_TRANSACTION (auto), CLOSE_NO_FRAUD (auto) | no |
+| HHG-009 | customer report | fraud | 0.90 | card not present fraud | $30.02 | – | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
+| HHG-010 | risk score | legitimate | 0.08 | none | $0.00 | step up auth | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
+| HHG-011 | customer report | fraud | 0.96 | card not present new device | $131.30 | customer validation | BLOCK_CARD (L1), CREATE_CASE (auto), ESCALATE_TO_ANALYST (auto) | no |
+| HHG-012 | risk score | legitimate | 0.02 | none | $0.00 | customer validation | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
+| HHG-013 | risk score | legitimate | 0.07 | none | $0.00 | step up auth | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
+| HHG-014 | analyst request | fraud | 0.93 | undocumented | $439.61 | – | BLOCK_CARD (L1), CREATE_CASE (auto), MONITOR_CONNECTED_CARDS (auto), FILE_REPORT (L2), ESCALATE_TO_ANALYST (auto) | yes |
+| HHG-015 | risk score | legitimate | 0.07 | none | $0.00 | step up auth | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
+| HHG-016 | customer report | fraud | 0.96 | card not present new device | $59.67 | – | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
+| HHG-017 | risk score | legitimate | 0.04 | none | $0.00 | customer validation | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
+| HHG-018 | customer report | legitimate | 0.07 | none | $0.00 | customer validation | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
+| HHG-019 | risk score | fraud | 0.95 | card not present new device | $99.92 | – | BLOCK_CARD (L1), CREATE_CASE (auto) | no |
+| HHG-020 | risk score | legitimate | 0.04 | none | $0.00 | step up auth | ALLOW_TRANSACTION (auto), CREATE_CASE (auto), CLOSE_NO_FRAUD (auto) | no |
 
 Screenshots: [`docs/img/`](docs/img). Answer files: [`cases/`](cases). Autonomous monitoring (optional, Innovation): [`monitor/`](monitor).
 Back-test on 200 October closed cases (graph evidence only, no customer contact): 72.5% verdict accuracy, AUC 0.75
@@ -133,6 +135,10 @@ tools from the prepared parquet files (used for tests and UI work without a data
 6. **Decide**: the policy engine maps the facts to actions and routes; SAR only when §3a holds.
 7. **Explain**: summary, SAR narrative, pattern description, stop reason.
 8. **Remember**: `InvestigationCase` + edges + embedding written to TigerGraph.
+
+![Overview](docs/img/overview.png)
+
+![Case HHG-014](docs/img/hhg-014-summary.png)
 
 Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 

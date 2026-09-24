@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_legitimate",
     "verdict": "legitimate",
-    "fraud_probability": 0.03,
+    "fraud_probability": 0.08,
     "pattern": "none",
     "pattern_description": "",
     "affected_txn_ids": [],
@@ -46,20 +46,20 @@
         ]
       },
       {
-        "claim": "0 of the 8 most similar closed cases were confirmed fraud (CC-0882, CC-0261, CC-0933, CC-1022)",
+        "claim": "8 of the 8 most similar closed cases were confirmed fraud vs 84% across all closed cases (CC-2959, CC-2757, CC-2459, CC-4159)",
         "source": "graph",
         "ref": "query:similar_closed_cases (TigerVector)",
         "entity_ids": [
-          "CC-0882",
-          "CC-0261",
-          "CC-0933",
-          "CC-1022"
+          "CC-2959",
+          "CC-2757",
+          "CC-2459",
+          "CC-4159"
         ]
       },
       {
-        "claim": "Retrieved guidance: R2 Customer denies the transaction. (fraud_policy_v1)",
+        "claim": "Retrieved guidance: R6 Shared origin. (fraud_policy_v1)",
         "source": "document",
-        "ref": "doc:fraud_policy_v1#05",
+        "ref": "doc:fraud_policy_v1#09",
         "entity_ids": []
       },
       {
@@ -72,14 +72,14 @@
       }
     ],
     "similar_prior_cases": [
-      "CC-0882",
-      "CC-0261",
-      "CC-0933",
-      "CC-1022",
-      "CC-3482",
+      "CC-2959",
+      "CC-2757",
+      "CC-2459",
+      "CC-4159",
+      "CC-5181",
       "CC-0873"
     ],
-    "summary": "The flagged $1,000.03 online transaction was determined to be legitimate after the cardholder passed the step-up challenge on their registered device and confirmed the purchase. Although the bank model flagged the transaction with a risk score of 0.90, the case-memory model scored it 0.004, and none of the eight most similar closed cases involved confirmed fraud. The verdict is legitimate with an exposure of $0.00 and no fraud pattern identified. The final actions executed by the agent are ALLOW_TRANSACTION, CREATE_CASE, and CLOSE_NO_FRAUD.",
+    "summary": "The flagged $1,000.03 online transaction was verified as legitimate after the cardholder passed the step-up challenge on their registered device and confirmed the purchase. Although the bank model flagged the transaction with a risk score of 0.90, the case-memory model score was 0.004, and the transaction profile did not resemble confirmed-fraud closed cases. The verdict is legitimate with an exposure of $0.00 and no shared-origin fraud pattern identified. The automated final actions executed are `ALLOW_TRANSACTION`, `CREATE_CASE`, and `CLOSE_NO_FRAUD`.",
     "written_to_graph": true,
     "graph_case_id": "CASE-2016-HHG-010"
   },
@@ -120,7 +120,7 @@
         "reason": "R3: customer confirmation noted in the case file"
       }
     ],
-    "what_changed": "the cardholder passed the step-up challenge on their registered device and confirmed the $1000.03 purchase. Probability 0.18 -> 0.03; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped STEP_UP_AUTH."
+    "what_changed": "The cardholder passed the step-up challenge on their registered device and confirmed the $1000.03 purchase. Probability 0.41 -> 0.08; added ALLOW_TRANSACTION, CLOSE_NO_FRAUD; dropped STEP_UP_AUTH."
   },
   "sar": {
     "file": false,
@@ -130,8 +130,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.03. Nothing left to investigate (policy 6, R3).",
+  "stop_reason": "The requested verification settled it: the cardholder confirmed the activity, lowering the probability to 0.08. Nothing left to investigate (policy 6, R3).",
   "tool_calls": 8,
-  "tokens": 1414,
-  "latency_s": 10.37
+  "tokens": 1406,
+  "latency_s": 73.66
 }
