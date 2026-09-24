@@ -85,6 +85,14 @@ Back-test on 200 October closed cases (graph evidence only, no customer contact)
 Stress testing found and fixed three real bugs: per-investigation state leaking into the next case's similar-case
 query, non-deterministic ordering of tied vector-search results, and approvals that accepted unknown roles.
 
+## Hosted demo (Vercel)
+
+`site/` is a static, read-only snapshot of the dashboard built from the real TigerGraph run
+(`python scripts/export_static.py`). It deploys to Vercel as-is (`vercel.json` points at `site/`, no build step):
+all 20 cases, the 30 monitoring investigations, evidence, graphs, SARs and memory are browsable; "Run investigation"
+replays the recorded agent timeline; approvals are role-checked in the browser but not saved. Live investigations,
+ad-hoc triggers and persisted approvals need the full stack below (TigerGraph, MCP, LLM).
+
 ## Quick start
 
 ```bash

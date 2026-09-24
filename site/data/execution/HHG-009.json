@@ -1,0 +1,1 @@
+[{"action": "BLOCK_CARD", "route": "L1", "reason": "R2: customer denied the activity; exposure $30.02 <= $2,500 (L1)", "state": "awaiting L1 approval"}, {"action": "CREATE_CASE", "route": "auto", "reason": "3a: the customer disputes a charge", "state": "executed (simulated API)"}]

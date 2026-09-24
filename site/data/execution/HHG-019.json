@@ -1,0 +1,1 @@
+[{"action": "BLOCK_CARD", "route": "L1", "reason": "Probability 0.95 supported by independent evidence (R1 satisfied); exposure $99.92 <= $2,500 (L1)", "state": "awaiting L1 approval"}, {"action": "CREATE_CASE", "route": "auto", "reason": "3a: fraud probability 0.95 >= 0.30", "state": "executed (simulated API)"}]
